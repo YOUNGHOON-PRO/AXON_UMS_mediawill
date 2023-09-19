@@ -465,7 +465,10 @@ public class Inserter
 		} else if(ConfigLoader.INSERT_DBTYPE.toUpperCase().equals("MSSQL")){
 			strQuery1 = sb.append(" SELECT ISNULL(MAX(SEND_DAY),'00000000') AS var_send_day FROM NEO_AR_SENDLOG ").toString();
 			
-		}else {
+		} else if( ConfigLoader.INSERT_DBTYPE.toUpperCase().equals("MARIA") ) {
+    		strQuery1 = sb.append(" SELECT IFNULL(MAX(SEND_DAY),'00000000') AS var_send_day FROM NEO_AR_SENDLOG ").toString();
+    		
+		} else {
 			strQuery1 = sb.append(" SELECT NVL(MAX(SEND_DAY),'00000000') AS var_send_day FROM NEO_AR_SENDLOG ").toString();
 			
 		}
@@ -505,6 +508,22 @@ public class Inserter
     		    	.append(" WHEN MATCHED THEN ") 
     		    	.append(" UPDATE SET T1.MAX_RETRY_CNT = T2.RETRY_CNT ;").toString();
 			
+		} else if( ConfigLoader.INSERT_DBTYPE.toUpperCase().equals("MARIA") ) {
+    		strQuery2 = sb.append(" UPDATE NEO_SENDLOG  T1 ")
+    		    	.append(" JOIN ( SELECT   TASK_NO ")
+    		    	.append("       , SUB_TASK_NO ")
+    		    	.append("       , CUST_ID ")
+    		    	.append("       , MAX(RETRY_CNT) AS RETRY_CNT ")
+    		    	.append("       , MAX(MAX_RETRY_CNT) AS MAX_RETRY_CNT ")
+    		    	.append("     FROM NEO_SENDLOG ") 
+    		    	.append(" WHERE SEND_DT >= CONCAT( ? , '0000') ")
+    		    	.append("     GROUP BY TASK_NO ")
+    		    	.append("       , SUB_TASK_NO ")
+    		    	.append("       , CUST_ID ")
+    		    	.append("     HAVING MAX(RETRY_CNT) <> MAX(MAX_RETRY_CNT) ) T2 ")
+    		    	.append(" ON (T1.TASK_NO = T2.TASK_NO AND T1.SUB_TASK_NO = T2.SUB_TASK_NO AND T1.CUST_ID = T2.CUST_ID ) ") 
+    		    	.append(" SET T1.MAX_RETRY_CNT = T2.RETRY_CNT ").toString();
+    		
 		} else {
     		strQuery2 = sb.append(" MERGE INTO NEO_SENDLOG  T1 ")
     		    	.append(" USING  ( SELECT   TASK_NO ")
@@ -691,6 +710,9 @@ public class Inserter
 		} else if(ConfigLoader.INSERT_DBTYPE.toUpperCase().equals("MSSQL")){
 			strQuery1 = sb.append("SELECT ISNULL(MAX(SEND_DAY),'00000000') AS var_send_day   FROM NEO_AR_SENDLOG ").toString();
 			
+		}  else if(ConfigLoader.INSERT_DBTYPE.toUpperCase().equals("MARIA")){
+			strQuery1 = sb.append("SELECT IFNULL(MAX(SEND_DAY),'00000000') AS var_send_day   FROM NEO_AR_SENDLOG ").toString();
+			
 		} else {
 			strQuery1 = sb.append("SELECT NVL(MAX(SEND_DAY),'00000000') AS var_send_day   FROM NEO_AR_SENDLOG ").toString();
 			
@@ -831,6 +853,71 @@ public class Inserter
 					.append("         ,TT1.DOMAIN_CD ")
 					.append("         ,TT1.TARGET_GRP_TY ").toString();
 			
+		} else if( ConfigLoader.INSERT_DBTYPE.toUpperCase().equals("MARIA") ) {
+    		strQuery3 = sb.append(" INSERT INTO NEO_AR_SENDLOG (DEPT_NO,USER_ID,CAMP_TY,CAMP_NO,TASK_NO,SUB_TASK_NO,RETRY_CNT,SEND_DT, SEND_RCODE,RCODE_STEP1,RCODE_STEP2,RCODE_STEP3,DOMAIN_CD,TARGET_GRP_TY,SEND_AR_AMT, SEND_DAY , DAYOFWEEK )   ")
+    				.append(" SELECT   TT1.DEPT_NO																																																											 ")
+    				.append("         ,TT1.USER_ID																																																												 ")
+    				.append("         ,TT1.CAMP_TY																																																												")
+    				.append("         ,TT1.CAMP_NO																																																												")
+    				.append("         ,TT1.TASK_NO																																																												 ")
+    				.append("         ,TT1.SUB_TASK_NO																																																											")
+    				.append("         ,TT1.RETRY_CNT																																																												 ")
+    				.append("         ,TT1.SEND_DT																																																												")
+    				.append("         ,TT1.SEND_RCODE																																																											")
+    				.append("         ,TT1.RCODE_STEP1																																																											")
+    				.append("         ,TT1.RCODE_STEP2																																																											")
+    				.append("         ,TT1.RCODE_STEP3																																																											")
+    				.append("         ,TT1.DOMAIN_CD																																																											 ")
+    				.append("         ,TT1.TARGET_GRP_TY																																																										 ")
+    				.append("         ,SUM(TT1.SEND_AMT) AS SEND_AR_AMT																																																					")
+    				.append("         ,MAX(SUBSTR(TT1.SEND_DT ,1, 8)) AS SEND_DAY																																																				")
+    				.append("         ,MAX(TT2.CD) AS CD																																																											")
+    				.append("    FROM (   SELECT  																																											")
+    				.append("                      DISTINCT 																																																												 ")
+    				.append("                      A.DEPT_NO																																																											 ")
+    				.append("                     ,A.USER_ID																																																											 ")
+    				.append("                     ,A.CUST_ID																																																											 ")
+    				.append("                     ,A.CAMP_TY																																																											")
+    				.append("                     ,A.CAMP_NO																																																											")
+    				.append("                     ,A.TASK_NO																																																											 ")
+    				.append("                     ,A.SUB_TASK_NO																																																										")
+    				.append("                     ,A.RETRY_CNT																																																											 ")
+    				.append("                     ,A.SEND_DT																																																											")
+    				.append("                     ,A.SEND_RCODE																																																										")
+    				.append("                     ,A.RCODE_STEP1																																																										")
+    				.append("                     ,A.RCODE_STEP2																																																										")
+    				.append("                     ,A.RCODE_STEP3																																																										")
+    				.append("                     ,A.DOMAIN_CD																																																										 ")
+    				.append("                     ,A.TARGET_GRP_TY																																																									 ")
+    				.append("                     ,A.SEND_AMT																																																											")
+    				.append("             FROM NEO_SENDLOG A																																																									")
+    				.append("             INNER JOIN (SELECT 																																												")
+    				.append("                                T1.TASK_NO																																																										")
+    				.append("                              , T1.SUB_TASK_NO																																																								 ")
+    				.append("                              , T1.CUST_ID																																																										")
+    				.append("                              , MAX(T1.RETRY_CNT) AS MAX_RETRY_CNT																																																		 ")
+    				.append("                              , SUBSTR(MAX(CONCAT(RIGHT( CONCAT('0000000000', CAST(T1.RETRY_CNT AS CHAR)), 10 ), T1.SEND_RCODE)), 11, 3) AS MAX_SEND_RCODE 																																	")
+    				.append("                            FROM NEO_SENDLOG T1																																																							 ")
+    				.append("                           WHERE T1.SEND_DT >= CONCAT(? , '0000')																																																	")
+    				.append("                           GROUP BY T1.TASK_NO, T1.SUB_TASK_NO, T1.CUST_ID) B																																															")
+    				.append("                     ON  A.RETRY_CNT = B.MAX_RETRY_CNT AND A.SEND_RCODE = B.MAX_SEND_RCODE AND A.TASK_NO = B.TASK_NO AND A.SUB_TASK_NO = B.SUB_TASK_NO AND A.CUST_ID = B.CUST_ID																 ")
+    				.append("             WHERE A.SEND_DT >= CONCAT( ?, '0000')) TT1																																																		")
+    				.append("             LEFT OUTER JOIN NEO_WEEKCD TT2 ON SUBSTR(TT1.SEND_DT,1,8) = TT2.YMD  																																												")
+    				.append(" GROUP BY TT1.DEPT_NO																																																											")
+    				.append("         ,TT1.USER_ID																																																												 ")
+    				.append("         ,TT1.CAMP_TY																																																												")
+    				.append("         ,TT1.CAMP_NO																																																												")
+    				.append("         ,TT1.TASK_NO																																																												 ")
+    				.append("         ,TT1.SUB_TASK_NO																																																											")
+    				.append("         ,TT1.RETRY_CNT																																																												 ")
+    				.append("         ,TT1.SEND_DT																																																												")
+    				.append("         ,TT1.SEND_RCODE																																																											")
+    				.append("         ,TT1.RCODE_STEP1																																																											")
+    				.append("         ,TT1.RCODE_STEP2																																																											")
+    				.append("         ,TT1.RCODE_STEP3																																																											")
+    				.append("         ,TT1.DOMAIN_CD																																																											 ")
+    				.append("         ,TT1.TARGET_GRP_TY ").toString();	
+    		
 		} else {
 			strQuery3 = sb.append(" INSERT INTO NEO_AR_SENDLOG (DEPT_NO,USER_ID,CAMP_TY,CAMP_NO,TASK_NO,SUB_TASK_NO,RETRY_CNT,SEND_DT, SEND_RCODE,RCODE_STEP1,RCODE_STEP2,RCODE_STEP3,DOMAIN_CD,TARGET_GRP_TY,SEND_AR_AMT, SEND_DAY , DAYOFWEEK )   ")
 					.append(" SELECT   TT1.DEPT_NO																																																											 ")
@@ -968,6 +1055,9 @@ public class Inserter
 		} else if(ConfigLoader.INSERT_DBTYPE.toUpperCase().equals("MSSQL")) {
 			strQuery1 = sb.append("SELECT ISNULL(MAX(SEND_DAY),'00000000') AS var_send_day FROM NEO_AR_DOMAINLOG  ").toString();
 			
+		} else if( ConfigLoader.INSERT_DBTYPE.toUpperCase().equals("MARIA") ) {
+    		strQuery1 = sb.append("SELECT IFNULL(MAX(SEND_DAY),'00000000') AS var_send_day FROM NEO_AR_DOMAINLOG  ").toString();
+    		
 		} else {
 			strQuery1 = sb.append("SELECT NVL(MAX(SEND_DAY),'00000000') AS var_send_day FROM NEO_AR_DOMAINLOG  ").toString();
 			
@@ -1131,6 +1221,84 @@ public class Inserter
 					.append("					       , T3.RCODE_STEP3 ")
 					.append("					       , ISNULL(T2.CUST_DOMAIN ,'ETC') ").toString();
 			
+		} else if( ConfigLoader.INSERT_DBTYPE.toUpperCase().equals("MARIA") ) {
+			strQuery3 = sb.append(" INSERT INTO NEO_AR_DOMAINLOG (TASK_NO,SUB_TASK_NO,SEND_RCODE,RCODE_STEP1,RCODE_STEP2,RCODE_STEP3,CUST_DOMAIN,SEND_AR_AMT,SEND_DAY)   ")
+					.append(" SELECT    T3.TASK_NO																																					   ")
+					.append("         , T3.SUB_TASK_NO																																				    ")
+					.append("         , T3.SEND_RCODE																																				    ")
+					.append("         , T3.RCODE_STEP1																																				    ")
+					.append("         , T3.RCODE_STEP2																																				    ")
+					.append("         , T3.RCODE_STEP3 																																				    ")
+					.append("         , IFNULL(T2.CUST_DOMAIN , 'ETC') AS CUST_DOMAIN																												   ")
+					.append("         , SUM(T3.SEND_AMT) AS SEND_AMT																																    ")
+					.append("         , MAX(T3.YMD) AS YMD 																																			   ")
+					.append("   FROM (SELECT    																																						   ")
+					.append("                   BB.TASK_NO																																				    ")
+					.append("                 , BB.SUB_TASK_NO																																			   ")
+					.append("                 , BB.SEND_RCODE																																			   ")
+					.append("                 , BB.RCODE_STEP1																																			   ")
+					.append("                 , BB.RCODE_STEP2																																			   ")
+					.append("                 , BB.RCODE_STEP3 																																			   ")
+					.append("                 , BB.CUST_DOMAIN																																			    ")
+					.append("                 , SUM(BB.SEND_AMT) AS SEND_AMT																														   ")
+					.append("                 , MAX(CONCAT(BB.YEAR, BB.MONTH, BB.DAY)) AS YMD																												    ")
+					.append("           FROM NEO_SENDLOG BB																																		   ")
+					.append("           INNER JOIN (SELECT  																														   ")
+					.append("                            A.TASK_NO																																			   ")
+					.append("                          , A.SUB_TASK_NO																																		   ")
+					.append("                          , A.CUST_EM																																			    ")
+					.append("                          , A.CUST_ID																																				    ")
+					.append("                          , A.CUST_DOMAIN																																		   ")
+					.append("                          , MAX(A.RETRY_CNT) AS MAX_RETRY_CNT																												   ")
+					.append("                          , SUBSTR(MAX(CONCAT(RIGHT( CONCAT('0000000000', CAST(A.RETRY_CNT AS CHAR)), 10 ), A.SEND_RCODE)), 11, 3) AS MAX_SEND_RCODE 											   ")
+					.append("                      FROM NEO_SENDLOG A																																	   ")
+					.append("                      WHERE A.SEND_DT >=CONCAT( ?,'0000')																											   ")
+					.append("                      GROUP BY  A.TASK_NO																																	   ")
+					.append("                              , A.SUB_TASK_NO 																																		   ")
+					.append("                              , A.CUST_EM 																																			    ")
+					.append("                              , A.CUST_ID																																			    ")
+					.append("                              , A.CUST_DOMAIN ) AA																																   ")
+					.append("                ON BB.TASK_NO = AA.TASK_NO																																   ")
+					.append("               AND BB.SUB_TASK_NO = AA.SUB_TASK_NO																													   ")
+					.append("               AND BB.CUST_ID = AA.CUST_ID																																    ")
+					.append("               AND BB.CUST_DOMAIN = AA.CUST_DOMAIN																													   ")
+					.append("               AND BB.CUST_EM = AA.CUST_EM 																																    ")
+					.append("               AND BB.RETRY_CNT = AA.MAX_RETRY_CNT																													    ")
+					.append("               AND BB.SEND_RCODE = AA.MAX_SEND_RCODE																												   ")
+					.append("           WHERE BB.SEND_DT >= CONCAT(?, '0000')																												    ")
+					.append("           GROUP BY BB.TASK_NO																																			   ")
+					.append("                 , BB.SUB_TASK_NO																																			   ")
+					.append("                 , BB.SEND_RCODE																																			   ")
+					.append("                 , BB.RCODE_STEP1																																			   ")
+					.append("                 , BB.RCODE_STEP2																																			   ")
+					.append("                 , BB.RCODE_STEP3 																																			   ")
+					.append("                 , BB.CUST_DOMAIN ) T3																																		   ")
+					.append("   LEFT OUTER JOIN  (SELECT A.TASK_NO																																   ")
+					.append("                          , A.SUB_TASK_NO																																		   ")
+					.append("                          , A.CUST_DOMAIN																																   ")
+					.append("                          , @ROWN := IF(@ROWV = A.KEYV , @ROWN + 1, 1) AS ROW_SEQ																		    " )
+					.append("                          , @ROWV := A.KEYV as ROWV																									    " )
+					.append("                      FROM (SELECT B.*																											    ")
+					.append("                             FROM( SELECT TASK_NO																									    ")
+					.append("                                         , SUB_TASK_NO																																		    ")
+					.append("                                         , CUST_DOMAIN 																																	   ")
+					.append("                                         , MAX(CONCAT(CAST(TASK_NO AS CHAR), CAST(SUB_TASK_NO AS CHAR))) AS KEYV																	   ")
+					.append("                                         , SUM(SEND_AMT) AS SEND_AMT 																													    ")
+					.append("                                     FROM NEO_SENDLOG																																	   ")
+					.append("                                    WHERE SEND_DT >= CONCAT(?, '0000') 																											   ")
+					.append("                                      AND RETRY_CNT = 0																																	   ")
+					.append("                                    GROUP BY  TASK_NO, SUB_TASK_NO, CUST_DOMAIN ) B 																		   ")
+					.append("                             ORDER BY B.KEYV, B.SEND_AMT DESC ) A																					   ")
+					.append("                      JOIN (SELECT  @ROWN:=0, @ROWV='' ) ADUMMY																						   ")					
+					.append("                    ) T2 ON T3.TASK_NO = T2.TASK_NO AND T3.SUB_TASK_NO = T2.SUB_TASK_NO AND T3.CUST_DOMAIN = T2.CUST_DOMAIN  AND T2.ROW_SEQ <= 19		   ")
+					.append(" GROUP BY T3.TASK_NO																																				    ")
+					.append("       , T3.SUB_TASK_NO																																				    ")
+					.append("       , T3.SEND_RCODE																																					    ")
+					.append("       , T3.RCODE_STEP1																																				    ")
+					.append("       , T3.RCODE_STEP2																																				    ")
+					.append("       , T3.RCODE_STEP3																																				    ")
+					.append("       , IFNULL(T2.CUST_DOMAIN ,'ETC') ").toString();
+			
 		} else {
 			strQuery3 = sb.append(" INSERT INTO NEO_AR_DOMAINLOG (TASK_NO,SUB_TASK_NO,SEND_RCODE,RCODE_STEP1,RCODE_STEP2,RCODE_STEP3,CUST_DOMAIN,SEND_AR_AMT,SEND_DAY)   ")
 					.append(" SELECT /*+ LEADING(T3) USE_HASH(T3 T2) */   																														   ")
@@ -1278,6 +1446,9 @@ public class Inserter
 		} else if(ConfigLoader.INSERT_DBTYPE.toUpperCase().equals("MSSQL")) {
 			strQuery1 = sb.append("SELECT ISNULL(MAX(CLICK_DAY),'00000000') AS var_click_day FROM NEO_AR_LINKLOG ").toString();
 			
+		} else if( ConfigLoader.INSERT_DBTYPE.toUpperCase().equals("MARIA") ) {
+    		strQuery1 = sb.append("SELECT IFNULL(MAX(CLICK_DAY),'00000000') AS var_click_day FROM NEO_AR_LINKLOG ").toString();
+    		
 		} else {
 			strQuery1 = sb.append("SELECT NVL(MAX(CLICK_DAY),'00000000') AS var_click_day FROM NEO_AR_LINKLOG ").toString();
 		}
@@ -1314,6 +1485,19 @@ public class Inserter
 					.append("WHERE  A.CLICK_DT >= ? + '0000'  ")
 					.append("GROUP BY A.DEPT_NO,A.USER_ID,A.CAMP_TY,A.CAMP_NO,A.TASK_NO,A.SUB_TASK_NO,A.LINK_NO,A.CLICK_DT,A.TARGET_GRP_TY " ).toString();
 			
+		} else if( ConfigLoader.INSERT_DBTYPE.toUpperCase().equals("MARIA") ) {
+    		strQuery3 = sb.append("INSERT INTO NEO_AR_LINKLOG (DEPT_NO, USER_ID, CAMP_TY, CAMP_NO, TASK_NO, SUB_TASK_NO, LINK_NO, CLICK_DT, TARGET_GRP_TY, CLICK_AR_AMT, VALID_AR_AMT , CLICK_DAY , DAYOFWEEK) ") 
+    				.append("SELECT A.DEPT_NO,A.USER_ID,A.CAMP_TY,A.CAMP_NO,A.TASK_NO,A.SUB_TASK_NO,A.LINK_NO,A.CLICK_DT,A.TARGET_GRP_TY,SUM(CLICK_AMT),SUM(VALID_AMT) , MAX(SUBSTR(CLICK_DT ,1, 8)) , MAX(C.CD) ") 
+    				.append("FROM NEO_LINKLOG A ")
+    				.append("LEFT OUTER JOIN (SELECT TASK_NO,SUB_TASK_NO,CUST_ID, MIN(LINK_NO) AS LINK_NO, 1 AS VALID_AMT ")
+    				.append("                   FROM NEO_LINKLOG ")
+    				.append("                  WHERE CLICK_DT >= CONCAT(?, '0000') ")
+    				.append("                  GROUP BY TASK_NO,SUB_TASK_NO,CUST_ID) B  ")
+    				.append("             ON A.TASK_NO = B.TASK_NO AND A.SUB_TASK_NO = B.SUB_TASK_NO AND A.CUST_ID = B.CUST_ID AND A.LINK_NO = B.LINK_NO ")
+    				.append("LEFT OUTER JOIN NEO_WEEKCD C  ON SUBSTR(A.CLICK_DT,1,8) = C.YMD ")
+    				.append("WHERE  A.CLICK_DT >= CONCAT(?, '0000')  ")
+    				.append("GROUP BY A.DEPT_NO,A.USER_ID,A.CAMP_TY,A.CAMP_NO,A.TASK_NO,A.SUB_TASK_NO,A.LINK_NO,A.CLICK_DT,A.TARGET_GRP_TY " ).toString();
+    		
 		} else {
 			strQuery3 = sb.append("INSERT INTO NEO_AR_LINKLOG (DEPT_NO, USER_ID, CAMP_TY, CAMP_NO, TASK_NO, SUB_TASK_NO, LINK_NO, CLICK_DT, TARGET_GRP_TY, CLICK_AR_AMT, VALID_AR_AMT , CLICK_DAY , DAYOFWEEK) ") 
 					.append("SELECT /*+ LEADING(A) USE_HASH(A C) INDEX(A) */ A.DEPT_NO,A.USER_ID,A.CAMP_TY,A.CAMP_NO,A.TASK_NO,A.SUB_TASK_NO,A.LINK_NO,A.CLICK_DT,A.TARGET_GRP_TY,SUM(CLICK_AMT),SUM(VALID_AMT) , MAX(SUBSTR(CLICK_DT ,1, 8)) , MAX(C.CD) ") 

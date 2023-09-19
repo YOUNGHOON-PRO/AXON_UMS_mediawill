@@ -84,6 +84,19 @@ public class MessageListener
   	        
   	      	fetchSQL = buffer.toString();
     		
+    	} else if("MARIA".equals(insert_dbtype)) {
+		  buffer.append(" FROM NEO_SUBTASK ");
+  	      buffer.append(" INNER JOIN NEO_TASK ON NEO_SUBTASK.TASK_NO = NEO_TASK.TASK_NO ");
+  	      buffer.append(" LEFT OUTER JOIN NEO_WEBAGENT ON NEO_TASK.TASK_NO = NEO_WEBAGENT.TASK_NO ");
+  	      buffer.append(" LEFT OUTER JOIN NEO_MAILMKT_CHK ON NEO_TASK.TASK_NO = NEO_MAILMKT_CHK.TASK_NO ");
+  	      buffer.append("	WHERE NEO_SUBTASK.WORK_STATUS = ? ")
+  	            .append("AND NEO_SUBTASK.TASK_NO = NEO_TASK.TASK_NO ")
+  	            .append("AND NEO_TASK.STATUS = '000' ")
+  	            .append("AND NEO_SUBTASK.SEND_DT <= ? ")
+  	            .append("AND NEO_SUBTASK.CHANNEL = '000'");	
+  	        
+  	      	fetchSQL = buffer.toString();
+    		
     	} else {
 		 buffer.append(" FROM NEO_SUBTASK ");
 	     buffer.append(" INNER JOIN NEO_TASK ON NEO_SUBTASK.TASK_NO = NEO_TASK.TASK_NO ");

@@ -244,5 +244,6 @@
 			<attribute name="owner.project.facets" value="java"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="D:/eclipse/eclipse_2023_mediawill/lib/mariadb-java-client-3.0.7.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
