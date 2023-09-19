@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>엑셀 변환 자료</title>
+<style>
+    button{border:none;outline:none;}
+    .tab-menu{width:324px;height:40px;margin: 30px auto;}
+    .tab-menu > button{display:block;float:left;min-width:160px;height:40px;margin-left:4px;background:#EFEFEF;font-size:16px;color:#4d4d4d;text-align:center;line-height:40px;}
+    .tab-menu > button:first-child{margin-left:0;}
+    .tab-menu > button.active,
+    .tab-menu > button:hover{background:#0070D2;color:#FFFFFF;font-weight:600;}
+    .tab-content{display:none;}
+    .tab-content.active{display:block;}
+</style>
+<script>
+    'use strict';
+    window.onload = function(){
+
+        /* Function :: tab - inside tab */
+        // IE11 forEach support
+        if (window.NodeList && !NodeList.prototype.forEach) {
+            NodeList.prototype.forEach = Array.prototype.forEach;
+        }
+
+        function findParent(el, className){
+            let check = el.parentNode.classList.contains(className);
+        
+            if(check == true){
+                return el.parentNode;
+            }else{
+                return findParent(el.parentNode, className);
+            }
+        }
+
+        function bindingTab(container){
+            let containEl = document.querySelectorAll(container);
+        
+            containEl.forEach(function(tabArea){
+                let tabLink = tabArea.querySelectorAll('.tab-link');
+                
+                tabLink.forEach(function(item){
+
+                    item.addEventListener('click', function(){
+                        // 변수설정
+                        let parent = findParent(this, 'tab');
+                        let idx = this.dataset['idx'];
+                        let depth = this.dataset['depth'];
+                        let tabLinkArr = parent.querySelectorAll('.tab-link[data-depth="'+ depth +'"]');
+                        let contentArr = parent.querySelectorAll('.tab-content[data-depth="'+ depth +'"]');
+                        
+                        // 활성화
+                        tabLinkArr.forEach(function(tabLink){ tabLink.classList.remove('active'); });
+                        this.classList.add('active');
+                        contentArr.forEach(function(content){ content.classList.remove('active'); });
+                        parent.querySelector('.tab-content[data-idx="'+ idx +'"][data-depth="'+ depth +'"]').classList.add('active');
+
+                    });
+                });
+            });
+        }
+        bindingTab('.tab-wrap');
+    }
+</script>
+</head>
+<body style="margin:0 auto;padding:0 16px;"> <!-- 좌우 간격 필숫값 -->
+    <div class="tab-wrap tab">
+        <div class="tab-menu clear">
+            <button class="tab-link active" data-depth="0" data-idx="0">예시 01</button>
+            <button class="tab-link" data-depth="0" data-idx="1">예시 02</button>
+        </div>
+        <!-- 예시 1// -->
+        <div class="tab-content active" data-depth="0" data-idx="0"> <!-- 실 개발 시 제거하는 부분입니다 -->
+
+
+                <!-- 대제목// -->
+                <h2 style="width:768px;margin:0 auto 10px;padding-top:26px;color:#1F1A60;font-family:'Noto Sans CJK KR', sans-serif;font-size:40px;font-weight:600;">광주대학교</h2>
+                <h2 style="width:768px;margin:0 auto 10px;padding-bottom:20px;color:#1F1A60;font-family:'Noto Sans CJK KR', sans-serif;font-size:40px;font-weight:600;">예금계좌별 잔액현황</h2>
+                <!-- //대제목 -->
+				<br />
+                <!-- 중제목// -->
+                <h3 style="width:768px;margin:0 auto 10px;padding-bottom:10px;color:#000000;font-family:'Noto Sans CJK KR', sans-serif;font-size:20px;font-weight:600;border-bottom:1px solid #ccc;">
+                    광주대학교(00001 ~ 00001) 계좌명세
+                </h3>
+                <!-- //중제목 -->
+				<br />
+                <!-- 소제목// -->
+                <h4 style="width:768px;margin:0 auto 10px;color:#3A3A3A;font-family:'Noto Sans CJK KR', sans-serif;font-size:14px;font-weight:600;">
+                    광주대학교(00001 ~ 00001) 계좌명세(저축성)
+                </h4>
+                <!-- //소제목 -->
+            <!-- 메인컨텐트// -->
+            	<br />
+            <table border="0" cellpadding="0" cellspacing="0" style="width:768px;table-layout:fixed;margin:0 auto 10px;padding:0;border-spacing:0;color:#3A3A3A;font-size:12px;text-align:center;">
+                <tbody>
+                    <tr>
+                        <td style="width:120px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#CCE9FF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:600;border-top: 1px solid #dadada;">고객번호</td>
+                        <td style="width:175px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#CCE9FF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:600;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">계좌주성명</td>
+                        <td style="width:90px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#CCE9FF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:600;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">계좌번호</td>
+                        <td style="width:80px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#CCE9FF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:600;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">최종거래일</td>
+                        <td style="width:84px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#CCE9FF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:600;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">최종잔액</td>
+                        <td style="width:93px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#CCE9FF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:600;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">신규일</td>
+                        <td style="width:auto;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#CCE9FF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:600;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">만기일</td>
+                    </tr>
+
+                    <tr>
+                        <td style="width:120px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;">4108202287 00006</td>
+                        <td style="width:175px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">광주대학교(0)총무처전화요금이</td>
+                        <td style="width:108px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">111-123-456789</td>
+                        <td style="width:78px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">210927</td>
+                        <td style="width:84px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">999,999,999</td>
+                        <td style="width:93px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">999,999,999(1)</td>
+                        <td style="width:auto;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">999,999,999(0)</td>
+                    </tr>
+                    <tr>
+                        <td colspan="2" style="width:300px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#EFF8FF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:600;border-top: 1px solid #dadada;border-bottom: 1px solid #dadada;">소계 (00001 ~ 00001)</td>
+                        <td colspan="2" style="width:175px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#EFF8FF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:600;border-top: 1px solid #dadada;border-bottom: 1px solid #dadada;border-left: 1px solid #dadada;">총 0계좌</td>
+                        <td style="width:84px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#EFF8FF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:600;border-top: 1px solid #dadada;border-bottom: 1px solid #dadada;border-left: 1px solid #dadada;">0</td>
+                        <td style="width:93px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#EFF8FF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:600;border-top: 1px solid #dadada;border-bottom: 1px solid #dadada;border-left: 1px solid #dadada;">0(0)</td>
+                        <td style="width:auto;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#EFF8FF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:600;border-top: 1px solid #dadada;border-bottom: 1px solid #dadada;border-left: 1px solid #dadada;">0(0)</td>
+                    </tr>
+                </tbody>
+            </table>
+            <br />
+            <!-- 소제목// -->
+            <h4 style="width:768px;margin:0 auto 10px;color:#3A3A3A;font-family:'Noto Sans CJK KR', sans-serif;font-size:14px;font-weight:600;">
+                광주대학교(00001 ~ 00001) 계좌명세(요구불)
+            </h4>
+            <!-- //소제목 -->
+			<br />
+            <table border="0" cellpadding="0" cellspacing="0" style="width:768px;table-layout:fixed;margin:0 auto 10px;padding:0;border-spacing:0;color:#3A3A3A;font-size:12px;text-align:center;">
+                <tbody>
+                    <tr>
+                        <td style="width:120px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#CCE9FF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:600;border-top: 1px solid #dadada;">고객번호</td>
+                        <td style="width:175px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#CCE9FF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:600;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">계좌주성명</td>
+                        <td style="width:90px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#CCE9FF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:600;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">계좌번호</td>
+                        <td style="width:80px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#CCE9FF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:600;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">최종거래일</td>
+                        <td style="width:84px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#CCE9FF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:600;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">최종잔액</td>
+                        <td style="width:93px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#CCE9FF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:600;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">기준일 입금금액(건수)</td>
+                        <td style="width:auto;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#CCE9FF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:600;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">기준일 출금금액(건수)</td>
+                    </tr>
+
+                    <tr>
+                        <td style="width:120px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;">4108202287 00006</td>
+                        <td style="width:175px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">광주대학교(0)총무처전화요금이</td>
+                        <td style="width:108px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">111-123-456789</td>
+                        <td style="width:78px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">210927</td>
+                        <td style="width:84px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">999,999,999</td>
+                        <td style="width:93px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">999,999,999(1)</td>
+                        <td style="width:auto;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">999,999,999(0)</td>
+                    </tr>
+                    <tr>
+                        <td colspan="2" style="width:300px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#EFF8FF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:600;border-top: 1px solid #dadada;border-bottom: 1px solid #dadada;">소계 (00001 ~ 00001)</td>
+                        <td colspan="2" style="width:175px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#EFF8FF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:600;border-top: 1px solid #dadada;border-bottom: 1px solid #dadada;border-left: 1px solid #dadada;">총 0계좌</td>
+                        <td style="width:84px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#EFF8FF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:600;border-top: 1px solid #dadada;border-bottom: 1px solid #dadada;border-left: 1px solid #dadada;">0</td>
+                        <td style="width:93px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#EFF8FF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:600;border-top: 1px solid #dadada;border-bottom: 1px solid #dadada;border-left: 1px solid #dadada;">0(0)</td>
+                        <td style="width:auto;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#EFF8FF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:600;border-top: 1px solid #dadada;border-bottom: 1px solid #dadada;border-left: 1px solid #dadada;">0(0)</td>
+                    </tr>
+                </tbody>
+            </table>
+			<br />
+            <h4 style="width:768px;margin:0 auto 10px;color:#3A3A3A;font-family:'Noto Sans CJK KR', sans-serif;font-size:14px;font-weight:600;">
+                광주대학교(00001 ~ 00001) 계좌명세(기타)
+            </h4>
+            <!-- //소제목 -->
+			<br />
+            <table border="0" cellpadding="0" cellspacing="0" style="width:768px;table-layout:fixed;margin:0 auto 20px;padding:0;border-spacing:0;color:#3A3A3A;font-size:12px;text-align:center;">
+                <tbody>
+                    <tr>
+                        <td style="width:120px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#CCE9FF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:600;border-top: 1px solid #dadada;">고객번호</td>
+                        <td style="width:175px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#CCE9FF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:600;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">계좌주성명</td>
+                        <td style="width:90px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#CCE9FF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:600;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">계좌번호</td>
+                        <td style="width:80px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#CCE9FF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:600;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">최종거래일</td>
+                        <td style="width:84px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#CCE9FF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:600;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">최종잔액</td>
+                        <td style="width:93px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#CCE9FF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:600;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">신규일</td>
+                        <td style="width:auto;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#CCE9FF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:600;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">만기일</td>
+                    </tr>
+                    <tr>
+                        <td style="width:120px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;">4108202287 00006</td>
+                        <td style="width:175px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">광주대학교(0)총무처전화요금이</td>
+                        <td style="width:108px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">111-123-456789</td>
+                        <td style="width:78px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">210927</td>
+                        <td style="width:84px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">999,999,999</td>
+                        <td style="width:93px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">999,999,999(1)</td>
+                        <td style="width:auto;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">999,999,999(0)</td>
+                    </tr>
+                    <tr>
+                        <td colspan="2" style="width:300px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#EFF8FF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:600;border-top: 1px solid #dadada;border-bottom: 1px solid #dadada;">소계 (00001 ~ 00001)</td>
+                        <td colspan="2" style="width:175px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#EFF8FF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:600;border-top: 1px solid #dadada;border-bottom: 1px solid #dadada;border-left: 1px solid #dadada;">총 0계좌</td>
+                        <td style="width:84px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#EFF8FF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:600;border-top: 1px solid #dadada;border-bottom: 1px solid #dadada;border-left: 1px solid #dadada;">0</td>
+                        <td style="width:93px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#EFF8FF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:600;border-top: 1px solid #dadada;border-bottom: 1px solid #dadada;border-left: 1px solid #dadada;">0(0)</td>
+                        <td style="width:auto;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#EFF8FF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:600;border-top: 1px solid #dadada;border-bottom: 1px solid #dadada;border-left: 1px solid #dadada;">0(0)</td>
+                    </tr>
+                </tbody>
+            </table>
+            <table border="0" cellpadding="0" cellspacing="0" style="width:768px;table-layout:fixed;margin:0 auto 20px;padding:0;border-spacing:0;color:#3A3A3A;font-size:12px;text-align:center;">
+                <tbody>
+                    <tr>
+                        <td colspan="2" style="width:300px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#F3F3F3;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:600;border-top: 1px solid #dadada;border-bottom: 1px solid #dadada;">총계 (00001 ~ 00001)</td>
+                        <td colspan="2" style="width:175px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#F3F3F3;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:600;border-top: 1px solid #dadada;border-bottom: 1px solid #dadada;border-left: 1px solid #dadada;">총 0계좌</td>
+                        <td style="width:84px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#F3F3F3;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:600;border-top: 1px solid #dadada;border-bottom: 1px solid #dadada;border-left: 1px solid #dadada;">0</td>
+                        <td style="width:93px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#F3F3F3;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:600;border-top: 1px solid #dadada;border-bottom: 1px solid #dadada;border-left: 1px solid #dadada;">0(0)</td>
+                        <td style="width:auto;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#F3F3F3;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:600;border-top: 1px solid #dadada;border-bottom: 1px solid #dadada;border-left: 1px solid #dadada;">0(0)</td>
+                    </tr>
+                </tbody>
+            </table>
+			<br />
+            <!-- 중제목// -->
+            <h3 style="width:768px;margin:0 auto 10px;padding-bottom:10px;color:#000000;font-family:'Noto Sans CJK KR', sans-serif;font-size:20px;font-weight:600;border-bottom: 1px solid #ccc;">
+                광주대학교(00001 ~ 00001) 계좌명세
+            </h3>
+            <!-- //중제목 -->
+			<br />
+            <!-- 소제목// -->
+            <h4 style="width:768px;margin:0 auto 10px;color:#3A3A3A;font-family:'Noto Sans CJK KR', sans-serif;font-size:14px;font-weight:600;">
+                광주대학교(00001 ~ 00001) 계좌명세(요구불)
+            </h4>
+            <!-- //소제목 -->
+			<br />
+            <table border="0" cellpadding="0" cellspacing="0" style="width:768px;table-layout:fixed;margin:0 auto 20px;padding:0;border-spacing:0;color:#3A3A3A;font-size:12px;text-align:center;">
+                <tbody>
+                    <tr>
+                        <td style="width:120px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#CCE9FF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:600;border-top: 1px solid #dadada;">고객번호</td>
+                        <td style="width:175px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#CCE9FF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:600;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">계좌주성명</td>
+                        <td style="width:90px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#CCE9FF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:600;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">계좌번호</td>
+                        <td style="width:80px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#CCE9FF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:600;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">최종거래일</td>
+                        <td style="width:84px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#CCE9FF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:600;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">최종잔액</td>
+                        <td style="width:93px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#CCE9FF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:600;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">기준일 입금금액(건수)</td>
+                        <td style="width:auto;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#CCE9FF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:600;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">기준일 출금금액(건수)</td>
+                    </tr>
+
+                    <tr>
+                        <td style="width:120px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;">&nbsp;</td>
+                        <td style="width:175px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">&nbsp;</td>
+                        <td style="width:108px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">&nbsp;</td>
+                        <td style="width:78px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">&nbsp;</td>
+                        <td style="width:84px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">&nbsp;</td>
+                        <td style="width:93px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">&nbsp;</td>
+                        <td style="width:auto;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">&nbsp;</td>
+                    </tr>
+
+                    <tr>
+                        <td colspan="2" style="width:300px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#EFF8FF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:600;border-top: 1px solid #dadada;border-bottom: 1px solid #dadada;">소계 (00001 ~ 00001)</td>
+                        <td colspan="2" style="width:175px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#EFF8FF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:600;border-top: 1px solid #dadada;border-bottom: 1px solid #dadada;border-left: 1px solid #dadada;">총 0계좌</td>
+                        <td style="width:84px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#EFF8FF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:600;border-top: 1px solid #dadada;border-bottom: 1px solid #dadada;border-left: 1px solid #dadada;">0</td>
+                        <td style="width:93px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#EFF8FF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:600;border-top: 1px solid #dadada;border-bottom: 1px solid #dadada;border-left: 1px solid #dadada;">0(0)</td>
+                        <td style="width:auto;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#EFF8FF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:600;border-top: 1px solid #dadada;border-bottom: 1px solid #dadada;border-left: 1px solid #dadada;">0(0)</td>
+                    </tr>
+                    
+                    <tr>
+                        <td style="width:120px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:600;">&nbsp;</td>
+                        <td style="width:175px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:600;border-left: 1px solid #dadada;">&nbsp;</td>
+                        <td style="width:90px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:600;border-left: 1px solid #dadada;">&nbsp;</td>
+                        <td style="width:80px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:600;border-left: 1px solid #dadada;">&nbsp;</td>
+                        <td style="width:84px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:600;border-left: 1px solid #dadada;">&nbsp;</td>
+                        <td style="width:93px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:600;border-left: 1px solid #dadada;">&nbsp;</td>
+                        <td style="width:auto;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:600;border-left: 1px solid #dadada;">&nbsp;</td>
+                    </tr>
+                    
+                    <tr>
+                        <td colspan="2" style="width:300px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#EFF8FF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:600;border-top: 1px solid #dadada;border-bottom: 1px solid #dadada;">소계 (00001 ~ 00001)</td>
+                        <td colspan="2" style="width:175px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#EFF8FF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:600;border-top: 1px solid #dadada;border-bottom: 1px solid #dadada;border-left: 1px solid #dadada;">총 0계좌</td>
+                        <td style="width:84px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#EFF8FF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:600;border-top: 1px solid #dadada;border-bottom: 1px solid #dadada;border-left: 1px solid #dadada;">0</td>
+                        <td style="width:93px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#EFF8FF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:600;border-top: 1px solid #dadada;border-bottom: 1px solid #dadada;border-left: 1px solid #dadada;">0(0)</td>
+                        <td style="width:auto;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#EFF8FF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:600;border-top: 1px solid #dadada;border-bottom: 1px solid #dadada;border-left: 1px solid #dadada;">0(0)</td>
+                    </tr>
+                    
+                    <tr>
+                        <td style="width:120px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:600;">&nbsp;</td>
+                        <td style="width:175px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:600;border-left: 1px solid #dadada;">&nbsp;</td>
+                        <td style="width:90px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:600;border-left: 1px solid #dadada;">&nbsp;</td>
+                        <td style="width:80px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:600;border-left: 1px solid #dadada;">&nbsp;</td>
+                        <td style="width:84px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:600;border-left: 1px solid #dadada;">&nbsp;</td>
+                        <td style="width:93px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:600;border-left: 1px solid #dadada;">&nbsp;</td>
+                        <td style="width:auto;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:600;border-left: 1px solid #dadada;">&nbsp;</td>
+                    </tr>
+                    
+                    <tr>
+                        <td colspan="2" style="width:300px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#EFF8FF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:600;border-top: 1px solid #dadada;border-bottom: 1px solid #dadada;">소계 (00001 ~ 00001)</td>
+                        <td colspan="2" style="width:175px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#EFF8FF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:600;border-top: 1px solid #dadada;border-bottom: 1px solid #dadada;border-left: 1px solid #dadada;">총 0계좌</td>
+                        <td style="width:84px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#EFF8FF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:600;border-top: 1px solid #dadada;border-bottom: 1px solid #dadada;border-left: 1px solid #dadada;">0</td>
+                        <td style="width:93px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#EFF8FF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:600;border-top: 1px solid #dadada;border-bottom: 1px solid #dadada;border-left: 1px solid #dadada;">0(0)</td>
+                        <td style="width:auto;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#EFF8FF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:600;border-top: 1px solid #dadada;border-bottom: 1px solid #dadada;border-left: 1px solid #dadada;">0(0)</td>
+                    </tr>
+                    
+                    <tr>
+                        <td style="width:120px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;">4108202287 00006</td>
+                        <td style="width:175px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-left: 1px solid #dadada;">광주대학교(0)총무처전화요금이</td>
+                        <td style="width:90px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-left: 1px solid #dadada;">111-123-456789</td>
+                        <td style="width:80px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-left: 1px solid #dadada;">210927</td>
+                        <td style="width:84px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-left: 1px solid #dadada;">999,999,999</td>
+                        <td style="width:93px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-left: 1px solid #dadada;">999,999,999(9)</td>
+                        <td style="width:auto;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-left: 1px solid #dadada;">999,999,999(0)</td>
+                    </tr>
+                    <tr>
+                        <td style="width:120px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;">4108202287 00006</td>
+                        <td style="width:175px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">광주대학교(25발전기부금)</td>
+                        <td style="width:90px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">111-123-456789</td>
+                        <td style="width:80px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">210927</td>
+                        <td style="width:84px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">111,111,111</td>
+                        <td style="width:93px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">111,111,111(1)</td>
+                        <td style="width:auto;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">111,111,111(0)</td>
+                    </tr>
+                    <tr>
+                        <td style="width:120px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;">4108202287 00006</td>
+                        <td style="width:175px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">광주대학교(68대학농구연맹보조</td>
+                        <td style="width:90px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">111-123-456789</td>
+                        <td style="width:80px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">210927</td>
+                        <td style="width:84px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">111,111,111</td>
+                        <td style="width:93px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">111,111,111(1)</td>
+                        <td style="width:auto;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">111,111,111(0)</td>
+                    </tr>
+                    <tr>
+                        <td style="width:120px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;">4108202287 00006</td>
+                        <td style="width:175px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">광주대학교(0)원우회비)</td>
+                        <td style="width:90px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">111-123-456789</td>
+                        <td style="width:80px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">210927</td>
+                        <td style="width:84px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">111,111,111</td>
+                        <td style="width:93px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">111,111,111(1)</td>
+                        <td style="width:auto;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">111,111,111(0)</td>
+                    </tr>    
+                    <tr>
+                        <td colspan="2" style="width:300px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#EFF8FF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:600;border-top: 1px solid #dadada;border-bottom: 1px solid #dadada;">소계 (00001 ~ 00001)</td>
+                        <td colspan="2" style="width:175px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#EFF8FF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:600;border-top: 1px solid #dadada;border-bottom: 1px solid #dadada;border-left: 1px solid #dadada;">총 0계좌</td>
+                        <td style="width:84px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#EFF8FF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:600;border-top: 1px solid #dadada;border-bottom: 1px solid #dadada;border-left: 1px solid #dadada;">0</td>
+                        <td style="width:93px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#EFF8FF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:600;border-top: 1px solid #dadada;border-bottom: 1px solid #dadada;border-left: 1px solid #dadada;">0(0)</td>
+                        <td style="width:auto;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#EFF8FF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:600;border-top: 1px solid #dadada;border-bottom: 1px solid #dadada;border-left: 1px solid #dadada;">0(0)</td>
+                    </tr>
+                    <tr>
+                        <td colspan="2" style="width:300px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#F3F3F3;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:600;border-bottom: 1px solid #dadada;">합계 (00001 ~ 00001)</td>
+                        <td colspan="2" style="width:175px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#F3F3F3;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:600;border-bottom: 1px solid #dadada;border-left: 1px solid #dadada;">총 0계좌</td>
+                        <td style="width:84px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#F3F3F3;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:600;border-bottom: 1px solid #dadada;border-left: 1px solid #dadada;">0</td>
+                        <td style="width:93px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#F3F3F3;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:600;border-bottom: 1px solid #dadada;border-left: 1px solid #dadada;">0(0)</td>
+                        <td style="width:auto;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#F3F3F3;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:600;border-bottom: 1px solid #dadada;border-left: 1px solid #dadada;">0(0)</td>
+                    </tr>
+                </tbody>
+            </table>
+			<br />
+            <table border="0" cellpadding="0" cellspacing="0" style="width:768px;table-layout:fixed;margin:0 auto 0;padding:0;border-spacing:0;color:#3A3A3A;font-size:12px;text-align:center;">
+                <tbody>
+                    <tr>
+                        <td colspan="2" style="width:300px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#F3F3F3;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:600;border-top: 1px solid #dadada;border-bottom: 1px solid #dadada;">총계 (00001 ~ 00001)</td>
+                        <td colspan="2" style="width:175px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#F3F3F3;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:600;border-top: 1px solid #dadada;border-bottom: 1px solid #dadada;border-left: 1px solid #dadada;">총 0계좌</td>
+                        <td style="width:84px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#F3F3F3;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:600;border-top: 1px solid #dadada;border-bottom: 1px solid #dadada;border-left: 1px solid #dadada;">0</td>
+                        <td style="width:93px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#F3F3F3;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:600;border-top: 1px solid #dadada;border-bottom: 1px solid #dadada;border-left: 1px solid #dadada;">0(0)</td>
+                        <td style="width:auto;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#F3F3F3;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:600;border-top: 1px solid #dadada;border-bottom: 1px solid #dadada;border-left: 1px solid #dadada;">0(0)</td>
+                    </tr>
+                </tbody>
+            </table>
+            <!-- //메인컨텐트 -->
+			<br />
+            <!-- 푸터// -->
+            <table id="footer" cellpadding="0" cellspacing="0" style="width:768px;margin:0 auto 30px;padding:0;border-spacing:0;color:#3A3A3A;font-size:12px;">
+                <tbody>
+                    <tr style="width:100%;">
+                        <td style="padding-top:80px;padding-bottom:10px;">
+                            <table border="0" cellpadding="0" cellspacing="0" style="width:100%;">
+                                <tr>
+                                    <td style="padding-right:40px;vertical-align:top;overflow:hidden;">
+                                        <img src="../img/mb_logogray.png" alt="광주은행" width="126" height="26"> <!-- 이미지 절대경로로 변경 필요 -->
+                                    </td>
+                                    <td style="width:87%;color:#9a9a9a;font-family:'Noto Sans CJK KR', sans-serif;font-size:13px;">
+                                        <span>㈜광주은행, 광주 동구 제봉로 225</span><br>
+                                        <span>대표전화 062-239-5000&nbsp;|&nbsp;상담안내 1600-4000, 1588-3388 (해외 82-62-410-2000)</span>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <table>
+                                <tr>
+                                    <td style="padding-bottom:10px;color:#9a9a9a;font-family:'Noto Sans CJK KR', sans-serif;font-size:13px;">
+                                        &#8251; 본 메일은 발신전용 메일로서 고객님은 수신일 현재 광주은행 메일 수신동의를 하신 상태입니다.<br>
+                                        메일 수신을 원치 않으시면 수신거부를 클릭해 주십시오.<br>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="color:#9a9a9a;font-family:'Noto Sans CJK KR', sans-serif;">
+                                        Copyright 2021 KWANGJU BANK
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <!-- //푸터 -->
+
+        </div>
+        <!-- //예시1 -->
+
+         <!-- 예시 2// -->
+        <div class="tab-content" data-depth="0" data-idx="1">
+            <!-- 대제목// -->
+            <h2 style="width:768px;margin:0 auto 10px;padding-top:26px;color:#1F1A60;font-family:'Noto Sans CJK KR', sans-serif;font-size:40px;font-weight:600;">홍길동 고객님</h2>
+            <h2 style="width:768px;margin:0 auto 10px;padding-bottom:20px;color:#1F1A60;font-family:'Noto Sans CJK KR', sans-serif;font-size:40px;font-weight:600;">08월 신용카드 이용대금 명세서</h2>
+            <!-- //대제목 -->
+			<br />
+            <!-- 중제목// -->
+            <h3 style="width:768px;margin:0 auto 10px;padding-bottom:10px;color:#000000;font-family:'Noto Sans CJK KR', sans-serif;font-size:20px;font-weight:600;border-bottom:1px solid #ccc;">
+                카드이용내역
+            </h3>
+            <!-- //중제목 -->
+			<br />
+            <!-- 메인컨텐트// -->
+            <table border="0" cellpadding="0" cellspacing="0" style="width:768px;table-layout:fixed;margin:0 auto;padding:0;border-spacing:0;color:#3A3A3A;font-size:12px;text-align:center;">
+                <tbody>
+                    <tr>
+                        <td style="width:59px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#CCE9FF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:600;border-top: 1px solid #dadada;">이용일</td>
+                        <td style="width:auto;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#CCE9FF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:600;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">이용가맹점</td>
+                        <td style="width:90px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#CCE9FF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:600;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">이용금액</td>
+                        <td style="width:38px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#CCE9FF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:600;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">회차</td>
+                        <td style="width:90px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#CCE9FF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:600;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">입금하실금액</td>
+                        <td style="width:62px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#CCE9FF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:600;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">수수료</td>
+                        <td style="width:62px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#CCE9FF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:600;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">할인혜택</td>
+                        <td style="width:70px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#CCE9FF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:600;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">적립(예정)<br>포인트</td>
+                        <td style="width:36px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#CCE9FF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:600;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">구분</td>
+                        <td style="width:83px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#CCE9FF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:600;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">잔액/<br>해외이용금액</td>
+                    </tr>
+                    
+                    <tr>
+                        <td colspan="7" style="width:50%;padding-top:5px;padding-bottom:5px;padding-left:10px;padding-right:2px;background:#EFF8FF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:600;text-align:left;border-top: 1px solid #dadada;">주카드 : 123456-***-****985 [광주전남愛사랑카드] 22건 </td>
+                        <td colspan="3" style="width:50%;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:10px;background:#EFF8FF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:600;text-align:right;border-top: 1px solid #dadada;">(광주은행)000*****1234</td>
+                    </tr>
+
+                    <tr>
+                        <td colspan="7" style="width:50%;padding-top:5px;padding-bottom:5px;padding-left:10px;padding-right:2px;background:#EFF8FF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:600;text-align:left;border-top: 1px solid #dadada;">주카드 : 123456-***-****985 [광주전남愛사랑카드] 22건 </td>
+                        <td colspan="3" style="width:50%;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:10px;background:#EFF8FF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:600;text-align:right;border-top: 1px solid #dadada;">(광주은행)000*****1234</td>
+                    </tr>
+                    
+                    <tr>
+                        <td style="width:59px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;">21.07.07</td>
+                        <td style="width:auto;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">㈜우아한형제들-신용카드(배달의민족)</td>
+                        <td style="width:90px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">6,000,000</td>
+                        <td style="width:38px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">3/3</td>
+                        <td style="width:90px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">5,999,000</td>
+                        <td style="width:62px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">0</td>
+                        <td style="width:62px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">-1,000</td>
+                        <td style="width:70px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">0</td>
+                        <td style="width:36px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">현금서비스</td>
+                        <td style="width:83px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">126,000,000</td>
+                    </tr>
+                    <tr>
+                        <td style="width:59px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;">21.07.07</td>
+                        <td style="width:auto;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">쿠팡-12345678</td>
+                        <td style="width:90px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">6,000,000</td>
+                        <td style="width:38px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">3/3</td>
+                        <td style="width:90px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">5,999,000</td>
+                        <td style="width:62px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">0</td>
+                        <td style="width:62px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">-1,000</td>
+                        <td style="width:70px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">0</td>
+                        <td style="width:36px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">할부</td>
+                        <td style="width:83px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">126,000,000</td>
+                    </tr>
+                    <tr>
+                        <td style="width:59px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;">21.07.07</td>
+                        <td style="width:auto;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">이니시스</td>
+                        <td style="width:90px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">6,000,000</td>
+                        <td style="width:38px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">3/3</td>
+                        <td style="width:90px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">5,999,000</td>
+                        <td style="width:62px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">0</td>
+                        <td style="width:62px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">-1,000</td>
+                        <td style="width:70px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">0</td>
+                        <td style="width:36px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">할부</td>
+                        <td style="width:83px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">126,000,000</td>
+                    </tr>
+                    <tr>
+                        <td style="width:59px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;">21.07.07</td>
+                        <td style="width:auto;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">cafe illouis 카페일루이스</td>
+                        <td style="width:90px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">6,000,000</td>
+                        <td style="width:38px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">3/3</td>
+                        <td style="width:90px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">5,999,000</td>
+                        <td style="width:62px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">0</td>
+                        <td style="width:62px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">-1,000</td>
+                        <td style="width:70px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">0</td>
+                        <td style="width:36px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">&nbsp;</td>
+                        <td style="width:83px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">10</td>
+                    </tr>
+                    <tr>
+                        <td style="width:59px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;">21.07.07</td>
+                        <td style="width:auto;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">교통-지하철23건</td>
+                        <td style="width:90px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">6,000,000</td>
+                        <td style="width:38px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">3/3</td>
+                        <td style="width:90px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">5,999,000</td>
+                        <td style="width:62px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">0</td>
+                        <td style="width:62px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">-1,000</td>
+                        <td style="width:70px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">0</td>
+                        <td style="width:36px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">&nbsp;</td>
+                        <td style="width:83px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">0</td>
+                    </tr>
+                    
+                    <tr>
+                        <td colspan="4" style="width:auto;padding-top:5px;padding-bottom:5px;padding-left:10px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:600;border-top: 1px solid #dadada;">카드소계(안석남)</td>
+                        <td style="width:90px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">99,999,000</td>
+                        <td style="width:62px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">26,250</td>
+                        <td style="width:62px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">&nbsp;</td>
+                        <td style="width:70px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">&nbsp;</td>
+                        <td style="width:36px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">&nbsp;</td>
+                        <td style="width:83px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">&nbsp;</td>
+                    </tr>
+                    
+                    <tr>
+                        <td style="width:59px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;">21.07.07</td>
+                        <td style="width:auto;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">㈜우아한형제들-신용카드(배달의민족)</td>
+                        <td style="width:90px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">6,000,000</td>
+                        <td style="width:38px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">3/3</td>
+                        <td style="width:90px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">5,999,000</td>
+                        <td style="width:62px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">0</td>
+                        <td style="width:62px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">-1,000</td>
+                        <td style="width:70px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">0</td>
+                        <td style="width:36px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">현금서비스</td>
+                        <td style="width:83px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">126,000,000</td>
+                    </tr>
+                    <tr>
+                        <td style="width:59px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;">21.07.07</td>
+                        <td style="width:auto;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">쿠팡-12345678</td>
+                        <td style="width:90px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">6,000,000</td>
+                        <td style="width:38px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">3/3</td>
+                        <td style="width:90px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">5,999,000</td>
+                        <td style="width:62px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">0</td>
+                        <td style="width:62px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">-1,000</td>
+                        <td style="width:70px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">0</td>
+                        <td style="width:36px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">할부</td>
+                        <td style="width:83px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">126,000,000</td>
+                    </tr>
+                    
+                    <tr>
+                        <td colspan="4" style="width:auto;padding-top:5px;padding-bottom:5px;padding-left:10px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:600;border-top: 1px solid #dadada;">카드소계(안석남)</td>
+                        <td style="width:90px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">99,999,000</td>
+                        <td style="width:62px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">26,250</td>
+                        <td style="width:62px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">&nbsp;</td>
+                        <td style="width:70px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">&nbsp;</td>
+                        <td style="width:36px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">&nbsp;</td>
+                        <td style="width:83px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-left: 1px solid #dadada;">&nbsp;</td>
+                    </tr>
+                    <tr>
+                        <td colspan="4" style="width:auto;padding-top:5px;padding-bottom:5px;padding-left:10px;padding-right:2px;background:#CCE9FF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:600;border-top: 1px solid #dadada;border-bottom: 1px solid #dadada;">합계</td>
+                        <td style="width:90px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-bottom: 1px solid #dadada;border-left: 1px solid #dadada;">99,999,000</td>
+                        <td style="width:62px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-bottom: 1px solid #dadada;border-left: 1px solid #dadada;">26,250</td>
+                        <td style="width:62px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-bottom: 1px solid #dadada;border-left: 1px solid #dadada;">&nbsp;</td>
+                        <td style="width:70px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-bottom: 1px solid #dadada;border-left: 1px solid #dadada;">&nbsp;</td>
+                        <td style="width:36px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-bottom: 1px solid #dadada;border-left: 1px solid #dadada;">&nbsp;</td>
+                        <td style="width:83px;padding-top:5px;padding-bottom:5px;padding-left:2px;padding-right:2px;background:#FFFFFF;color:#4D4D4D;font-family:'Noto Sans CJK KR', sans-serif;font-weight:400;border-top: 1px solid #dadada;border-bottom: 1px solid #dadada;border-left: 1px solid #dadada;">&nbsp;</td>
+                    </tr>
+                </tbody>
+            </table>
+			<br />
+            <!-- //메인컨텐트 -->
+            
+            <!-- 푸터// -->
+            <table id="footer" cellpadding="0" cellspacing="0" style="width:768px;margin:0 auto 30px;padding:0;border-spacing:0;color:#3A3A3A;font-size:12px;">
+                <tbody>
+                    <tr style="width:100%;">
+                        <td style="padding-top:80px;padding-bottom:10px;">
+                            <table border="0" cellpadding="0" cellspacing="0" style="width:100%;">
+                                <tr>
+                                    <td style="padding-right:40px;vertical-align:top;overflow:hidden;">
+                                        <img src="../img/mb_logogray.png" alt="광주은행" width="126" height="26"> <!-- 이미지 절대경로로 변경 필요 -->
+                                    </td>
+                                    <td style="width:87%;color:#9a9a9a;font-family:'Noto Sans CJK KR', sans-serif;font-size:13px;">
+                                        <span>㈜광주은행, 광주 동구 제봉로 225</span><br>
+                                        <span>대표전화 062-239-5000&nbsp;|&nbsp;상담안내 1600-4000, 1588-3388 (해외 82-62-410-2000)</span>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <table>
+                                <tr>
+                                    <td style="padding-bottom:10px;color:#9a9a9a;font-family:'Noto Sans CJK KR', sans-serif;font-size:13px;">
+                                        &#8251; 본 메일은 발신전용 메일로서 고객님은 수신일 현재 광주은행 메일 수신동의를 하신 상태입니다.<br>
+                                        메일 수신을 원치 않으시면 수신거부를 클릭해 주십시오.<br>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="color:#9a9a9a;font-family:'Noto Sans CJK KR', sans-serif;">
+                                        Copyright 2021 KWANGJU BANK
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <!-- //푸터 -->
+        </div>
+        <!-- //예시2 -->
+    </div>
+
+</body>
+</html>

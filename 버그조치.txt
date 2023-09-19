@@ -1,0 +1,93 @@
+############################################
+20211216
+unitlog 파일 삭제 안 되는 부분 조치 
+############################################
+
+이슈 : 메일 발송 완료후 unitlog에 파일이 삭제되지 않고 계속 남아 있음
+
+조치 : 1. unitlog 파일을 generator에서 center로 보낼때 전송실패가 나더라도 파일을 삭제 하도록 수정
+	 2. unitlog 파일사이즈가 0일때도 파일삭제 하도록 수정
+
+
+
+UnitLogSender.java
+
+=================
+AS-IS
+=================
+
+  private void sendList(SendConnection connection, String[] unitList)
+        throws Exception {
+    	
+    	for (int i = 0; i < unitList.length; i++) {
+    		String unitName = unitList[i];
+            if (!access(unitName)) {
+                // UnitEnvelope 객체 파일이 존재하는지 확인해서 존재 하지 않으면
+                // MessageCenter로 발송결과 파일을 전송한다.
+                UnitResult unitResult = new UnitResult(unitName);
+                byte[] data = unitResult.getBytes();
+        
+                if (data.length > 64) {
+                            if (send(connection, unitName, data)) {
+                        boolean success = UnitResultFile.delete(unitName);
+                        if (!success) {
+                            System.out.println("UnitLog Delete Fail 1: " + unitName);
+                        }
+                    }
+                    else {
+                        System.out.println("UnitLog Send Fail: " + unitName);
+			}
+                }
+            }
+        }
+    }
+
+=================
+BO-BE
+=================
+
+  private void sendList(SendConnection connection, String[] unitList)
+        throws Exception {
+    	
+    	for (int i = 0; i < unitList.length; i++) {
+    		String unitName = unitList[i];
+            if (!access(unitName)) {
+                // UnitEnvelope 객체 파일이 존재하는지 확인해서 존재 하지 않으면
+                // MessageCenter로 발송결과 파일을 전송한다.
+                UnitResult unitResult = new UnitResult(unitName);
+                byte[] data = unitResult.getBytes();
+        
+                if (data.length > 64) {
+                            if (send(connection, unitName, data)) {
+                        boolean success = UnitResultFile.delete(unitName);
+                        if (!success) {
+                            System.out.println("UnitLog Delete Fail 1: " + unitName);
+                        }
+                    }
+                    else {
+                        System.out.println("UnitLog Send Fail: " + unitName);
+                        
+                        //추가  --------------------------------------------------------
+                        System.out.println("UnitLog Send Fail: " + unitName +" => delete start");
+                        boolean success = UnitResultFile.delete(unitName);
+                        System.out.println("UnitLog Send Fail: " + unitName +" => delete complete");
+                        if (!success) {
+                            System.out.println("UnitLog Delete Fail 2: " + unitName);
+                        }
+                        //  ----------------------------------------------------------
+                    }
+                }
+                
+                //추가  --------------------------------------------------------
+                if (data.length == 0) {
+                	System.out.println("UnitLog Data : " + data.length + " " + unitName +" => delete start");
+                	boolean success2 = UnitResultFile.delete(unitName);
+                	System.out.println("UnitLog Data : " + data.length + " " + unitName +" => delete complete");
+                	if (!success2) {
+                        System.out.println("UnitLog Delete Fail 3: " + unitName);
+                    }
+                }
+                //  ----------------------------------------------------------
+            }
+        }
+    }

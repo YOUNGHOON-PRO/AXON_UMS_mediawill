@@ -1,0 +1,894 @@
+/*     */ package messager.sms;
+/*     */ 
+/*     */ import java.io.File;
+import java.io.FileReader;
+import java.io.LineNumberReader;
+import java.sql.CallableStatement;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.Statement;
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.Locale;
+import java.util.Properties;
+import java.util.Vector;
+
+import jxl.Cell;
+import jxl.Sheet;
+import jxl.Workbook;
+import messager.center.config.ConfigLoader;
+import messager.center.creator.FileRequester;
+import messager.center.db.JdbcConnection;
+import messager.common.util.CSVTokenizer;
+/*     */ 
+/*     */ public class smsMigrateAgent extends Thread
+/*     */ {
+/*  27 */   private SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmm", Locale.US);
+/*  28 */   private SimpleDateFormat sdfCmid = new SimpleDateFormat("yyyyMMdd", Locale.US);
+/*  29 */   private FileRequester fr = null;
+/*     */ 
+/*  31 */   String pattern = "###";
+/*  32 */   DecimalFormat myFormatter = new DecimalFormat(this.pattern);
+/*     */ 
+/*     */   public void run()
+/*     */   {
+/*     */     while (true)
+/*     */     {
+/*  40 */       migrate();
+/*     */       try
+/*     */       {
+/*  43 */         sleep(60000L);
+/*     */       }
+/*     */       catch (Exception localException)
+/*     */       {
+/*     */       }
+/*     */     }
+/*     */   }
+/*     */ 
+/*     */   private String replace(String str, Hashtable replaceList)
+/*     */   {
+/*  53 */     Enumeration e = replaceList.keys();
+/*     */ 
+/*  55 */     while (e.hasMoreElements()) {
+/*  56 */       String temp = (String)e.nextElement();
+/*  57 */       str = replace(str, temp, (String)replaceList.get(temp));
+/*     */     }
+/*  59 */     return str;
+/*     */   }
+/*     */ 
+private String replace(String str, String oldWord, String newWord) {
+    int index = 0, oldLength = oldWord.length(), newLength = newWord.length();
+
+    while (true) {
+        if ( (index = str.indexOf(oldWord)) != -1) {
+            str = str.substring(0, index) + newWord + str.substring(index + oldLength);
+        }
+        else {
+            break;
+        }
+    }
+    return str;
+}
+/*     */ 
+/*     */   private Properties getDBInfo(String dbconno, Connection con) {
+/*  77 */     Properties prop = null;
+/*  78 */     String selectQuery = "SELECT A.DB_DRIVER, A.DB_URL, A.LOGIN_ID, A.LOGIN_PWD, B.CD_NM FROM NEO_DBCONN A, NEO_CD B WHERE B.CD_GRP = 'C022' AND B.UILANG = '000' AND A.DB_CHAR_SET = B.CD AND A.DB_CONN_NO = ?";
+/*     */ 
+/*  81 */     PreparedStatement ps = null;
+/*  82 */     ResultSet rs = null;
+/*     */     try
+/*     */     {
+/*  85 */       ps = con.prepareStatement(selectQuery);
+/*  86 */       ps.setInt(1, Integer.parseInt(dbconno));
+/*  87 */       rs = ps.executeQuery();
+/*  88 */       if (rs.next()) {
+/*  89 */         prop = new Properties();
+/*  90 */         prop.setProperty("jdbc.driver.name", rs.getString("DB_DRIVER"));
+/*  91 */         prop.setProperty("jdbc.url", rs.getString("DB_URL"));
+/*  92 */         prop.setProperty("user", rs.getString("LOGIN_ID"));
+/*  93 */         prop.setProperty("password", rs.getString("LOGIN_PWD"));
+/*     */       }
+/*     */     }
+/*     */     catch (Exception e) {
+/*  97 */       prop = null;
+/*  98 */       System.err.println(e.getMessage());
+/*  99 */       e.printStackTrace(System.err);
+/*     */     }
+/*     */     finally {
+/* 102 */       if (rs != null)
+/*     */         try {
+/* 104 */           rs.close();
+/* 105 */           rs = null;
+/*     */         }
+/*     */         catch (Exception localException1) {
+/*     */         }
+/* 109 */       if (ps != null)
+/*     */         try {
+/* 111 */           ps.close();
+/* 112 */           ps = null;
+/*     */         }
+/*     */         catch (Exception localException2)
+/*     */         {
+/*     */         }
+/*     */     }
+/* 118 */     return prop;
+/*     */   }
+/*     */ 
+/*     */   private int getMID_MSSQL(Connection con) {
+/* 122 */     String sql = "{call GETSEQ(?, ?)}";
+/* 123 */     CallableStatement cs = null;
+/* 124 */     int mid = -1;
+/*     */     try
+/*     */     {
+/* 127 */       cs = con.prepareCall(sql);
+/* 128 */       cs.setString(1, "SMSSEQ");
+/* 129 */       cs.registerOutParameter(2, -5);
+/* 130 */       cs.execute();
+/* 131 */       mid = cs.getInt(2);
+/*     */     }
+/*     */     catch (Exception e) {
+/* 134 */       System.err.println(e.getMessage());
+/* 135 */       e.printStackTrace(System.err);
+/*     */     }
+/*     */     finally {
+/*     */       try {
+/* 139 */         if (cs != null) {
+/* 140 */           cs.close();
+/* 141 */           cs = null;
+/*     */         }
+/*     */       } catch (Exception localException1) {
+/*     */       }
+/*     */     }
+/* 146 */     return mid;
+/*     */   }
+/*     */ 
+/*     */   private void updateStatus(String msgid, String keygen, Connection con) {
+/* 150 */     PreparedStatement ps = null;
+/*     */ 
+/* 179 */     Properties dbProps = ConfigLoader.getDBProperties();
+/* 180 */     Properties dbProps2 = new Properties();
+/*     */ 
+/* 183 */     dbProps2.setProperty("jdbc.driver.name", dbProps.getProperty("sms.jdbc.driver.name"));
+/* 184 */     dbProps2.setProperty("jdbc.url", dbProps.getProperty("sms.jdbc.url"));
+/* 185 */     dbProps2.setProperty("user", dbProps.getProperty("sms.db.user"));
+/* 186 */     dbProps2.setProperty("password", dbProps.getProperty("sms.db.password"));
+
+/* 151 */     String updateQuery = "UPDATE NEO_SMS SET STATUS = 2 WHERE MSGID = ? AND KEYGEN = ?";
+
+/*     */     try
+/*     */     {
+/* 154 */       ps = con.prepareStatement(updateQuery);
+/* 155 */       ps.setString(1, msgid);
+/* 156 */       ps.setString(2, keygen);
+System.out.println("<<==== UPDATE ====>>" + updateQuery);
+/* 157 */       ps.executeUpdate();
+
+/*     */     }
+/*     */     catch (Exception e) {
+/* 160 */       System.err.println(e.getMessage());
+/* 161 */       e.printStackTrace(System.err);
+/*     */     }
+/*     */     finally {
+/* 164 */       if (ps != null)
+/*     */         try {
+/* 166 */           ps.close();
+/* 167 */           ps = null;
+/*     */         }
+/*     */         catch (Exception localException1) {
+/*     */         }
+/*     */     }
+/*     */   }
+/*     */ 
+
+/*     */   private void emTranInsert(Hashtable ht, Connection con, String gubun) {
+	/* 150 */     PreparedStatement ps = null;
+	/* 175 */     JdbcConnection jc = null;
+	/* 176 */     Connection smsCon = null;
+	/*     */ 
+	/* 179 */     Properties dbProps = ConfigLoader.getDBProperties();
+	/* 180 */     Properties dbProps2 = new Properties();
+	/*     */ 
+	/* 183 */     dbProps2.setProperty("jdbc.driver.name", dbProps.getProperty("sms.jdbc.driver.name"));
+	/* 184 */     dbProps2.setProperty("jdbc.url", dbProps.getProperty("sms.jdbc.url"));
+	/* 185 */     dbProps2.setProperty("user", dbProps.getProperty("sms.db.user"));
+	/* 186 */     dbProps2.setProperty("password", dbProps.getProperty("sms.db.password"));
+	/*     */ 
+	/* 190 */     String insertQuery = "";
+	/* 191 */     System.out.println("Gubun : " + gubun);
+
+					   if (gubun.equals("S")) {
+	/* 200 */			insertQuery = "INSERT INTO EM_TRAN(TRAN_REFKEY,TRAN_ID,TRAN_PHONE,TRAN_CALLBACK,TRAN_STATUS,TRAN_DATE,TRAN_RSLTDATE,TRAN_REPORTDATE,TRAN_RSLT,TRAN_NET,TRAN_MSG,TRAN_ETC1,TRAN_ETC2,TRAN_ETC3,TRAN_ETC4,TRAN_TYPE)VALUES(?,?,?,?,?,?,?,getdate(),?,?,?,?,?,?,?,?)";
+//						   insertQuery = "INSERT INTO EM_TRAN(TRAN_REFKEY,TRAN_ID,TRAN_PHONE,TRAN_CALLBACK,TRAN_STATUS,TRAN_DATE,TRAN_RSLTDATE,TRAN_REPORTDATE,TRAN_RSLT,TRAN_NET,TRAN_MSG,TRAN_ETC1,TRAN_ETC2,TRAN_ETC3,TRAN_ETC4,TRAN_TYPE)VALUES('||','1353569427779','000-0000-0000','','1',getdate(),'','','','','test20121122_111내용','','','','','4')";
+//						   insertQuery = "INSERT INTO NEO_SMS(MSGID,KEYGEN,PLAN_USER_ID,USER_ID,DEPT_NO,REG_ID,REG_DT,SEG_NO,SEND_TELNO,CAMPUS_NO,O_CODE,P_CODE,SEND_YM,SEND_DATE,SMS_NAME,SMS_MESSAGE,STATUS,GUBUN,FILE_PATH,Number)VALUES('||','111111111111','NULL','ADMIN','1','ADMIN',getDate(),'','000-0000-0000','','','','201211','201211132102','test','test','0','S','','')";
+					   }
+					   
+System.out.println("<<===DB SET START===>>");
+System.out.println("dbProps2 ===>>> " + dbProps2);
+System.out.println("dbProps ===>>> " + dbProps);
+System.out.println("jdbc.driver.name ===>>> " + dbProps.getProperty("sms.jdbc.driver.name"));
+System.out.println("jdbc.url ===>>> " + dbProps.getProperty("sms.jdbc.url"));
+System.out.println("user ===>>> " + dbProps.getProperty("sms.db.user"));
+System.out.println("password ===>>> " + dbProps.getProperty("sms.db.password"));
+System.out.println("<<===DB SET END===>>");
+				   
+	/*     */     try
+	/*     */     {
+	    // SMS 데이터베이스에 연결한다.
+	    jc = JdbcConnection.getInstance(dbProps2);
+	    smsCon = jc.getConnection();
+	    ps = smsCon.prepareStatement(insertQuery);			
+	    
+	    System.out.println("2222222222 ===>>> ");
+	    System.out.println("smsCon ===>>> " + smsCon);
+	    System.out.println("jc ===>>> " + jc);
+						// SMS 데이터베이스에 연결한다.
+//						ps = con.prepareStatement(insertQuery);
+						ps.setString(1, (String)ht.get("TRAN_REFKEY"));
+						ps.setString(2, (String)ht.get("TRAN_ID"));
+						ps.setString(3, (String)ht.get("TRAN_PHONE"));
+						ps.setString(4, (String)ht.get("TRAN_CALLBACK"));
+						ps.setString(5, (String)ht.get("TRAN_STATUS"));
+						ps.setString(6, (String)ht.get("TRAN_DATE"));
+						ps.setString(7, (String)ht.get("TRAN_RSLTDATE"));
+						ps.setString(8, (String)ht.get("TRAN_REPORTDATE"));
+						ps.setString(9, (String)ht.get("TRAN_RSLT"));
+						ps.setString(10, (String)ht.get("TRAN_NET"));
+						ps.setString(11, (String)ht.get("TRAN_MSG"));
+						ps.setString(12, (String)ht.get("TRAN_ETC1"));
+						ps.setString(13, (String)ht.get("TRAN_ETC2"));
+						ps.setString(14, (String)ht.get("TRAN_ETC3"));
+						ps.setString(15, (String)ht.get("TRAN_ETC4"));
+						if(gubun == "S"){
+							ps.setString(16, "4");
+						}else if(gubun == "M"){
+							ps.setString(16, "6");
+						}else if(gubun == "L"){
+							ps.setString(16, "6");
+						}
+						
+						System.out.println("<<==== INSERT param ====>>");						 
+	 System.out.println("<<==== TRAN_REFKEY ====>>" + (String)ht.get("TRAN_REFKEY"));
+	 System.out.println("<<==== TRAN_ID ====>>" + (String)ht.get("TRAN_ID"));
+	 System.out.println("<<==== TRAN_PHONE ====>>" + (String)ht.get("TRAN_PHONE"));
+	 System.out.println("<<==== TRAN_TYPE ====>>" + (String)ht.get("TRAN_PHONE"));
+	 System.out.println("<<==== TRAN_CALLBACK ====>>" + (String)ht.get("TRAN_CALLBACK"));
+	 System.out.println("<<==== TRAN_STATUS ====>>" + (String)ht.get("TRAN_STATUS"));
+	 System.out.println("<<==== TRAN_DATE ====>>" + (String)ht.get("TRAN_DATE"));
+	 System.out.println("<<==== TRAN_RSLTDATE ====>>" + (String)ht.get("TRAN_RSLTDATE"));
+	 System.out.println("<<==== TRAN_REPORTDATE ====>>" + (String)ht.get("TRAN_REPORTDATE"));
+	 System.out.println("<<==== TRAN_RSLT ====>>" + (String)ht.get("TRAN_RSLT"));
+	 System.out.println("<<==== TRAN_NET ====>>" + (String)ht.get("TRAN_NET"));
+	 System.out.println("<<==== TRAN_MSG ====>>" + (String)ht.get("TRAN_MSG"));
+	 System.out.println("<<==== TRAN_ETC1 ====>>" + (String)ht.get("TRAN_ETC1"));
+	 System.out.println("<<==== TRAN_ETC2 ====>>" + (String)ht.get("TRAN_ETC2"));
+	 System.out.println("<<==== TRAN_ETC3 ====>>" + (String)ht.get("TRAN_ETC3"));
+	 System.out.println("<<==== TRAN_ETC4 ====>>" + (String)ht.get("TRAN_ETC4"));
+	 
+	System.out.println("<<==== INSERT ====>>" + insertQuery);
+	
+	/* 157 */      ps.executeUpdate();
+	
+	System.out.println("<<==== INSERT END====>>");
+	/*     */     }
+	/*     */     catch (Exception e) {
+	/* 160 */       System.err.println(e.getMessage());
+	/* 161 */       e.printStackTrace(System.err);
+	/*     */     }
+	/*     */     finally {
+	/* 164 */       if (ps != null)
+	/*     */         try {
+	/* 166 */           ps.close();
+	/* 167 */           ps = null;
+	/*     */         }
+	/*     */         catch (Exception localException1) {
+	/*     */         }
+	/*     */     }
+	/*     */   }
+	/*     */ 
+
+/*     */   private void doWork(Hashtable ht, Connection con, String gubun) {
+/* 175 */     JdbcConnection jc = null;
+/* 176 */     Connection smsCon = null;
+/* 177 */     PreparedStatement ps = null;
+/*     */ 
+/* 179 */     Properties dbProps = ConfigLoader.getDBProperties();
+/* 180 */     Properties dbProps2 = new Properties();
+/*     */ 
+/* 183 */     dbProps2.setProperty("jdbc.driver.name", dbProps.getProperty("sms.jdbc.driver.name"));
+/* 184 */     dbProps2.setProperty("jdbc.url", dbProps.getProperty("sms.jdbc.url"));
+/* 185 */     dbProps2.setProperty("user", dbProps.getProperty("sms.db.user"));
+/* 186 */     dbProps2.setProperty("password", dbProps.getProperty("sms.db.password"));
+/*     */ 
+/* 190 */     String insertQuery = "";
+/* 191 */     System.out.println("Gubun : " + gubun);
+///* 192 */     if (gubun.equals("S")) {
+///* 193 */       insertQuery = " INSERT INTO ums_data(CMID, MSG_TYPE, STATUS, REQUEST_TIME, DEST_PHONE, MSG_BODY, SEND_PHONE, SUBJECT) \n \tVALUES(?, 0, 0, GETDATE(), ?, ?, ?, ?)";
+///*     */     }
+///* 196 */     else if (gubun.equals("M")) {
+///* 197 */       insertQuery = " INSERT INTO ums_data(CMID, MSG_TYPE, STATUS, REQUEST_TIME, DEST_PHONE, MSG_BODY, SEND_PHONE, FAX_FILE, SUBJECT) \n \tVALUES(?, 5, 0, GETDATE(), ?, ?, ?, ?, ?)";
+///*     */     }
+///* 199 */     else if (gubun.equals("V"))
+///* 200 */       insertQuery = " INSERT INTO ums_data(CMID, MSG_TYPE, STATUS, REQUEST_TIME, DEST_PHONE, MSG_BODY, SEND_PHONE, SEND_NAME) \n \tVALUES(?, 3, 0, REPLACE(REPLACE(REPLACE(CONVERT(VARCHAR(20),GETDATE(),120),'-',''),':',''),' ',''), ?, ?, ?, ?)";
+				
+if(gubun.equals("S")){
+	insertQuery = "INSERT INTO EM_TRAN(TRAN_REFKEY,TRAN_ID,TRAN_PHONE,TRAN_CALLBACK,TRAN_STATUS,TRAN_DATE,TRAN_RSLTDATE,TRAN_REPORTDATE,TRAN_RSLT,TRAN_NET,TRAN_MSG,TRAN_ETC1,TRAN_ETC2,TRAN_ETC3,TRAN_ETC4,TRAN_TYPE)VALUES(?,?,?,?,?,?,?,getdate(),?,?,?,?,?,?,?,?)";
+}
+try {
+	System.out.println("try ===!!!!!");
+    // SMS 데이터베이스에 연결한다.
+    jc = JdbcConnection.getInstance(dbProps2);
+    smsCon = jc.getConnection();
+    ps = smsCon.prepareStatement(insertQuery);
+    ResultSet rs = null;
+
+    String createType = (String) ht.get("CREATE_TY");
+    String data = "", contents = "", msgid = (String) ht.get("MSGID");
+    String cmid;
+    //String uFilePath = (String)ht.get("FILE_PATH");
+    int count = 1;
+/*     */ 
+/* 217 */       if ("003".equals(createType))
+/*     */       {
+/* 219 */         String segPath = (String)ht.get("SEG_FL_PATH");
+/* 220 */         String filePath = ConfigLoader.getProperty("upload.dir") + segPath;
+/* 221 */         System.out.println("address filePath = " + filePath);
+/* 222 */         LineNumberReader lnr = null;
+/*     */ 
+/* 224 */         System.out.println("segPath : " + segPath);
+/* 225 */         System.out.println("filePath : " + filePath);
+System.out.println("======================================================================");
+/*     */         try
+/*     */         {
+/*     */           int nameIndex = 0;
+/* 228 */           if (filePath.toLowerCase().endsWith(".xls")) {
+/* 229 */             Workbook myWorkbook = Workbook.getWorkbook(new File(filePath));
+/* 230 */             Sheet mySheet = myWorkbook.getSheet(0);
+/*     */ 
+/* 232 */             int cols = mySheet.getColumns();
+/* 233 */             int rows = mySheet.getRows(); int phoneIndex = -1; nameIndex = -1;
+/* 234 */             String[] key = new String[cols];
+/*     */ 
+/* 236 */             for (int index = 0; index < cols; ++index) {
+/* 237 */               Cell myCell = mySheet.getCell(index, 0);
+/* 238 */               key[index] = myCell.getContents();
+/* 239 */               if (key[index].equalsIgnoreCase("phone")) {
+/* 240 */                 phoneIndex = index;
+/*     */               }
+/* 243 */               else if (key[index].equalsIgnoreCase("name")) {
+/* 244 */                 nameIndex = index;
+/*     */               }
+/*     */             }
+/*     */ 
+/* 248 */        for(int index = 1; index < rows; index++) {
+    Hashtable htMerge = new Hashtable();
+    for(int cnt = 0; cnt < cols; cnt++) {
+        Cell myCell = mySheet.getCell(cnt, index);
+        htMerge.put("$:" + key[cnt] + ":$", myCell.getContents());
+    }
+    System.out.println("11111111111111");
+    contents = replace( (String) ht.get("SMS_MESSAGE"), htMerge);
+
+    String phone = (String) htMerge.get("$:" + key[phoneIndex] + ":$");
+    String name = (nameIndex == -1) ? " " : (String) htMerge.get("$:" + key[nameIndex] + ":$");
+    if (phone == null || phone.trim().length() == 0) {
+        htMerge = null;
+        continue;
+    }
+    System.out.println("2222222222");
+    phone = replace(phone, ")", "-");
+    phone = replace(phone, " ", "");
+    phone = replace(phone, "(", "");
+ System.out.println("======cmi=======");
+    try {
+    	cmid = (String)sdf.format(new java.util.Date()) + String.valueOf(myFormatter.format(count++));
+    	System.out.println("cmid = "+cmid + "     dest_phone : " + phone);
+        ps.clearParameters();
+//        ps.setString(1, cmid);
+//        ps.setString(2, phone);
+//        ps.setString(3, contents);
+//        ps.setString(4, (String) ht.get("SEND_TELNO"));
+//        if(gubun.equals("S")){
+//            ps.setString(5,(String)ht.get("SMS_NAME"));
+//        }else if(gubun.equals("M")){
+//            ps.setString(5,(String)ht.get("FILE_PATH"));
+//            ps.setString(6,(String)ht.get("SMS_NAME"));
+//        }else if(gubun.equals("V")){
+//        	ps.setString(5, name);
+//        }
+        
+		ps.setString(1, cmid);
+		ps.setString(2, (String)ht.get("TRAN_ID"));
+		ps.setString(3, (String)ht.get("TRAN_PHONE"));
+		ps.setString(4, (String)ht.get("TRAN_CALLBACK"));
+		ps.setString(5, (String)ht.get("TRAN_STATUS"));
+		ps.setString(6, (String)ht.get("TRAN_DATE"));
+		ps.setString(7, (String)ht.get("TRAN_RSLTDATE"));
+		ps.setString(8, (String)ht.get("TRAN_REPORTDATE"));
+		ps.setString(9, (String)ht.get("TRAN_RSLT"));
+		ps.setString(10, (String)ht.get("TRAN_NET"));
+		ps.setString(11, (String)ht.get("TRAN_MSG"));
+		ps.setString(12, (String)ht.get("TRAN_ETC1"));
+		ps.setString(13, (String)ht.get("TRAN_ETC2"));
+		ps.setString(14, (String)ht.get("TRAN_ETC3"));
+		ps.setString(15, (String)ht.get("TRAN_ETC4"));
+		if(gubun == "S"){
+			ps.setString(16, "4");
+		}else if(gubun == "M"){
+			ps.setString(16, "6");
+		}else if(gubun == "L"){
+			ps.setString(16, "6");
+		}        
+        System.out.println("<<==do work insert==>>");
+        ps.executeUpdate();
+        System.out.println("<<==do work insert end==>>");
+    }
+    catch(Exception e) {
+        System.err.println(e.getMessage());
+        e.printStackTrace(System.err);
+    }
+
+    htMerge = null;
+}
+}
+else {
+lnr = new LineNumberReader(new FileReader(filePath));
+boolean first = true;
+String[] key = null;
+String phone = "";
+int phoneIndex = -1;
+while ( (data = lnr.readLine()) != null) {
+    if (data.trim().length() == 0) {
+        continue;
+    }
+    CSVTokenizer ct = new CSVTokenizer(data);
+    int index = 0, nameIndex1 = -1;
+
+    // 첫번째 라인은 무조건 필드명으로 인식시킨다.(동작사양)
+    if (first) {
+        key = new String[ct.countTokens()];
+        while (ct.hasMoreTokens()) {
+            String token = ct.nextToken();
+            if (token.equalsIgnoreCase("phone")) {
+                phoneIndex = index; // 전화번호 필드 인덱스를 가져온다.
+                System.out.println("phoneIndex : "+ phoneIndex);
+                
+             }
+/************************* 한글발송시 위에까지는 나옴  *********************/                                    
+            else if(token.equalsIgnoreCase("name")) {
+                nameIndex = index;
+                System.out.println("nameIndex : "+ nameIndex);
+            }
+            key[index++] = token;
+        }
+        first = false;
+        ct = null;
+        continue;
+    }
+    
+    Hashtable htMerge = new Hashtable();
+    while (ct.hasMoreTokens()) {
+        htMerge.put("$:" + key[index++] + ":$", ct.nextToken());
+    }
+    contents = replace( (String) ht.get("SMS_MESSAGE"), htMerge);
+
+    phone = (String) htMerge.get("$:" + key[phoneIndex] + ":$");
+    String name = (nameIndex == -1) ? " " : (String) htMerge.get("$:" + key[nameIndex] + ":$");
+    if (phone == null || phone.trim().length() == 0) {
+        htMerge = null;
+        ct = null;
+        continue;
+    }
+    phone = replace(phone, ")", "-");
+    phone = replace(phone, " ", "");
+    phone = replace(phone, "(", "");
+    System.out.println("phone : " + phone);
+
+    cmid = (String)sdf.format(new java.util.Date()) + String.valueOf(myFormatter.format(count++));
+    System.out.println("cmid = "+cmid + "     dest_phone : " + phone+ "       name : "+ name+ "       phone : "+ phone+ "       contents : "+ contents+ "       key : "+ key);
+    ps.clearParameters();
+    ps.setString(1, cmid);;
+    ps.setString(2, phone);
+    ps.setString(3, contents);
+    ps.setString(4, (String) ht.get("SEND_TELNO"));
+    if(gubun.equals("S")){
+        ps.setString(5,(String)ht.get("SMS_NAME"));
+    }else if(gubun.equals("M")){
+        ps.setString(5,(String)ht.get("FILE_PATH"));
+        ps.setString(6,(String)ht.get("SMS_NAME"));
+    }else if(gubun.equals("V")){
+    	ps.setString(5, name);
+    }
+    ps.executeUpdate();
+
+    htMerge = null;
+    ct = null;
+System.out.println("===========================");
+}
+}
+}
+
+catch (Exception e) {
+System.err.println(e.getMessage());
+e.printStackTrace(System.err);
+}
+finally {
+}
+}
+else if ("999".equals(createType)) {
+System.out.println("99999999");
+System.out.println(createType);
+String keygen = (String) ht.get("KEYGEN");
+Vector vt = getPhoneList(msgid, keygen);
+if (vt.size() > 0) {
+Iterator it = vt.iterator();
+while (it.hasNext()) {
+String phone = (String) it.next();
+if (phone == null || phone.trim().length() == 0) {
+    continue;
+}
+phone = replace(phone, ")", "-");
+phone = replace(phone, " ", "");
+phone = replace(phone, "(", "");
+
+contents = replace( (String) ht.get("SMS_MESSAGE"), "$:PHONE:$", phone);
+
+cmid = (String)sdf.format(new java.util.Date()) + String.valueOf(myFormatter.format(count++));
+System.out.println("cmid = "+cmid + "     dest_phone : " + phone);
+ps.clearParameters();
+//ps.setString(1, cmid);
+//ps.setString(2, phone);
+//ps.setString(3, contents);
+//ps.setString(4, (String) ht.get("SEND_TELNO"));
+//if(gubun.equals("S")){
+//    ps.setString(5,(String)ht.get("SMS_NAME"));
+//}else if(gubun.equals("M")){
+//    ps.setString(5,(String)ht.get("FILE_PATH"));
+//    ps.setString(6,(String)ht.get("SMS_NAME"));
+//}else if(gubun.equals("V")){
+//	ps.setString(5,phone);
+//}
+System.out.println("===========================");
+ps.setString(1, cmid);
+ps.setString(2, (String)ht.get("TRAN_ID"));
+ps.setString(3, (String)ht.get("TRAN_PHONE"));
+ps.setString(4, (String)ht.get("TRAN_CALLBACK"));
+ps.setString(5, (String)ht.get("TRAN_STATUS"));
+ps.setString(6, (String)ht.get("TRAN_DATE"));
+ps.setString(7, (String)ht.get("TRAN_RSLTDATE"));
+ps.setString(8, (String)ht.get("TRAN_REPORTDATE"));
+ps.setString(9, (String)ht.get("TRAN_RSLT"));
+ps.setString(10, (String)ht.get("TRAN_NET"));
+ps.setString(11, (String)ht.get("TRAN_MSG"));
+ps.setString(12, (String)ht.get("TRAN_ETC1"));
+ps.setString(13, (String)ht.get("TRAN_ETC2"));
+ps.setString(14, (String)ht.get("TRAN_ETC3"));
+ps.setString(15, (String)ht.get("TRAN_ETC4"));
+if(gubun == "S"){
+	ps.setString(16, "4");
+}else if(gubun == "M"){
+	ps.setString(16, "6");
+}else if(gubun == "L"){
+	ps.setString(16, "6");
+}        
+System.out.println("<<==do work insert==>>");
+ps.executeUpdate();
+System.out.println("<<==do work insert end==>>");
+
+//ps.executeUpdate();
+}
+}
+}
+else {
+Properties dbprops = getDBInfo( (String) ht.get("DB_CONN_NO"), con);
+CSVTokenizer ct = new CSVTokenizer( (String) ht.get("MERGE_KEY"));
+String[] key = new String[ct.countTokens()];
+String phone = "";
+int phoneIndex = -1, nameIndex = -1, index = 0;
+
+while (ct.hasMoreTokens()) {
+String token = ct.nextToken();
+if (token.equalsIgnoreCase("phone")) {
+phoneIndex = index; // 전화번호 필드 인덱스를 가져온다.
+}
+else if(token.equalsIgnoreCase("name")) {
+nameIndex = index;
+}
+key[index++] = token;
+}
+ct = null;
+
+JdbcConnection dbcon = null;
+Connection dbconn = null;
+Statement stmt = null;
+
+try {
+dbcon = JdbcConnection.getInstance(dbprops);
+stmt = dbcon.createStatement();
+rs = stmt.executeQuery( (String) ht.get("QUERY"));
+while (rs.next()) {
+Hashtable htMerge = new Hashtable();
+for (int k = 0; k < key.length; k++) {
+    String dataValue = rs.getString(k + 1);
+    htMerge.put("$:" + key[k] + ":$", dataValue == null ? "" : dataValue);
+}
+contents = replace( (String) ht.get("SMS_MESSAGE"), htMerge);
+
+phone = (String) htMerge.get("$:" + key[phoneIndex] + ":$");
+String name = (nameIndex == -1) ? " " : (String) htMerge.get("$:" + key[nameIndex] + ":$");
+if (phone == null || phone.trim().length() == 0) {
+    htMerge = null;
+    ct = null;
+    continue;
+}
+phone = replace(phone, ")", "-");
+phone = replace(phone, " ", "");
+phone = replace(phone, "(", "");
+
+try {
+	cmid = (String)sdf.format(new java.util.Date()) + String.valueOf(myFormatter.format(count++));
+	System.out.println("cmid = "+cmid + "     dest_phone : " + phone);
+	ps.clearParameters();
+	ps.setString(1, cmid);
+    ps.setString(2, phone);
+    ps.setString(3, contents);
+    ps.setString(4, (String) ht.get("SEND_TELNO"));
+    if(gubun.equals("S")){
+        ps.setString(5,(String)ht.get("SMS_NAME"));
+    }else if(gubun.equals("M")){
+     ps.setString(5,(String)ht.get("FILE_PATH"));
+     ps.setString(6,(String)ht.get("SMS_NAME"));
+    }else if(gubun.equals("V")){
+    	ps.setString(5,name);
+    }
+    ps.executeUpdate();
+}
+catch (Exception e) {
+    System.err.println(e.getMessage());
+    e.printStackTrace(System.err);
+}
+finally {
+}
+
+htMerge = null;
+}
+}
+catch (Exception e) {
+System.err.println(e.getMessage());
+e.printStackTrace(System.err);
+}
+finally {
+if (rs != null) {
+try {
+    rs.close();
+    rs = null;
+}
+catch (Exception e) {}
+}
+if (stmt != null) {
+try {
+    stmt.close();
+    stmt = null;
+}
+catch (Exception e) {}
+}
+if (dbcon != null) {
+try {
+    dbcon.close();
+    dbcon = null;
+}
+catch (Exception e) {}
+}
+}
+}
+}
+catch (Exception e) {
+System.err.println(e.getMessage());
+e.printStackTrace(System.err);
+}
+finally {
+if (ps != null) {
+try {
+ps.close();
+ps = null;
+}
+catch (Exception e) {}
+}
+if (smsCon != null) {
+try {
+smsCon.close();
+smsCon = null;
+}
+catch (Exception e) {}
+}
+}
+}
+/*     */ 
+/*     */   private Vector getPhoneList(String msgid, String keygen) {
+/* 527 */     Vector vt = new Vector();
+/* 528 */     Connection con = null;
+/* 529 */     PreparedStatement ps = null;
+/* 530 */     ResultSet rs = null;
+/*     */ 
+/* 532 */     String SQL = "SELECT PHONE FROM NEO_SMS_PHONE WHERE MSGID = ? AND KEYGEN = ?";
+/*     */     try
+/*     */     {
+/* 535 */       JdbcConnection jc = JdbcConnection.getWorkConnection();
+/* 536 */       jc.newConnection();
+/* 537 */       con = jc.getConnection();
+/* 538 */       ps = con.prepareStatement(SQL);
+/* 539 */       ps.setString(1, msgid);
+/* 540 */       ps.setString(2, keygen);
+/* 541 */       rs = ps.executeQuery();
+/*     */ 
+/* 543 */       while (rs.next())
+/* 544 */         vt.addElement(rs.getString("PHONE"));
+/*     */     }
+/*     */     catch (Exception e)
+/*     */     {
+/* 548 */       System.err.println(e.getMessage());
+/* 549 */       e.printStackTrace(System.err);
+/*     */     }
+/*     */     finally {
+/* 552 */       if (rs != null)
+/*     */         try {
+/* 554 */           rs.close();
+/* 555 */           rs = null;
+/*     */         }
+/*     */         catch (Exception localException1) {
+/*     */         }
+/* 559 */       if (ps != null)
+/*     */         try {
+/* 561 */           ps.close();
+/* 562 */           ps = null;
+/*     */         }
+/*     */         catch (Exception localException2) {
+/*     */         }
+/* 566 */       if (con != null)
+/*     */         try {
+/* 568 */           con.close();
+/* 569 */           con = null;
+/*     */         }
+/*     */         catch (Exception localException3) {
+/*     */         }
+/*     */     }
+/* 574 */     return vt;
+/*     */   }
+/*     */ 
+/*     */   private void migrate() {
+/* 578 */     Connection con = null;
+/* 579 */     Statement stmt = null;
+/* 580 */     ResultSet rs = null;
+/*     */ 
+/* 589 */     String selectSql = "SELECT A.MSGID,  \t  A.KEYGEN,  \t  A.SEG_NO, \t  A.CAMPUS_NO, \t  A.SEND_TELNO, \t  A.O_CODE, \t  A.P_CODE, \t  A.SMS_MESSAGE, \t  ISNULL((SELECT CREATE_TY FROM NEO_SEGMENT WHERE SEG_NO = A.SEG_NO), '999') CREATE_TY, \t  ISNULL((SELECT SEG_FL_PATH FROM NEO_SEGMENT WHERE SEG_NO = A.SEG_NO), '') SEG_FL_PATH, \t  ISNULL((SELECT SEPARATOR_ FROM NEO_SEGMENT WHERE SEG_NO = A.SEG_NO), '') SEPARATOR_, \t  ISNULL((SELECT QUERY FROM NEO_SEGMENT WHERE SEG_NO = A.SEG_NO), '') QUERY, \t  ISNULL((SELECT MERGE_KEY FROM NEO_SEGMENT WHERE SEG_NO = A.SEG_NO), '') MERGE_KEY, \t  ISNULL((SELECT MERGE_COL FROM NEO_SEGMENT WHERE SEG_NO = A.SEG_NO), '') MERGE_COL, \t  ISNULL((SELECT DB_CONN_NO FROM NEO_SEGMENT WHERE SEG_NO = A.SEG_NO), -1) DB_CONN_NO,      A.GUBUN, ISNULL (A.FILE_PATH, ' ') FILE_PATH , A.SMS_NAME, A.SEND_DATE FROM NEO_SMS A WHERE A.STATUS = '1' AND A.SEND_DATE <= '" + 
+/* 605 */       this.sdf.format(new Date()) + "'";
+
+/*     */     try
+/*     */     {
+/* 608 */       JdbcConnection jc = JdbcConnection.getWorkConnection();
+/* 609 */       jc.newConnection();
+/* 610 */       con = jc.getConnection();
+/* 611 */       stmt = con.createStatement();
+/* 612 */       rs = stmt.executeQuery(selectSql);
+/*  rs     */         System.out.println("rs ===>>> " + rs);
+/*     */ 
+/* 614 */       while (rs.next()) {
+/* 615 */         Hashtable htSMS = new Hashtable();
+/* 616 */         String msgid = rs.getString("MSGID");
+/* 617 */         String keygen = rs.getString("KEYGEN");
+/* 618 */         String segno = String.valueOf(rs.getInt("SEG_NO"));
+/*     */ 
+/* 620 */         String telno = rs.getString("SEND_TELNO");
+					   String gubunType = "";
+					   
+/*     */ 
+/* 623 */         String message = rs.getString("SMS_MESSAGE");
+/* 624 */         String createtype = rs.getString("CREATE_TY");
+/* 625 */         String segflpath = rs.getString("SEG_FL_PATH");
+/* 626 */         String separator = rs.getString("SEPARATOR_");
+/* 627 */         String query = rs.getString("QUERY");
+/* 628 */         String mergekey = rs.getString("MERGE_KEY");
+/* 629 */         String mergecol = rs.getString("MERGE_COL");
+/* 630 */         String dbconno = String.valueOf(rs.getInt("DB_CONN_NO"));
+/* 631 */         String gubun = rs.getString("GUBUN");
+/* 632 */         String file_path = rs.getString("FILE_PATH");
+/* 633 */         String sms_name = rs.getString("SMS_NAME");
+/* 633 */         String send_Date = rs.getString("SEND_DATE");
+/*     */ 
+/* 642 */         System.out.println("++++++++++++++start+++++++++++++++++");
+/* 643 */         System.out.println("msgid : " + msgid);
+/* 644 */         System.out.println("keygen : " + keygen);
+/* 645 */         System.out.println("segno : " + segno);
+/* 646 */         System.out.println("telno :" + telno);
+/* 647 */         System.out.println("message : " + message);
+/* 648 */         System.out.println("createtype : " + createtype);
+/* 649 */         System.out.println("segflpath : " + segflpath);
+/* 650 */         System.out.println("separator : " + separator);
+/* 651 */         System.out.println("query : " + query);
+/* 652 */         System.out.println("mergekey : " + mergekey);
+/* 653 */         System.out.println("mergecol : " + mergecol);
+/* 654 */         System.out.println("dbconno : " + dbconno);
+/* 655 */         System.out.println("SMS_NAME : " + sms_name);
+/* 655 */         System.out.println("SEND_DATE : " + send_Date);
+/*     */ 
+/* 657 */         System.out.println("gubun : " + gubun);
+/* 658 */         System.out.println("file_path : " + file_path);
+/* 659 */         System.out.println("++++++++++++++end +++++++++++++++++");
+/* 660 */         htSMS.put("MSGID", msgid);
+/* 661 */         htSMS.put("KEYGEN", keygen);
+/* 662 */         htSMS.put("SEG_NO", segno);
+/*     */ 
+/* 664 */         htSMS.put("SEND_TELNO", telno);
+/*     */ 
+/* 667 */         htSMS.put("SMS_MESSAGE", message);
+/* 668 */         htSMS.put("CREATE_TY", createtype);
+/* 669 */         htSMS.put("SEG_FL_PATH", (segflpath == null) ? "" : segflpath);
+/* 670 */         htSMS.put("SEPARATOR_", (separator == null) ? "" : separator);
+/* 671 */         htSMS.put("QUERY", (query == null) ? "" : query);
+/* 672 */         htSMS.put("MERGE_KEY", mergekey);
+/* 673 */         htSMS.put("MERGE_COL", mergecol);
+/* 674 */         htSMS.put("DB_CONN_NO", dbconno);
+/* 675 */         htSMS.put("GUBUN", gubun);
+/* 676 */         htSMS.put("FILE_PATH", file_path);
+/* 677 */         htSMS.put("SMS_NAME", sms_name);
+/*     */ 
+
+
+/* 677_1 */         htSMS.put("SEND_DATE", send_Date);
+
+/*677_2*/		htSMS.put("TRAN_REFKEY",msgid);
+/*677_2*/		htSMS.put("TRAN_ID",keygen);
+/*677_2*/		htSMS.put("TRAN_PHONE",telno);
+/*677_2*/		htSMS.put("TRAN_CALLBACK","");
+/*677_2*/		htSMS.put("TRAN_STATUS","1");
+/*677_2*/		htSMS.put("TRAN_DATE",send_Date);
+/*677_2*/		htSMS.put("TRAN_RSLTDATE","");
+/*677_2*/		htSMS.put("TRAN_REPORTDATE","");
+/*677_2*/		htSMS.put("TRAN_RSLT","");
+/*677_2*/		htSMS.put("TRAN_NET","");
+/*677_2*/		htSMS.put("TRAN_MSG",message);
+/*677_2*/		htSMS.put("TRAN_ETC1","");
+/*677_2*/		htSMS.put("TRAN_ETC2","");
+/*677_2*/		htSMS.put("TRAN_ETC3","");
+/*677_2*/		htSMS.put("TRAN_ETC4","");
+/*677_2*/		htSMS.put("TRAN_TYPE","");
+/*     */ 
+/* 679 */         doWork(htSMS, con, gubun);
+///* 680 */         updateStatus(msgid, keygen, con);
+//					   emTranInsert(htSMS, con, gubun);
+/*     */       }
+/*     */     }
+/*     */     catch (Exception e) {
+/* 684 */       System.err.println(e.getMessage());
+/* 685 */       e.printStackTrace(System.err);
+/*     */     }
+/*     */     finally {
+/* 688 */       if (rs != null)
+/*     */         try {
+/* 690 */           rs.close();
+/* 691 */           rs = null;
+/*     */         }
+/*     */         catch (Exception localException1) {
+/*     */         }
+/* 695 */       if (stmt != null)
+/*     */         try {
+/* 697 */           stmt.close();
+/* 698 */           stmt = null;
+/*     */         }
+/*     */         catch (Exception localException2) {
+/*     */         }
+/* 702 */       if (con != null)
+/*     */         try {
+/* 704 */           con.close();
+/* 705 */           con = null;
+/*     */         }
+/*     */         catch (Exception localException3)
+/*     */         {
+/*     */         }
+/*     */     }
+/*     */   }
+/*     */ }

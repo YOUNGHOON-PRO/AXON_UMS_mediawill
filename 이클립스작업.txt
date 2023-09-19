@@ -1,0 +1,52 @@
+솔루션에서 사용하는 폴더
+/conf
+/log
+/repository
+
+
+
+1.
+	GeneratorManager.java
+	
+	
+	==============					
+	이클립스전용					
+	==============
+	
+	//					String taskId = unitName.split("-")[0];
+	//					BulkInternalSendAgent agent = new BulkInternalSendAgent(taskId);
+	//					boolean state = agent.run();
+	//					if ( state ) { 
+	//						SendQueue.push(unitName);  
+	//					} else { 
+	//						state = agent.run();
+	//						if ( state ) {
+	//							SendQueue.push(unitName);  
+	//						}else {
+	//							throw new Exception (String.format("TaskID : %s, 파일 전송이 이뤄지지 않았습니다.", taskId));
+	//						};
+	//					}
+	//				
+						SendQueue.push(unitName);  
+						
+						
+	==============					
+	배포전용					
+	==============
+						String taskId = unitName.split("-")[0];
+						BulkInternalSendAgent agent = new BulkInternalSendAgent(taskId);
+						boolean state = agent.run();
+						if ( state ) { 
+							SendQueue.push(unitName);  
+						} else { 
+							state = agent.run();
+							if ( state ) {
+								SendQueue.push(unitName);  
+							}else {
+								throw new Exception (String.format("TaskID : %s, 파일 전송이 이뤄지지 않았습니다.", taskId));
+							};
+						}
+					
+	//					SendQueue.push(unitName);  
+	
+	
