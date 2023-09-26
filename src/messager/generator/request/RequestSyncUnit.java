@@ -4,6 +4,8 @@ import java.io.*;
 import java.util.*;
 
 import messager.generator.config.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * MessageCenter로 전송받은 Unit의 동기화를 위한 작업을 한다. 전송받은 Unit의
@@ -12,7 +14,8 @@ import messager.generator.config.*;
  */
 class RequestSyncUnit
 {
-
+	private static final Logger LOGGER = LogManager.getLogger(RequestSyncUnit.class.getName());
+	
     //디렉토리명
     private static final String dirName = "request";
 
@@ -93,7 +96,9 @@ class RequestSyncUnit
 
         }
         catch (IOException ex) {
+        	LOGGER.error(ex);
         }
+        
     }
 
     /**

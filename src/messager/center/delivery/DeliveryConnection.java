@@ -2,6 +2,8 @@ package messager.center.delivery;
 
 import java.io.*;
 import java.net.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Generator의 요청에 의해 UnitInfo객체와 MessageInfo객체를 전달 하기 위한 Socket 를 생성하고 입출력을 버퍼링된
@@ -9,6 +11,8 @@ import java.net.*;
  */
 public class DeliveryConnection
 {
+	private static final Logger LOGGER = LogManager.getLogger(DeliveryConnection.class.getName());
+	
     private Socket socket;
     private InputStream in;
     private OutputStream out;
@@ -58,6 +62,7 @@ public class DeliveryConnection
                 in.close();
             }
             catch (IOException ex) {
+            	LOGGER.error(ex);
             }
             in = null;
         }
@@ -67,6 +72,7 @@ public class DeliveryConnection
                 out.close();
             }
             catch (IOException ex) {
+            	LOGGER.error(ex);
             }
             out = null;
         }
@@ -76,6 +82,7 @@ public class DeliveryConnection
                 socket.close();
             }
             catch (IOException ex) {
+            	LOGGER.error(ex);
             }
             socket = null;
         }

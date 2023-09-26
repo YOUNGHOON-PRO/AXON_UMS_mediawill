@@ -1,9 +1,13 @@
 package messager.mailsender.send.dns;
 
 import java.util.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class LookupCaller
 {
+	private static final Logger LOGGER = LogManager.getLogger(LookupCaller.class.getName());
+	
     private String nameServer;
     private String domain;
 
@@ -15,7 +19,8 @@ public class LookupCaller
         try {
         	this.getExchanger(nameServer, domain);
         } catch(Exception e) {
-        	System.err.println("LookupCaller Error Message :: " + e.getMessage());
+        	LOGGER.error(e);
+        	//System.err.println("LookupCaller Error Message :: " + e.getMessage());
         }
     }
 
@@ -35,10 +40,12 @@ public class LookupCaller
 	        	Lookup lookMX2 = new Lookup(nameServer, mx, 1);
 	        	exchangers_ip = lookMX2.getResult();
         	} catch(NullPointerException npe ) { 
+        		LOGGER.error(npe);
         		// npe.printStackTrace();
-        		System.err.println("Error Message : " + npe.getMessage() +  ", nameServer : "+ nameServer + ", hostName : " + hostName);
+        		//System.err.println("Error Message : " + npe.getMessage() +  ", nameServer : "+ nameServer + ", hostName : " + hostName);
         	} catch(Exception e) { 
-        		e.printStackTrace();
+        		LOGGER.error(e);
+        		//e.printStackTrace();
         	}
         	
         	/***********

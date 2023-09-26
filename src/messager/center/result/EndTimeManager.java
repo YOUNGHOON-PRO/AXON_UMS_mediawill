@@ -4,6 +4,8 @@ import java.sql.*;
 import java.text.*;
 
 import messager.center.db.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * 발송 완료된 메세지의 발송 완료 시간과 작업 상태를 발송 완료로 처리한다.
@@ -15,6 +17,9 @@ import messager.center.db.*;
  */
 public class EndTimeManager
 {
+	
+	private static final Logger LOGGER = LogManager.getLogger(EndTimeManager.class.getName());
+	
     /** 발송 완료 시간의 포맷 */
     private final static String TIME_FORMAT = "yyyyMMddHHmm";
 
@@ -56,6 +61,7 @@ public class EndTimeManager
                 pstmt.close();
             }
             catch (Exception ex) {
+            	LOGGER.error(ex);
             }
             pstmt = null;
         }

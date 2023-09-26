@@ -1,9 +1,13 @@
 package messager.common.util;
 
 import java.io.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class NeoEncoder
 {
+	private static final Logger LOGGER = LogManager.getLogger(NeoEncoder.class.getName());
+	
     private final static int PAD = '=';
     private static final int bytePerAtom = 3;
     private final static char BASE64[] = {
@@ -61,6 +65,7 @@ public class NeoEncoder
             encodeStr = encode(text, null);
         }
         catch (Exception ex) {
+        	LOGGER.error(ex);
         }
         return encodeStr;
     }

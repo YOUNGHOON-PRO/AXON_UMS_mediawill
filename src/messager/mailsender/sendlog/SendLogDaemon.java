@@ -1,10 +1,13 @@
 package messager.mailsender.sendlog;
 
 import org.apache.commons.daemon.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class SendLogDaemon
     implements Daemon
 {
+	private static final Logger LOGGER = LogManager.getLogger(SendLogDaemon.class.getName());
     private Inserter inserter;
 
     public SendLogDaemon() {
@@ -46,7 +49,9 @@ public class SendLogDaemon
     }
 
     private void println(String msg) {
-        System.out.println(getCurrentTime() + " : " + msg);
+        //System.out.println(getCurrentTime() + " : " + msg);
+    	LOGGER.info(getCurrentTime() + " : " + msg);
+    	
     }
 
 }

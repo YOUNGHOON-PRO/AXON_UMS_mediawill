@@ -3,6 +3,8 @@ package messager.generator.repository;
 import java.io.*;
 
 import messager.common.util.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Unit에 대한 발송 결과를 스트림(byte배열)에 저장하거나 읽어온다.
@@ -13,6 +15,9 @@ import messager.common.util.*;
  */
 public class UnitResult
 {
+	
+	private static final Logger LOGGER = LogManager.getLogger(UnitResult.class.getName());
+	
     /** MessageID의 최대 길이 */
     private final static int MAX_MSG_ID_LEN = 32;
 
@@ -96,7 +101,8 @@ public class UnitResult
             out.write(bytes, 0, bytes.length);
         }
         catch (Exception ex) {
-            ex.printStackTrace();
+        	LOGGER.error(ex);
+            //ex.printStackTrace();
         }
         finally {
             if (out != null) {
@@ -104,6 +110,7 @@ public class UnitResult
                     out.close();
                 }
                 catch (Exception ex) {
+                	LOGGER.error(ex);
                 }
                 out = null;
             }
@@ -128,7 +135,8 @@ public class UnitResult
             in.read(bytes, 0, len);
         }
         catch (Exception ex) {
-            ex.printStackTrace();
+        	LOGGER.error(ex);
+            //ex.printStackTrace();
             bytes = null;
         }
         finally {
@@ -137,6 +145,7 @@ public class UnitResult
                     in.close();
                 }
                 catch (Exception ex) {
+                	LOGGER.error(ex);
                 }
                 in = null;
             }

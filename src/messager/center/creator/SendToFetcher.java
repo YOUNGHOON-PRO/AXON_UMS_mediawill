@@ -5,6 +5,8 @@ import java.util.*;
 import messager.center.config.*;
 import messager.center.repository.*;
 import messager.common.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * 이 추상 클래스는 대상자를 가져오는 클래스의 수퍼 클래스이다. 대상자를 가져오는 클래스는 DB에서 대상자를 가져오는
@@ -12,6 +14,8 @@ import messager.common.*;
  */
 public abstract class SendToFetcher
 {
+	private static final Logger LOGGER = LogManager.getLogger(SendToFetcher.class.getName());
+	
     //하나의 UnitInfo객체에 포함될수 있는 대상자의 수
     protected static int receiversPerUnit;
 
@@ -84,6 +88,7 @@ public abstract class SendToFetcher
             unitFileMgr.writeUnit(unit);
         }
         catch (Exception ex) {
+        	LOGGER.error(ex);
             String detail = "[" + message.messageID + "] " + ex.getMessage();
             throw new FetchException(detail, ErrorCode.REPOSITORY_EXCEPTION);
         }

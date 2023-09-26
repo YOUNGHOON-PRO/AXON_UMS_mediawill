@@ -1,12 +1,16 @@
 package messager.common.util;
 
 import java.util.*;
-
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 /**
  * charset resource 파일을 읽어서 charset code를 java의 charset이나 mime charset으로 변환한다.
  */
 public class CharsetTable
 {
+	
+	private static final Logger LOGGER = LogManager.getLogger(CharsetTable.class.getName());
+	
     //resource 파일 경로(messager/common/resource/charset.properties파일)
     private final static String CHARSET_RESOURCE = "messager.common.resource.charset";
 
@@ -27,7 +31,8 @@ public class CharsetTable
             resources = ResourceBundle.getBundle(CHARSET_RESOURCE);
         }
         catch (MissingResourceException ex) {
-            ex.printStackTrace();
+        	LOGGER.error(ex);
+            //ex.printStackTrace();
             System.exit(1);
         }
     }

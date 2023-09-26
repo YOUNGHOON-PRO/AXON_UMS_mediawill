@@ -5,6 +5,8 @@ import java.util.*;
 import messager.center.config.*;
 import messager.center.result.*;
 import messager.common.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Message의 발송정보와 상태를 관리 하는  MessageStatus객체,
@@ -19,6 +21,8 @@ import messager.common.*;
  */
 public class MessageHandler
 {
+	private static final Logger LOGGER = LogManager.getLogger(MessageHandler.class.getName());
+	
     /** MessageHandler 가 등록되어진다. */
     static MessageMap messageMap;
     /** 하나의 Unit에 포함될수 있는 최대의 대상자 정보 수 */
@@ -197,6 +201,7 @@ public class MessageHandler
             messageStatus.setSendStatus(MessageStatus.SEND_PAUSE);
         }
         catch (Exception ex) {
+        	LOGGER.error(ex);
             isSuccess = false;
         }
         removeQueue();
@@ -222,6 +227,7 @@ public class MessageHandler
                 messageStatus.setSendStatus(MessageStatus.SEND_STOP);
             }
             catch (Exception ex) {
+            	LOGGER.error(ex);
                 isSuccess = false;
             }
 
@@ -281,7 +287,8 @@ public class MessageHandler
                 isSuccess = true;
             }
             catch (Exception ex) {
-                ex.printStackTrace();
+            	LOGGER.error(ex);
+                //ex.printStackTrace();
             }
         }
 
@@ -346,6 +353,7 @@ public class MessageHandler
                             unitSyncMgr.create(unitID);
                         }
                         catch (RepositoryException ex) {
+                        	LOGGER.error(ex);
                         }
                     }
                     else {
@@ -366,8 +374,9 @@ public class MessageHandler
                     unit = unitFileMgr.readUnit(unitID, sendNo);
                 }
                 catch (RepositoryException ex) {
+                	LOGGER.error(ex);
                     unitSyncMgr.remove(unitID);
-                    System.err.println(ex.getMessage());
+                    //System.err.println(ex.getMessage());
                 }
             }
         }
@@ -389,7 +398,8 @@ public class MessageHandler
             unit = unitFileMgr.readUnit(unitID, sendNo);
         }
         catch (RepositoryException ex) {
-            ex.printStackTrace();
+        	LOGGER.error(ex);
+            //ex.printStackTrace();
         }
 
         return unit;
@@ -437,6 +447,7 @@ public class MessageHandler
                 messageStatus.increaseDelivery(size);
             }
             catch (Exception ex) {
+            	LOGGER.error(ex);
             }
         }
     }
@@ -497,7 +508,9 @@ public class MessageHandler
 
             }
             catch (Exception ex) {
+            	LOGGER.error(ex);
             }
+            
             resultMgr.delete(name);
 
             //발송 진행 정보 입력
@@ -568,7 +581,8 @@ public class MessageHandler
                 }
             }
             catch (Exception ex) {
-                ex.printStackTrace();
+            	LOGGER.error(ex);
+                //ex.printStackTrace();
             }
 
         }

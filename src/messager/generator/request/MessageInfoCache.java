@@ -3,6 +3,8 @@ package messager.generator.request;
 import java.util.*;
 
 import messager.common.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * MessageInfo객체를 cache 한다. MessageCenter에서 MessageInfo객체를 매번 요청하지 않고 여기에 저장을 한
@@ -11,6 +13,7 @@ import messager.common.*;
  */
 class MessageInfoCache
 {
+	private static final Logger LOGGER = LogManager.getLogger(MessageInfoCache.class.getName());
 
     //Instance
     private static MessageInfoCache messageInfoCache;
@@ -244,6 +247,7 @@ class MessageInfoCache
 
                 }
                 catch (Exception ex) {
+                	LOGGER.error(ex);
                 }
 
                 // 지정된 시간만큼 대기한다.
@@ -253,6 +257,7 @@ class MessageInfoCache
 
                 }
                 catch (InterruptedException ex) {
+                	LOGGER.error(ex);
                 }
 
             }

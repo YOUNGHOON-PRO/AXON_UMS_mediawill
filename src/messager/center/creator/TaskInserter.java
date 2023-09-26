@@ -6,6 +6,8 @@ import java.util.*;
 
 import messager.center.db.*;
 import messager.common.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * 정기 메일일 경우 신규 업무를 Neo_SubTask에 인서트한다. Task_No는 기존 값을 채우고 Sub_Task_No는 기존 값에
@@ -17,6 +19,9 @@ import messager.common.*;
  */
 public class TaskInserter
 {
+	
+	private static final Logger LOGGER = LogManager.getLogger(TaskInserter.class.getName());
+	
     /** 메일 발송 예약 시간의 포맷 */
     private final static String SEND_TIME_FORMAT = "yyyyMMddHHmm";
 
@@ -150,6 +155,7 @@ public class TaskInserter
 
         }
         catch (Exception ex1) {
+        	LOGGER.error(ex1);
             ex = ex1;
         }
         if (ex != null) {
@@ -199,6 +205,7 @@ public class TaskInserter
             pstmt.executeUpdate();
         }
         catch (Exception ex) {
+        	LOGGER.error(ex);
             int errorCode = -1;
             if (ex instanceof SQLException) {
                 errorCode = ( (SQLException) ex).getErrorCode();
@@ -213,6 +220,7 @@ public class TaskInserter
                     pstmt.close();
                 }
                 catch (Exception ex) {
+                	LOGGER.error(ex);
                 }
                 pstmt = null;
             }

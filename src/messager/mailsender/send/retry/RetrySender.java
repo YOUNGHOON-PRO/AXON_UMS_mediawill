@@ -11,10 +11,14 @@ import messager.mailsender.message.*;
 import messager.mailsender.send.*;
 import messager.mailsender.sendlog.*;
 import messager.mailsender.util.*;
-
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 public class RetrySender
     extends Thread
 {
+	
+	private static final Logger LOGGER = LogManager.getLogger(RetrySender.class.getName());
+	
     /*************** ConfigLoader Values ****************/
     private int RETRY_WAIT_TIME; // 재발송 대기 시간
     private String SEND_DOMAIN;
@@ -198,15 +202,25 @@ public class RetrySender
 
         if (endFlag) {
 
-            System.out.println(new StringBuffer("#############################################################").append("\r\n")
-                               .append("\tRETRY Finished Time : " + getTime()).append("\r\n")
-                               .append("\tNEO_TASK : " + unitName).append("\r\n")
-                               .append("\tTotal Count : " + rCManager.getTotalCount()).append("\r\n")
-                               .append("\tSuccess Count : " + rCManager.getSCount()).append("\r\n")
-                               .append("\tFail Count : " + (rCManager.getEndCount() - rCManager.getSCount())).append("\r\n")
-                               .append("#############################################################").append("\r\n")
-                               .toString());
-            System.out.flush();
+//            System.out.println(new StringBuffer("#############################################################").append("\r\n")
+//                               .append("\tRETRY Finished Time : " + getTime()).append("\r\n")
+//                               .append("\tNEO_TASK : " + unitName).append("\r\n")
+//                               .append("\tTotal Count : " + rCManager.getTotalCount()).append("\r\n")
+//                               .append("\tSuccess Count : " + rCManager.getSCount()).append("\r\n")
+//                               .append("\tFail Count : " + (rCManager.getEndCount() - rCManager.getSCount())).append("\r\n")
+//                               .append("#############################################################").append("\r\n")
+//                               .toString());
+//            System.out.flush();
+            
+            LOGGER.info(new StringBuffer("#############################################################").append("\r\n")
+                    .append("\tRETRY Finished Time : " + getTime()).append("\r\n")
+                    .append("\tNEO_TASK : " + unitName).append("\r\n")
+                    .append("\tTotal Count : " + rCManager.getTotalCount()).append("\r\n")
+                    .append("\tSuccess Count : " + rCManager.getSCount()).append("\r\n")
+                    .append("\tFail Count : " + (rCManager.getEndCount() - rCManager.getSCount())).append("\r\n")
+                    .append("#############################################################").append("\r\n")
+                    .toString());
+            
             rAccessor.writeUnitLogEndTime(System.currentTimeMillis());
             rAccessor.close();
             FileManager.deleteUnitFiles(unitName, rIsAppended);
@@ -304,6 +318,7 @@ public class RetrySender
                                             }
                                         }
                                         catch (Exception e) {
+                                        	LOGGER.error(e);
                                             if (e instanceof FileNotFoundException) {
                                                 writeOneRecord(element, "009", ErrorCode.HARDERROR, ErrorCode.HDP_DOT,
                                                     "999", fmt.format(new java.util.Date()), "File Not Found Exception", j);
@@ -377,6 +392,7 @@ public class RetrySender
                     sleep(RETRY_WAIT_TIME);
                 }
                 catch (InterruptedException e) {
+                	LOGGER.error(e);
                     LogWriter.writeException("RetryCenter", "run()", retryTimes + "번째를 위해 대기중 발생", e);
                 }
             }
@@ -556,6 +572,7 @@ public class RetrySender
             }
         }
         catch (Exception e) {
+        	LOGGER.error(e);
             LogWriter.writeException("RetrySender", "closeChannel()", "소켓을 닫는데 실패 했습니다.", e);
             return false;
         }
@@ -565,7 +582,7 @@ public class RetrySender
                     socket.closeConnect();
                 }
             }
-            catch (Exception e) {}
+            catch (Exception e) {LOGGER.error(e);}
         }
         return true;
     }
@@ -576,6 +593,7 @@ public class RetrySender
             return fmt.format(new Date());
         }
         catch (Exception e) {
+        	LOGGER.error(e);
             return "Date Error";
         }
     }

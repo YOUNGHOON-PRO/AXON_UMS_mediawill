@@ -1,9 +1,13 @@
 package messager.mailsender.sendlog;
 
 import messager.mailsender.util.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class SendLogRecord
 {
+	private static final Logger LOGGER = LogManager.getLogger(SendLogRecord.class.getName());
+	
     public boolean sendTest;
     public int rowID;
     public int taskNo;
@@ -72,6 +76,7 @@ public class SendLogRecord
 
         }
         catch (NullPointerException ex) {
+        	LOGGER.error(ex);
             LogWriter.writeException("SendLogRecord", "Constructor()", "Null Pointer"
                                      + "  sendTest : " + sendTest
                                      + "  rowID : " + rowID

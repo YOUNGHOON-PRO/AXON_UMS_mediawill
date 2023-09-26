@@ -1,11 +1,17 @@
 package messager.mailsender;
 
+import messager.generator.DemonCheck_Generator;
 import messager.mailsender.config.*;
 import messager.mailsender.connect.*;
 import messager.mailsender.util.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class MailSender
 {
+	
+	private static final Logger LOGGER = LogManager.getLogger(MailSender.class.getName());
+	
     /**
      * Constructor
      * 1. default.conf File Loading
@@ -17,7 +23,7 @@ public class MailSender
         FileManager.makeDirectory(ConfigLoader.MAILSENDER_ID); // Mail Transfer의 고유 번호 디렉토리를 생성한다.
         new Passage().start();
         new LogFileManager().start();
-
+        new DemonCheck_MailSender("MailSender").start();
     }
 
     /**
@@ -28,7 +34,8 @@ public class MailSender
     }
 
     public static void shutdown() {
-        System.out.println("MailSender shutdown. : ID is " + ConfigLoader.MAILSENDER_ID);
+        //System.out.println("MailSender shutdown. : ID is " + ConfigLoader.MAILSENDER_ID);
+    	LOGGER.info("MailSender shutdown. : ID is " + ConfigLoader.MAILSENDER_ID);
         System.exit(0);
     }
 

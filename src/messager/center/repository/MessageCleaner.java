@@ -3,6 +3,8 @@ package messager.center.repository;
 import java.util.*;
 
 import messager.center.config.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * 더이상 재발송이 필요없거나 발송 중지된 Message의 중간 작업 파일이나 디렉토리를 삭제하는
@@ -15,6 +17,9 @@ import messager.center.config.*;
 public class MessageCleaner
     extends Thread
 {
+	
+	private static final Logger LOGGER = LogManager.getLogger(MessageCleaner.class.getName());
+	
     private static MessageCleaner instance;
 
     /**
@@ -59,7 +64,7 @@ public class MessageCleaner
             try {
                 sleep(period);
             }
-            catch (Exception ex) {}
+            catch (Exception ex) {LOGGER.error(ex);}
         }
     }
 
@@ -75,6 +80,8 @@ public class MessageCleaner
                 msgHandler.cleanMessage();
             }
         }
-        catch (Exception ex) {}
+        catch (Exception ex) {
+        	LOGGER.error(ex);
+        }
     }
 }

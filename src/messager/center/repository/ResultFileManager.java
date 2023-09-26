@@ -3,6 +3,8 @@ package messager.center.repository;
 import java.io.*;
 
 import messager.center.config.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Unit의 발송 결과 파일들을 Message별로 관리한다.
@@ -15,6 +17,8 @@ import messager.center.config.*;
  */
 public class ResultFileManager
 {
+	private static final Logger LOGGER = LogManager.getLogger(ResultFileManager.class.getName());
+	
     private final static String dirName = "result";
 
     private static File dirFile;
@@ -70,6 +74,7 @@ public class ResultFileManager
             out.write(data, 0, data.length);
         }
         catch (Exception exception) {
+        	LOGGER.error(exception);
             ex = exception;
         }
         finally {
@@ -78,6 +83,7 @@ public class ResultFileManager
                     out.close();
                 }
                 catch (IOException ex1) {
+                	LOGGER.error(ex1);
                 }
                 out = null;
             }
@@ -121,6 +127,7 @@ public class ResultFileManager
             }
         }
         catch (Exception ex1) {
+        	LOGGER.error(ex1);
             ex = ex1;
         }
         finally {
@@ -129,6 +136,7 @@ public class ResultFileManager
                     in.close();
                 }
                 catch (IOException ex2) {
+                	LOGGER.error(ex2);
                 }
                 in = null;
             }

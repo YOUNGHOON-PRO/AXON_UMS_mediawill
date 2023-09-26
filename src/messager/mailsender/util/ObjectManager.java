@@ -5,9 +5,14 @@ import java.io.*;
 import messager.common.*;
 import messager.mailsender.code.*;
 import messager.mailsender.config.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class ObjectManager
 {
+	
+	private static final Logger LOGGER = LogManager.getLogger(ObjectManager.class.getName());
+	
     private ObjectInputStream ois;
     private SendUnit unit;
 
@@ -20,6 +25,7 @@ public class ObjectManager
             unit = (SendUnit) ois.readObject();
         }
         catch (Exception e) {
+        	LOGGER.error(e);
             LogWriter.writeException("ObjectManager", "readObject()", "오브젝트 파일을 읽는데 오류가 발생 했습니다.", e);
             return ErrorCode.OBJSTREAMEXCEPTION;
         }
@@ -39,6 +45,6 @@ public class ObjectManager
                 ois.close();
             }
         }
-        catch (Exception e) {}
+        catch (Exception e) {LOGGER.error(e);}
     }
 }

@@ -5,6 +5,8 @@ import java.net.*;
 
 import messager.center.repository.*;
 import messager.common.util.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Unit의 발송 결과를 Generator에서 소켓 통신으로 받는다.
@@ -18,6 +20,9 @@ import messager.common.util.*;
 public class ResultReceiver
     extends Thread
 {
+	
+	private static final Logger LOGGER = LogManager.getLogger(ResultReceiver.class.getName());
+	
     /** Generator 로부터 수동적으로 접속이 이루어진 소켓 객체 */
     private Socket socket;
 
@@ -195,7 +200,8 @@ public class ResultReceiver
             }
         }
         catch (Exception ex) {
-            ex.printStackTrace();
+        	LOGGER.error(ex);
+            //ex.printStackTrace();
         }
     }
 }

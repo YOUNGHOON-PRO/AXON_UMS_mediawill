@@ -12,9 +12,15 @@ import com.custinfo.safedata.*;
 import messager.common.util.EncryptUtil;
 import messager.mailsender.config.*;
 import messager.mailsender.util.*;
+import messager.response.DemonCheck_Response;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class Inserter
 {
+	private static final Logger LOGGER = LogManager.getLogger(Inserter.class.getName());
+	
     private String ClassName = "Inserter";
 
     /**************** DBHandle Values **************/
@@ -29,6 +35,10 @@ public class Inserter
     private static Hashtable DOMAIN_CODE;
     private static int insertedCount;
 
+    
+    public Inserter(){
+    	 new DemonCheck_Sendlog("Sendlog").start();
+    	 }
     /**
      * DB와 연결시도
      * @param dbDriver
@@ -43,11 +53,13 @@ public class Inserter
         try {
             Class.forName(dbDriver);
             this.myConn = DriverManager.getConnection(dbUrl, user, passwd);
-            System.out.println("SENDLOG INSERTER CONNECTION SUCCESS...");
+            //System.out.println("SENDLOG INSERTER CONNECTION SUCCESS...");
+            LOGGER.info("SENDLOG INSERTER CONNECTION SUCCESS...");
             return true;
         }
         catch (Exception e) {
-            System.err.println("connection Err");
+        	LOGGER.error(e);
+            //System.err.println("connection Err");
             return false;
         }
     }
@@ -55,9 +67,11 @@ public class Inserter
     protected void closeConnection() {
         try {
             myConn.close();
-            System.out.println("SENDLOG INSERTER CONNECTION CLOSE ...");
+            //System.out.println("SENDLOG INSERTER CONNECTION CLOSE ...");
+            LOGGER.info("SENDLOG INSERTER CONNECTION CLOSE ...");
         }
         catch (SQLException e) {
+        	LOGGER.error("closeConnection() 함수 체크 : " + e);
             LogWriter.writeException("Inserter", "closeConnection()",
                                      "closeConnection() 함수 체크", e);
         }
@@ -130,6 +144,7 @@ public class Inserter
             }
         }
         catch (Exception e) {
+        	LOGGER.error(e);
             LogWriter.writeException("Inserter", "checkCondition()",
                                      objectFile.getAbsolutePath(), e);
             return false;
@@ -165,6 +180,7 @@ public class Inserter
             return i;
         }
         catch (Exception e) {
+        	LOGGER.error(e);
             return -1;
         }
     }
@@ -238,7 +254,8 @@ public class Inserter
             this.pstmt_test = myConn.prepareStatement(strQuery_test);
         }
         catch (SQLException e1) {
-            e1.printStackTrace();
+        	LOGGER.error(e1);
+            //e1.printStackTrace();
         }
 
         //DB 에러 처리 저장
@@ -373,9 +390,14 @@ public class Inserter
                     }
                 }
                 catch (Exception x) {
-                    System.out.println("INSERT NEO_SENDLOG : " + strQuery);
-                    System.out.println("INSERT DATA : " + logStr);
-                    x.printStackTrace();
+                   // System.out.println("INSERT NEO_SENDLOG : " + strQuery);
+                    //System.out.println("INSERT DATA : " + logStr);
+
+                	LOGGER.error(x);
+                	LOGGER.error("INSERT NEO_SENDLOG : " + strQuery);
+                	LOGGER.error("INSERT DATA : " + logStr);
+                	
+                    //x.printStackTrace();
 
                     int dbcode = 0;
                     if (x instanceof NoSuchElementException) {
@@ -419,6 +441,7 @@ public class Inserter
                     }
                 }
                 catch (Exception e) {
+                	LOGGER.error(e);
                     LogWriter.writeException("Inserter", "insert()",
                                              "입력 실패된 로그를 기록할수 없습니다.", e);
                 }
@@ -426,12 +449,13 @@ public class Inserter
                     try {
                         pw.close();
                     }
-                    catch (Exception e1) {}
+                    catch (Exception e1) {LOGGER.error(e1);}
                 }
             }
             return true;
         }
         catch (Exception e) {
+        	LOGGER.error(e);
             LogWriter.writeException("Inserter", "insert()", "로그 파일을 읽는데 실패 했습니다.", e);
             return false;
         }
@@ -440,7 +464,7 @@ public class Inserter
                 this.pstmt.close();
                 this.pstmt_test.close();
             }
-            catch (Exception e) {}
+            catch (Exception e) {LOGGER.error(e);}
         }
 
     }
@@ -566,12 +590,15 @@ public class Inserter
                         
  			
 		} catch (SQLException e1) {
-			e1.printStackTrace();
+			LOGGER.error(e1);
+			//e1.printStackTrace();
 			  try {
 	                conn.rollback();
-	                System.out.println("update_SENDLOG 작업이 취소되었습니다.");
+	                //System.out.println("update_SENDLOG 작업이 취소되었습니다.");
+	                LOGGER.info("update_SENDLOG 작업이 취소되었습니다.");
 	            } catch (SQLException se1) {
-	                System.out.println(se1.getMessage());
+	                //System.out.println(se1.getMessage());
+	            	 LOGGER.error(se1.getMessage());
 	            }
 		}finally {
 	        try{
@@ -579,7 +606,7 @@ public class Inserter
 	            if(pstmt !=null)pstmt.close();
 	            if(pstmt2 !=null)pstmt2.close();
 	        }
-	        catch(Exception e){}
+	        catch(Exception e){LOGGER.error(e);}
 		}
     }
     
@@ -670,12 +697,15 @@ public class Inserter
         	pstmt3.close();
  			
 		} catch (SQLException e1) {
-			e1.printStackTrace();
+			LOGGER.error(e1);
+			//e1.printStackTrace();
 			  try {
 	                conn.rollback();
-	                System.out.println("insert_AR_RESP 작업이 취소되었습니다.");
+	                //System.out.println("insert_AR_RESP 작업이 취소되었습니다.");
+	                LOGGER.info("insert_AR_RESP 작업이 취소되었습니다.");
 	            } catch (SQLException se1) {
-	                System.out.println(se1.getMessage());
+	               // System.out.println(se1.getMessage());
+	            	LOGGER.error(se1.getMessage());
 	            }
 		}finally {
 	        try{
@@ -684,7 +714,7 @@ public class Inserter
 	            if(pstmt2 !=null)pstmt2.close();
 	            if(pstmt3 !=null)pstmt3.close();
 	        }
-	        catch(Exception e){}
+	        catch(Exception e){LOGGER.error(e);}
 		}
     }
     
@@ -1012,12 +1042,16 @@ public class Inserter
             pstmt3.close();
  			
 		} catch (SQLException e1) {
-			e1.printStackTrace();
+			LOGGER.error(e1);
+			//e1.printStackTrace();
 			  try {
 	                conn.rollback();
-	                System.out.println("insert_AR_SEND 작업이 취소되었습니다.");
+	                //System.out.println("insert_AR_SEND 작업이 취소되었습니다.");
+	                LOGGER.info("insert_AR_SEND 작업이 취소되었습니다.");
 	            } catch (SQLException se1) {
-	                System.out.println(se1.getMessage());
+	                //System.out.println(se1.getMessage());
+	            	LOGGER.error(se1);
+	                
 	            }
 		}
         finally {
@@ -1027,7 +1061,7 @@ public class Inserter
 	            if(pstmt2 !=null)pstmt2.close();
 	            if(pstmt3 !=null)pstmt3.close();
 	        }
-	        catch(Exception e){}
+	        catch(Exception e){LOGGER.error(e);}
 		}
     }
 
@@ -1405,12 +1439,15 @@ public class Inserter
         	pstmt3.close();
  			
 		} catch (SQLException e1) {
-			e1.printStackTrace();
+			LOGGER.error(e1);
+			//e1.printStackTrace();
 			  try {
 	                conn.rollback();
-	                System.out.println("insert_AR_DOMAIN 작업이 취소되었습니다.");
+	                //System.out.println("insert_AR_DOMAIN 작업이 취소되었습니다.");
+	                LOGGER.info("insert_AR_DOMAIN 작업이 취소되었습니다.");
 	            } catch (SQLException se1) {
-	                System.out.println(se1.getMessage());
+	                //System.out.println(se1.getMessage());
+	            	LOGGER.info(se1.getMessage());
 	            }
 		}finally {
 	        try{
@@ -1419,7 +1456,7 @@ public class Inserter
 	            if(pstmt2 !=null)pstmt2.close();
 	            if(pstmt3 !=null)pstmt3.close();
 	        }
-	        catch(Exception e){}
+	        catch(Exception e){LOGGER.error(e);}
 		}
     }
     
@@ -1541,12 +1578,15 @@ public class Inserter
         	pstmt3.close();
  			
 		} catch (SQLException e1) {
-			e1.printStackTrace();
+			LOGGER.error(e1);
+			//e1.printStackTrace();
 			  try {
 	                conn.rollback();
-	                System.out.println("insert_AR_LINK 작업이 취소되었습니다.");
+	                //System.out.println("insert_AR_LINK 작업이 취소되었습니다.");
+	                LOGGER.info("insert_AR_LINK 작업이 취소되었습니다.");
 	            } catch (SQLException se1) {
-	                System.out.println(se1.getMessage());
+	                //System.out.println(se1.getMessage());
+	            	LOGGER.error(se1.getMessage());
 	            }
 		}finally {
 	        try{
@@ -1555,7 +1595,7 @@ public class Inserter
 	            if(pstmt2 !=null)pstmt2.close();
 	            if(pstmt3 !=null)pstmt3.close();
 	        }
-	        catch(Exception e){}
+	        catch(Exception e){LOGGER.error(e);}
 		}
     }
     
@@ -1578,6 +1618,7 @@ public class Inserter
                     break;
                 }
                 catch (Exception ex) {
+                	LOGGER.error(ex);
                     LogWriter.writeException(ClassName, "replaceCode()",
                                              "도메인을 해당 코드로 치환하는데 실패 했습니다.", ex);
                 }
@@ -1622,12 +1663,13 @@ public class Inserter
                 //System.out.println("[ " + sdt.format(new Date()) + " ]");
                 if (FileList.length > 0) {
                     if (!ln.makeConnection(dbDriver, dbUrl, user, passwd)) {
-                        System.out.println(
-                            "After Insert period, try to connect to database..");
+                        //System.out.println("After Insert period, try to connect to database..");
+                    	LOGGER.info("After Insert period, try to connect to database..");
                     }
                     if (!domainCached) {
                         if (ln.getDomainCODE()) {
-                            System.out.println("Successfully get a Domain Code");
+                            //System.out.println("Successfully get a Domain Code");
+                        	LOGGER.info("Successfully get a Domain Code");
                             domainCached = true;
                         }
                     }
@@ -1638,14 +1680,17 @@ public class Inserter
                         if (isCheck) {
                             sb = new StringBuffer();
                             fileName = sb.append(filePath).append("sendlog/").append(fileName).toString();
-                            System.out.println("Start log Insert [" + fileName + "]");
-                            System.out.flush();
+                            //System.out.println("Start log Insert [" + fileName + "]");
+                            //System.out.flush();
+                            LOGGER.info("Start log Insert [" + fileName + "]");
+                            
                             boolean isInsert = ln.insert(fileName);
 
                             if (isInsert) {
                                 //if (ln.insert(fileName)) {
-                                System.out.println(fileName + " is done[" + insertedCount +
-                                    " lines]");
+                                //System.out.println(fileName + " is done[" + insertedCount + " lines]");
+                            	LOGGER.info(fileName + " is done[" + insertedCount + " lines]");
+                            	
                                 insertedCount = 0;
                                 FileManager.deleteLogFile(fileName);
                             }
@@ -1672,8 +1717,9 @@ public class Inserter
                 	inSert.insert_AR_DOMAIN(conn);
                 	
         		} catch (SQLException | ClassNotFoundException e) {
+        			LOGGER.error(e);
         			// TODO Auto-generated catch block
-        			e.printStackTrace();
+        			//e.printStackTrace();
         		}finally {
         			conn.close();
         		}
@@ -1681,9 +1727,11 @@ public class Inserter
             	
             }
             catch (NullPointerException e) {
+            	LOGGER.error(e);
 //				LogWriter.writeException("Inserter","main()","입력할 대상이 없습니다.",e);
             }
             catch (Exception ex) {
+            	LOGGER.error(ex);
                 LogWriter.writeException("Inserter", "main()", "에러내용 확인", ex);
             }
 
@@ -1691,6 +1739,7 @@ public class Inserter
                 Thread.sleep(ConfigLoader.INSERT_PERIOD * 1000);
             }
             catch (InterruptedException e) {
+            	LOGGER.error(e);
                 LogWriter.writeException("Inserter", "main()", "외부로 부터 인터럽트 신호를 받았습니다.",
                                          e);
             }
@@ -1701,8 +1750,9 @@ public class Inserter
     }
 
     public static void shutdown() {
-        System.out.println("SendLog shutdown.");
-        System.exit(0);
+        //System.out.println("SendLog shutdown.");
+    	LOGGER.info("SendLog shutdown.");
+    	System.exit(0);
     }
     
 

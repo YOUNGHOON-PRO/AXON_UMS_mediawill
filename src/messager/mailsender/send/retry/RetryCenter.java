@@ -11,10 +11,14 @@ import messager.mailsender.send.*;
 import messager.mailsender.send.dns.*;
 import messager.mailsender.sendlog.*;
 import messager.mailsender.util.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class RetryCenter
     extends Thread
 {
+	private static final Logger LOGGER = LogManager.getLogger(RetryCenter.class.getName());
+	
     /*************** ConfigLoader Values ****************/
     private int RETRY_SENDER_AGENT; // 재발송 AGENT수
     private int RETRY_TIMES; // 재발송 횟수
@@ -63,8 +67,9 @@ public class RetryCenter
         Vector dmRList = new Vector();
         dmRList = rBundle.getMessage();
 
-        System.out.println("Retry send start ..... [UNIT NAME:" + unitName + "][DOMAIN COUNT:" + dmRList.size() + "][UNIT COUNT:" + retryList.size() + "]");
-
+        //System.out.println("Retry send start ..... [UNIT NAME:" + unitName + "][DOMAIN COUNT:" + dmRList.size() + "][UNIT COUNT:" + retryList.size() + "]");
+        LOGGER.info("Retry send start ..... [UNIT NAME:" + unitName + "][DOMAIN COUNT:" + dmRList.size() + "][UNIT COUNT:" + retryList.size() + "]");
+        
         boolean bLoop = false;
         String currentDomain = "";
 

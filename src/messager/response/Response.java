@@ -19,12 +19,20 @@ import messager.response.util.utilLogWriter;
 import java.text.*;
 
 import messager.response.JdbcConnection;
+import messager.mailsender.DemonCheck_MailSender;
 import messager.response.Config_File_Receiver;
 import messager.response.LogWriter;
 //import com.util.NeoQueue_DirManager;
 
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 public class Response extends Thread
 {
+	
+	private static final Logger LOGGER = LogManager.getLogger(Response.class.getName());
+	
 	
 	//수신확인테이블 검색용쿼리
 	//public static String RES_SEARCH_QUERY = "SELECT CUST_ID FROM NEO_RESPLOG WHERE TASK_NO=? and CUST_ID=?";
@@ -53,10 +61,15 @@ public class Response extends Thread
 
 	public Response()
 	{
+		
+		LOGGER.info("response 정상");
+		LOGGER.error("response error");
 		Config_File_Receiver CFR = new Config_File_Receiver();
 		config_File_Receiver = CFR.getInstance();
 		logWriter = new LogWriter();
 		start();
+		
+		 new DemonCheck_Response("Response").start();
 	}
 
 	public void run()
@@ -82,6 +95,7 @@ public class Response extends Thread
 				
 			}
 			catch(Exception e) {
+				LOGGER.error(e);
 				logWriter.logWrite("Response", "run()", e);
 			}
 		}
@@ -132,19 +146,22 @@ public class Response extends Thread
 			jc = JdbcConnection.getWorkConnection();
 			 jc.newConnection();
 		} catch (ClassNotFoundException e1) {
+			LOGGER.error(e1);
 			// TODO Auto-generated catch block
-			e1.printStackTrace();
+			//e1.printStackTrace();
 		} catch (SQLException e1) {
+			LOGGER.error(e1);
 			// TODO Auto-generated catch block
-			e1.printStackTrace();
+			//e1.printStackTrace();
 		}
          con_work = jc.getConnection();
          
          try {
 			con_work.setAutoCommit(false);
 		} catch (SQLException e1) {
+			LOGGER.error(e1);
 			// TODO Auto-generated catch block
-			e1.printStackTrace();
+			//e1.printStackTrace();
 		}
          
 		//Connection con_work = DBConnection.getConnection();
@@ -204,8 +221,10 @@ public class Response extends Thread
 									pstmt.setString(10, "000"  );
 									try {
 										pstmt.executeUpdate();
-										System.out.println("수신확인 : "+ taskNo + "  "+custId + "  "+ openDate);
+										//System.out.println("수신확인 : "+ taskNo + "  "+custId + "  "+ openDate);
+										LOGGER.info("수신확인 : "+ taskNo + "  "+custId + "  "+ openDate);
 									} catch (Exception e) {
+										LOGGER.error(e);
 										// TODO: handle exception
 										//System.out.println("중복수신 : "+e.getMessage());
 								}
@@ -231,7 +250,8 @@ public class Response extends Thread
 			
 		}catch(Exception e)
 		{
-			e.printStackTrace();
+			LOGGER.error(e);
+			//e.printStackTrace();
 			//에러 로그에 남겨준다.
 //			ErrorLogGenerator.setErrorLogFormat("LogFileManager", ReserveStatusCode.SQL_ERROR_TYPE,ReserveStatusCode.RESPONSE_LOG_FAIL_COMMENT,mID);
 			return_value = false;
@@ -245,7 +265,8 @@ public class Response extends Thread
 				if(con_work !=null) con_work.close();
 			}catch(Exception e)
 			{
-				e.printStackTrace();
+				LOGGER.error(e);
+				//e.printStackTrace();
 			}
 		}
 		return return_value;
@@ -254,7 +275,8 @@ public class Response extends Thread
 
 
 	public static void main(String[] args) {
-		System.out.println("Response Strart..");
+		//System.out.println("Response Strart..");
+		LOGGER.info("Response Strart..");
 		new Response();
 	}
 

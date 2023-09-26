@@ -2,6 +2,8 @@ package messager.common.util;
 
 import java.io.*;
 import java.util.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * conf/content-types.properties 파일을 읽어서 파일명의 확장자로 Content-Type을 얻는다.
@@ -10,6 +12,8 @@ import java.util.*;
  */
 public class MimeTable
 {
+	private static final Logger LOGGER = LogManager.getLogger(MimeTable.class.getName());
+	
     // None
     //public static final String ENC_NONE = "002";
 
@@ -112,7 +116,8 @@ public class MimeTable
             }
         }
         catch (IOException ex) {
-            ex.printStackTrace();
+        	LOGGER.error(ex);
+            //ex.printStackTrace();
         }
         finally {
             if (in != null) {
@@ -120,6 +125,7 @@ public class MimeTable
                     in.close();
                 }
                 catch (IOException ex) {
+                	LOGGER.error(ex);
                 }
             }
         }

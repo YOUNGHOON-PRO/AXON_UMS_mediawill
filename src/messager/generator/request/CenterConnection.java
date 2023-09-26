@@ -4,6 +4,9 @@ import java.io.*;
 import java.net.*;
 
 import messager.generator.config.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 
 /**
  * 이 클래스는 UnitInfo객체와 MessageInfo객체를 전송 받기 위한 MessageCenter와의 접속을 위한 클래스이다.
@@ -11,6 +14,8 @@ import messager.generator.config.*;
  */
 class CenterConnection
 {
+	private static final Logger LOGGER = LogManager.getLogger(CenterConnection.class.getName());
+	
     //MessageCenter의 host
     private static String centerHost;
 
@@ -116,6 +121,7 @@ class CenterConnection
 
             }
             catch (IOException ex) {
+            	LOGGER.error(ex);
             }
 
             in = null;
@@ -130,6 +136,7 @@ class CenterConnection
 
             }
             catch (IOException ex) {
+            	LOGGER.error(ex);
             }
 
             out = null;
@@ -144,6 +151,7 @@ class CenterConnection
 
             }
             catch (IOException ex) {
+            	LOGGER.error(ex);
             }
 
             socket = null;

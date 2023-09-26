@@ -6,10 +6,14 @@ import java.util.*;
 
 import messager.common.*;
 import messager.generator.content.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class WebAction
     extends Action
 {
+	private static final Logger LOGGER = LogManager.getLogger(WebAction.class.getName());
+	
     private final static String lineSeparator = "\r\n";
 
     private final static String urlKey = "web.url";
@@ -26,6 +30,7 @@ public class WebAction
             id = agent.getID();
         }
         catch (Exception ex) {
+        	LOGGER.error(ex);
             throw new AgentException(ErrorCode.CONTENT_INVALID, ex.getMessage());
         }
     }
@@ -38,6 +43,7 @@ public class WebAction
             url = urlTemplate.createURL(receiver);
         }
         catch (Exception ex) {
+        	LOGGER.error(ex);
             throw new AgentException(ErrorCode.MERGE_ERROR, ex.getMessage());
         }
 
@@ -53,6 +59,7 @@ public class WebAction
                 url = urlTemplate.createURL(receiver);
             }
             catch (Exception ex) {
+            	LOGGER.error(ex);
                 throw new AgentException(ErrorCode.MERGE_ERROR, ex.getMessage());
             }
 
@@ -135,6 +142,7 @@ public class WebAction
             
         }
         catch (Exception ex) {
+        	LOGGER.error(ex);
             exception = ex;
         }
         finally {
@@ -143,6 +151,7 @@ public class WebAction
                     reader.close();
                 }
                 catch (Exception ex) {
+                	LOGGER.error(ex);
                 }
                 reader = null;
             }

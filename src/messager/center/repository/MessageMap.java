@@ -1,7 +1,8 @@
 package messager.center.repository;
 
 import java.util.*;
-
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 /**
  * 발송 진행중이거나 대기중 중지된 상태, 일시 정지된 상태 모든 상태에 대하여 Message의
  * MessageHandler 객체를 저장하고 있다.
@@ -15,6 +16,8 @@ import java.util.*;
  */
 public class MessageMap
 {
+	private static final Logger LOGGER = LogManager.getLogger(MessageMap.class.getName());
+	
     private static MessageMap instance;
 
     /**
@@ -62,7 +65,8 @@ public class MessageMap
                 registry(messageHandler);
             }
             catch (Exception ex) {
-                ex.printStackTrace();
+            	LOGGER.error(ex);
+                //ex.printStackTrace();
             }
         }
     }
@@ -125,7 +129,8 @@ public class MessageMap
             msgHandler = new MessageHandler(messageID, messageStatus);
         }
         catch (Exception ex) {
-            ex.printStackTrace();
+        	LOGGER.error(ex);
+            //ex.printStackTrace();
         }
         if (msgHandler != null) {
             synchronized (lock) {

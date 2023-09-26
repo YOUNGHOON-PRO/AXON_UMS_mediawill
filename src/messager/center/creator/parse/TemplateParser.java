@@ -15,9 +15,13 @@ import java.io.*;
 import java.util.*;
 
 import messager.common.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class TemplateParser
 {
+	private static final Logger LOGGER = LogManager.getLogger(TemplateParser.class.getName());
+	
     private final static String lineSeparator = "\r\n";
 
     private final static int PUSHBACK_CHAR_SIZE = 1024;
@@ -82,6 +86,7 @@ public class TemplateParser
             // System.out.println("======");
         }
         catch (Exception ex) {
+        	LOGGER.error(ex);
             throw ex;
         }
         return template;

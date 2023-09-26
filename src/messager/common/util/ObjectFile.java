@@ -1,12 +1,17 @@
 package messager.common.util;
 
 import java.io.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * 객체를 Serializable를 통해서 File에 write하거나 File에서 객체를 읽는다.
  */
 public class ObjectFile
 {
+	
+	private static final Logger LOGGER = LogManager.getLogger(ObjectFile.class.getName());
+	
     /**
      * file에서 객체를 읽는다.
      *
@@ -28,9 +33,11 @@ public class ObjectFile
             object = objin.readObject();
         }
         catch (IOException ex) {
+        	LOGGER.error(ex);
             exception = ex;
         }
         catch (Exception ex) {
+        	LOGGER.error(ex);
             exception = new IOException(ex.getMessage());
         }
         finally {
@@ -39,6 +46,7 @@ public class ObjectFile
                     in.close();
                 }
                 catch (IOException ex) {
+                	LOGGER.error(ex);
                 }
             }
 
@@ -47,6 +55,7 @@ public class ObjectFile
                     objin.close();
                 }
                 catch (IOException ex) {
+                	LOGGER.error(ex);
                 }
             }
         }
@@ -76,9 +85,11 @@ public class ObjectFile
             objout.writeObject(object);
         }
         catch (IOException ex) {
+        	LOGGER.error(ex);
             exception = ex;
         }
         catch (Exception ex) {
+        	LOGGER.error(ex);
             exception = new IOException(ex.getMessage());
         }
         finally {
@@ -87,6 +98,7 @@ public class ObjectFile
                     objout.close();
                 }
                 catch (IOException ex) {
+                	LOGGER.error(ex);
                 }
             }
 
@@ -95,6 +107,7 @@ public class ObjectFile
                     out.close();
                 }
                 catch (IOException ex) {
+                	LOGGER.error(ex);
                 }
             }
         }

@@ -4,6 +4,8 @@ import java.io.*;
 import java.net.*;
 
 import messager.center.config.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * ServerSocket를 생성하고 Genreator로 부턴 접속을 대기하다가 접속이 이루어지면
@@ -17,6 +19,8 @@ import messager.center.config.*;
 public class ResultListener
     extends Thread
 {
+	private static final Logger LOGGER = LogManager.getLogger(ResultListener.class.getName());
+	
     /** 접속을 처리할 ServerSocket의 포트번호 */
     private static int port;
 
@@ -45,7 +49,8 @@ public class ResultListener
             }
         }
         catch (IOException ex) {
-            ex.printStackTrace();
+        	LOGGER.error(ex);
+            //ex.printStackTrace();
         }
     }
 }

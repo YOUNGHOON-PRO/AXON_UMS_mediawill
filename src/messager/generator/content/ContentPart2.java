@@ -32,6 +32,9 @@ import messager.common.MergeException;
 
 import com.pdf.convert.HtmlToPdf;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 /**
  * 컨텐츠를 생성한다.
  * Template 객체를 이용하여 머지를 실행하여 얻는 데이타를 인코딩을 실행한 후
@@ -44,6 +47,8 @@ import com.pdf.convert.HtmlToPdf;
  */
 public class ContentPart2
 {
+	private static final Logger LOGGER = LogManager.getLogger(ContentPart2.class.getName());
+	
     /** 라인 구분 String */
     private final static String lineSeparator = "\r\n";
 
@@ -134,6 +139,7 @@ public class ContentPart2
 
         }
         catch (MergeException ex) {
+        	LOGGER.error(ex);
             throw new GeneratorException(ErrorCode.MERGE_ERROR, ex.getMessage());
         }
 
@@ -168,8 +174,9 @@ public class ContentPart2
   		      try {
   				aCipherInterface = new VMCipherImpl();
   			} catch (SGException e2) {
+  				LOGGER.error(e2);
   				// TODO Auto-generated catch block
-  				e2.printStackTrace();
+  				//e2.printStackTrace();
   			}
   				String encMail = null;
   				String templateType1 = null;
@@ -178,8 +185,9 @@ public class ContentPart2
   				try {
   					templateType1 = readFile ("./template/template.html", "utf-8");
   				} catch (IOException e2) {
+  					LOGGER.error(e2);
   					// TODO Auto-generated catch block
-  					e2.printStackTrace();
+  					//e2.printStackTrace();
   				}
   				
   				try {
@@ -189,8 +197,9 @@ public class ContentPart2
   							templateType1);	// 템플릿 내용 
   					
   				} catch (SGException e1) {
+  					LOGGER.error(e1);
   					// TODO Auto-generated catch block
-  					e1.printStackTrace();
+  					//e1.printStackTrace();
   				}
   				try {
 
@@ -199,7 +208,8 @@ public class ContentPart2
   				//transferStr_vest = AAA;
 
   				} catch (IOException e) {
-  					e.printStackTrace();
+  					LOGGER.error(e);
+  					//e.printStackTrace();
 		            throw new GeneratorException(ErrorCode.SECUREFILE_ERROR, "securefile is null");
   				}
 
@@ -219,7 +229,8 @@ public class ContentPart2
         	try {
         		convert.htmlContentToEncryptPdf(data, pdfFile, rENCKEY);
         	}catch (Exception e) {
-				e.printStackTrace();
+        		LOGGER.error(e);
+				//e.printStackTrace();
 	            throw new GeneratorException(ErrorCode.SECUREFILE_ERROR, "securefile is null");
 			}
 
@@ -232,7 +243,7 @@ public class ContentPart2
               excelConverter.getWorkBook(fileName, "./sample/output/", rENCKEY);
           }catch (Exception e) {
 			// TODO: handle exception
-        	  System.out.println("");
+        	  LOGGER.error(e);
         	  e.printStackTrace();
         	  throw new GeneratorException(ErrorCode.SECUREFILE_ERROR, "excel 변환 오류");
           }
@@ -244,6 +255,7 @@ public class ContentPart2
             emlBuffer.append(encData).append(lineSeparator);
         }
         catch (Exception ex) {
+        	LOGGER.error(ex);
             if (ex instanceof java.io.UnsupportedEncodingException) {
                 throw new GeneratorException(ErrorCode.ENCODING_ERROR, ex
                                              .getMessage());
@@ -304,7 +316,8 @@ public class ContentPart2
  	        catch (IOException e1)
  	        {
  	            // TODO Auto-generated catch block
- 	            e1.printStackTrace();
+ 	            //e1.printStackTrace();
+ 	        	LOGGER.error(e1);
  	        }
  	        
  	        HtmlToExcelConverter excelConverter = new HtmlToExcelConverter(htmlData);
@@ -315,10 +328,13 @@ public class ContentPart2
  	        String enc ="123456";
  	        
  	        excelConverter.getWorkBook(fileName, "./sample/output", enc);
- 	        System.out.println("#### Success ####");
- 	        System.out.println("파일위치 :  ./sample/output"+fileName);
- 	        System.out.println("비밀번호 : "+enc);
- 	      
+ 	        //System.out.println("#### Success ####");
+ 	        //System.out.println("파일위치 :  ./sample/output"+fileName);
+ 	        //System.out.println("비밀번호 : "+enc);
+ 	        
+ 	       LOGGER.info("#### Success ####");
+ 	       LOGGER.info("파일위치 :  ./sample/output"+fileName);
+ 	       LOGGER.info("비밀번호 : "+enc);
  	   
  	    }
 
@@ -338,7 +354,8 @@ public class ContentPart2
  	        catch (IOException e)
  	        {
  	            // TODO Auto-generated catch block
- 	            e.printStackTrace();
+ 	            //e.printStackTrace();
+ 	        	LOGGER.error(e);
  	        }        
  	        finally {
  	            reader.close();

@@ -10,11 +10,15 @@ import messager.center.control.ControlListener;
 import messager.center.repository.MessageCleaner;
 import messager.center.repository.ProgressInsert;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 /**
  * main
  */
 public class Main
 {
+	private static final Logger LOGGER = LogManager.getLogger(Main.class.getName());
+	
     public static void main(String[] args) {
         try {
         	// properties파일 로드
@@ -35,17 +39,20 @@ public class Main
 
             MessageCleaner.executeThread();
 
-            
             new ProgressInsert().start();//발송 진행 사항 UPDATE 수행
+            
+            new DemonCheck_Center("Center").start();
         }
         catch (Exception ex) {
-            ex.printStackTrace();
+            //ex.printStackTrace();
+        	LOGGER.error(ex);
             System.exit(1);
         }
     }
 
     public static void shutdown() {
-        System.out.println("Center shutdown.");
+        //System.out.println("Center shutdown.");
         System.exit(0);
+        LOGGER.info("Center shutdown.");
     }
 }

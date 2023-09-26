@@ -6,8 +6,14 @@ import java.util.*;
 
 import messager.mailsender.config.*;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 public class LogWriter
 {
+	
+	private static final Logger LOGGER = LogManager.getLogger(LogWriter.class.getName());
+	
     public static void writeError(String className, String methodName, String error, String advice) {
         StringBuffer sb = new StringBuffer();
         String file_path = sb.append(ConfigLoader.TRANSFER_ROOT_DIR)
@@ -26,13 +32,16 @@ public class LogWriter
             sb.append("\t ERROR : ").append(error).append("\r\n");
             sb.append("\t ADVICE : ").append(advice);
 
-            System.out.println(sb.toString());
+            //System.out.println(sb.toString());
+            LOGGER.info(sb.toString());
+            
             pw.println(sb.toString());
 
             pw.flush();
         }
         catch (Exception e) {
-            e.printStackTrace();
+        	LOGGER.error(e);
+            //e.printStackTrace();
         }
         finally {
             try {
@@ -40,7 +49,7 @@ public class LogWriter
                     pw.close();
                 }
             }
-            catch (Exception e) {}
+            catch (Exception e) {LOGGER.error(e);}
         }
     }
 
@@ -50,6 +59,7 @@ public class LogWriter
             return simple.format(new Date());
         }
         catch (Exception e) {
+        	LOGGER.error(e);
             return "Date Error";
         }
     }
@@ -60,6 +70,7 @@ public class LogWriter
             return fmt.format(new Date());
         }
         catch (Exception e) {
+        	LOGGER.error(e);
             return "Date Error";
         }
     }
@@ -80,13 +91,16 @@ public class LogWriter
             sb.append("\t EXCEPTION : ").append(e.getLocalizedMessage()).append("\r\n");
             sb.append("\t ADVICE : ").append(advice);
 
-            System.out.println(sb.toString());
+            //System.out.println(sb.toString());
+            LOGGER.info(sb.toString());
+            
             pw.println(sb.toString());
 
             pw.flush();
         }
         catch (Exception ex) {
-            ex.printStackTrace();
+        	LOGGER.error(e);
+            //ex.printStackTrace();
         }
         finally {
             try {
@@ -94,7 +108,7 @@ public class LogWriter
                     pw.close();
                 }
             }
-            catch (Exception exw) {}
+            catch (Exception exw) {LOGGER.error(exw);}
         }
     }
 }

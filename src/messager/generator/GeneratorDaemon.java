@@ -3,9 +3,13 @@ package messager.generator;
 import org.apache.commons.daemon.Daemon;
 import org.apache.commons.daemon.DaemonContext;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 public class GeneratorDaemon
     implements Daemon
 {
+	private static final Logger LOGGER = LogManager.getLogger(GeneratorDaemon.class.getName());
+	
     private Main main;
 
     public GeneratorDaemon() {
@@ -24,7 +28,8 @@ public class GeneratorDaemon
             main.main(new String[1]);
         }
         catch (Exception e) {
-            e.printStackTrace();
+        	LOGGER.error(e);
+            //e.printStackTrace();
         }
         println("GeneratorDaemon instance: start(): out");
     }
@@ -51,6 +56,8 @@ public class GeneratorDaemon
     }
 
     private void println(String msg) {
-        System.out.println(getCurrentTime() + " : " + msg);
+        //System.out.println(getCurrentTime() + " : " + msg);
+    	LOGGER.info(getCurrentTime() + " : " + msg);
+        
     }
 }

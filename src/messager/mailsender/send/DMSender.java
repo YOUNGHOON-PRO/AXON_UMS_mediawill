@@ -12,10 +12,14 @@ import messager.mailsender.send.retry.*;
 import messager.mailsender.sendlog.*;
 import messager.mailsender.util.*;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 public class DMSender
     extends Thread
 {
-	
+
+	private static final Logger LOGGER = LogManager.getLogger(DMSender.class.getName());
 	 	 
     /*************** ConfigLoader Values ****************/
     private String SEND_DOMAIN; // 발송 도메인
@@ -269,7 +273,9 @@ public class DMSender
                     if (!accessor.writeUnitLogEndTime(System.currentTimeMillis())) {
                         LogWriter.writeError("DMSender", "sendMail()", "유닛 로그 파일을 작성하는데 문제가 있습니다.", "최종시간 기록");
                     }
-                    System.out.println(taskNo + "_" + subTaskNo + " Non Exsist Retry list");
+                    //System.out.println(taskNo + "_" + subTaskNo + " Non Exsist Retry list");
+                    LOGGER.info(taskNo + "_" + subTaskNo + " Non Exsist Retry list");
+                    
                     accessor.close();
 //                    System.out.println("###3### unitName :" +unitName);
 //                    System.out.println("###4### isAppended :" +isAppended);
@@ -390,6 +396,7 @@ public class DMSender
                                         }
                                     }
                                     catch (Exception e) {
+                                    	LOGGER.error(e);
                                         if (e instanceof FileNotFoundException) {
                                             writeOneRecord(element, "009", ErrorCode.HARDERROR, ErrorCode.HDP_DOT, "999",
                                                 fmt.format(new java.util.Date()), "File Not Found Exception");
@@ -452,6 +459,7 @@ public class DMSender
             } // End for loop
         }
         catch (Exception e) {
+        	LOGGER.error(e);
             LogWriter.writeException("DMSender", "sendSMTP()", " ", e);
         }
     }
@@ -557,7 +565,8 @@ public class DMSender
                     accessor.writeSendLogRecord(record);
                 }
                 catch (Exception e) {
-                    e.printStackTrace();
+                	LOGGER.error(e);
+                    //e.printStackTrace();
                 }
             }
             accessor.writeUnitLog(rowID, resultCode);
@@ -648,19 +657,35 @@ public class DMSender
      * 발송결과를 출력 한다.
      */
     private void printCount() {
-        System.out.println(new StringBuffer()
-                           .append("#############################################################").append("\r\n")
-                           .append("\t현재 쓰레드 그룹의 활성화된 쓰레드 수 : ").append(agentWatcher.getSize()).append("\r\n")
-                           .append("\tFinished Time : ").append(getTime()).append("\r\n")
-                           .append("\tNEO_TASK : ").append(unitName).append("\r\n")
-                           .append("\tTotal Count : ").append(cManager.getTotalCount()).append("\r\n")
-                           .append("\tSuccess Count : ").append(cManager.getSCount()).append("\r\n")
-                           .append("\tFail Count : ").append(cManager.getEndCount() -
-            cManager.getSCount()).append("\r\n")
-                           .append("#############################################################")
-                           .toString()
-                           );
+//        System.out.println(new StringBuffer()
+//                           .append("#############################################################").append("\r\n")
+//                           .append("\t현재 쓰레드 그룹의 활성화된 쓰레드 수 : ").append(agentWatcher.getSize()).append("\r\n")
+//                           .append("\tFinished Time : ").append(getTime()).append("\r\n")
+//                           .append("\tNEO_TASK : ").append(unitName).append("\r\n")
+//                           .append("\tTotal Count : ").append(cManager.getTotalCount()).append("\r\n")
+//                           .append("\tSuccess Count : ").append(cManager.getSCount()).append("\r\n")
+//                           .append("\tFail Count : ").append(cManager.getEndCount() -
+//            cManager.getSCount()).append("\r\n")
+//                           .append("#############################################################")
+//                           .toString()
+//                           );
+        
+        LOGGER.info(new StringBuffer()
+                .append("#############################################################").append("\r\n")
+                .append("\t현재 쓰레드 그룹의 활성화된 쓰레드 수 : ").append(agentWatcher.getSize()).append("\r\n")
+                .append("\tFinished Time : ").append(getTime()).append("\r\n")
+                .append("\tNEO_TASK : ").append(unitName).append("\r\n")
+                .append("\tTotal Count : ").append(cManager.getTotalCount()).append("\r\n")
+                .append("\tSuccess Count : ").append(cManager.getSCount()).append("\r\n")
+                .append("\tFail Count : ").append(cManager.getEndCount() -
+           cManager.getSCount()).append("\r\n")
+                .append("#############################################################")
+                .toString()
+                );
     }
+    
+
+    
 
     /**
      *  발송 완료된 domainMessage에 대해 Thread를 종료한다.
@@ -682,6 +707,7 @@ public class DMSender
             }
         }
         catch (Exception e) {
+        	LOGGER.error(e);
             LogWriter.writeException("DMSender", "closeChannel()", "소켓을 닫는데 실패 했습니다.", e);
             return false;
         }
@@ -691,7 +717,7 @@ public class DMSender
                     socket.closeConnect();
                 }
             }
-            catch (Exception e) {}
+            catch (Exception e) {LOGGER.error(e);}
         }
         return true;
     }
@@ -707,6 +733,7 @@ public class DMSender
             return fmt.format(new Date());
         }
         catch (Exception e) {
+        	LOGGER.error(e);
             return "Date Error";
         }
     }
@@ -740,6 +767,7 @@ public class DMSender
                         rList.addElement(String.valueOf(nIndex));
                     }
                     catch (Exception e) {
+                    	LOGGER.error(e);
                         LogWriter.writeException("DMSender", "extractMembers()", "재발송 대상을 리스트에 담는데 실패했습니다.", e);
                     }
                 }
@@ -747,9 +775,11 @@ public class DMSender
             }
         }
         catch (IOException e) {
+        	LOGGER.error(e);
             LogWriter.writeException("DMSender", "extractMembers", "재발송 대상자를 만드는데 실패 했습니다.", e);
         }
         catch (NullPointerException e) {
+        	LOGGER.error(e);
             LogWriter.writeException("DMSender", "extractMembers",
                                      "재발송 대상자가 없습니다.(" + unitName + ") " + rList.size(), e);
         }

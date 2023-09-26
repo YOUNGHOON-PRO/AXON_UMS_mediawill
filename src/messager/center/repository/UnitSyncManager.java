@@ -4,6 +4,8 @@ import java.io.*;
 import java.util.*;
 
 import messager.center.config.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Unit의 대한 동기화 파일을 Message 단위로 관리하기 위한 객체이다. 동기화 파일은 Unit의 load가 된 시점부터
@@ -13,6 +15,8 @@ import messager.center.config.*;
  */
 public class UnitSyncManager
 {
+	private static final Logger LOGGER = LogManager.getLogger(UnitSyncManager.class.getName());
+	
     private static final String dirName = "sync_unit";
 
     private static File dirFile;
@@ -80,6 +84,7 @@ public class UnitSyncManager
             unitSyncFile.createNewFile();
         }
         catch (Exception ex) {
+        	LOGGER.error(ex);
             throw new RepositoryException(ex.getMessage());
         }
     }

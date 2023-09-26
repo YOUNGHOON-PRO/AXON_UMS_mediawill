@@ -3,9 +3,14 @@ package messager.mailsender.send.dns;
 import java.io.*;
 import java.net.*;
 import java.util.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class Lookup
 {
+	
+	private static final Logger LOGGER = LogManager.getLogger(Lookup.class.getName());
+	
     Vector result = new Vector(); // Exchanger or Address
     private String nameServer;
     public static String errorMessage;
@@ -31,6 +36,7 @@ public class Lookup
                         received = true;
                     }
                     catch (InterruptedIOException ex) {
+                    	LOGGER.error(ex);
                         if (count++ >= 3) {
                             throw new UnknownHostException(hostName + " : NOT Exist Domain");
 
@@ -43,9 +49,11 @@ public class Lookup
             }
         }
         catch (UnknownHostException e) {
+        	LOGGER.error(e);
             //LogWriter.writeException("Lookup", "init()", "Lookup Total - UnknownHostException",e);
         }
         catch (IOException e) {
+        	LOGGER.error(e);
             errorMessage = e.toString();
             //LogWriter.writeException("Lookup", "init()", "Lookup Total - IOException", e);
         }

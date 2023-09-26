@@ -5,6 +5,8 @@ import java.sql.*;
 import java.util.*;
 
 import messager.center.config.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * JDBC의 Connection 객체 Wrapper 클래스로 DB의 charset과 컨텐츠의 charset으로 String를 변환를
@@ -12,6 +14,8 @@ import messager.center.config.*;
  */
 public class JdbcConnection_bank
 {
+	private static final Logger LOGGER = LogManager.getLogger(JdbcConnection_bank.class.getName());
+	
     //WorkDB의 접속 정보가 들어있는 Properties 객체
     private static Properties workDBProperties;
 
@@ -228,6 +232,7 @@ public class JdbcConnection_bank
                 connection.close();
             }
             catch (Exception ex) {
+            	LOGGER.error(ex);
             }
             connection = null;
         }

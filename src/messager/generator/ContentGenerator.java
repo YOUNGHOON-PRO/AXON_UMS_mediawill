@@ -17,6 +17,8 @@ import messager.generator.content.Address;
 import messager.generator.content.ErrorCode;
 import messager.generator.content.GeneratorException;
 import messager.generator.config.ConfigLoader;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Unit에 포함된 대상자의 이메일 컨텐츠를 생성한다.
@@ -26,6 +28,9 @@ import messager.generator.config.ConfigLoader;
  * Window - Preferences - Java - Code Style - Code Templates
  */
 public class ContentGenerator {
+	
+	private static final Logger LOGGER = LogManager.getLogger(ContentGenerator.class.getName());
+	
 	private static String logTimeFormat;
 
 	private static String separator = "|";
@@ -242,6 +247,7 @@ public class ContentGenerator {
 
 			boolValue = releaseUnit();
 		} catch (Exception ex) {
+			LOGGER.error(ex);
 			exception = ex;
 		}
 
@@ -347,6 +353,7 @@ public class ContentGenerator {
 				}
 			}
 		} catch (Exception exception) {
+			LOGGER.error(exception);
 			ex = exception;
 		}
 		if (ex != null) {
@@ -484,6 +491,7 @@ public class ContentGenerator {
 
 				list.add(address);
 			} catch (Exception ex) {
+				LOGGER.error(ex);
 			}
 		}
 		return list;

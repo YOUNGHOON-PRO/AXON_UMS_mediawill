@@ -10,6 +10,8 @@ import messager.center.repository.*;
 import messager.common.*;
 import messager.common.util.*;
 import com.custinfo.safedata.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * 이 클래스는 Mail Queue 테이블에서 발송 예약된 메시지를 검색하고 Mail Queue 테이블에서 검색된 메시지를 삭제하고
@@ -18,6 +20,7 @@ import com.custinfo.safedata.*;
 public class MessageListener
     extends Thread
 {
+	private static final Logger LOGGER = LogManager.getLogger(MessageListener.class.getName());
 
 	//DBType 추가
     private static String insert_dbtype;
@@ -144,7 +147,8 @@ public class MessageListener
                     instance = new MessageListener();
                 }
                 catch (Exception ex) {
-                    ex.printStackTrace();
+                	LOGGER.error(ex);
+                    //ex.printStackTrace();
                     if (ex instanceof ClassNotFoundException) {
                         System.exit(1);
                     }
@@ -196,6 +200,7 @@ public class MessageListener
             sleep(fetchPeriod);
         }
         catch (InterruptedException ex) {
+        	LOGGER.error(ex);
         }
     }
 
@@ -257,6 +262,7 @@ public class MessageListener
                                     obj = new Integer(ivalue);
                                 }
                                 catch (NumberFormatException ex) {
+                                	LOGGER.error(ex);
                                 }
                             }
                         }
@@ -400,7 +406,8 @@ public class MessageListener
             }
         }
         catch (Exception ex) {
-            ex.printStackTrace();
+            //ex.printStackTrace();
+        	LOGGER.error(ex);
             exception = ex;
         }
         finally {
@@ -409,6 +416,7 @@ public class MessageListener
                     rset.close();
                 }
                 catch (SQLException ex) {
+                	LOGGER.error(ex);
                 }
             }
 
@@ -417,6 +425,7 @@ public class MessageListener
                     pstmt.close();
                 }
                 catch (SQLException ex) {
+                	LOGGER.error(ex);
                 }
             }
         }
@@ -469,6 +478,7 @@ public class MessageListener
             }
         }
         catch (Exception ex) {
+        	LOGGER.error(ex);
             exception = ex;
         }
         finally {
@@ -477,6 +487,7 @@ public class MessageListener
                     pstmt.close();
                 }
                 catch (SQLException ex) {
+                	LOGGER.error(ex);
                 }
             }
         }
@@ -510,11 +521,13 @@ public class MessageListener
                 }
             }
             catch (SQLException ex) {
-                ex.printStackTrace();
+            	LOGGER.error(ex);
+                //ex.printStackTrace();
                 dbClose = true;
             }
             catch (Exception ex) {
-                ex.printStackTrace();
+            	LOGGER.error(ex);
+                //ex.printStackTrace();
                 dbClose = true;
             }
             if (dbClose) {
@@ -536,7 +549,7 @@ public class MessageListener
             java.util.Date dateTime = timeFormatter.parse(endTime);
             time = dateTime.getTime() - (60 * 60 * 24);
         }
-        catch (Exception ex) {}
+        catch (Exception ex) {LOGGER.error(ex);}
         return time;
     }
 

@@ -1,12 +1,15 @@
 package messager.common.util;
 
 import java.io.UnsupportedEncodingException;
-
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 /**
  * 컨텐츠 인코드를 하는 클래스의 수퍼 클래스로 8bit로 인코딩 한다. 특정 인코딩을 사용하려면 확장 클래스에서 구현해야 한다.
  */
 public class Encoder
 {
+	private static final Logger LOGGER = LogManager.getLogger(Encoder.class.getName());
+	
     protected String javaCharsetName;
     /**
      * Encoder 객체를 생성한다.
@@ -65,6 +68,7 @@ public class Encoder
             }
         }
         catch (UnsupportedEncodingException ex) {
+        	LOGGER.error(ex);
         }
         return str;
     }

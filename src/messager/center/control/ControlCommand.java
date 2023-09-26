@@ -3,7 +3,8 @@ package messager.center.control;
 import java.io.*;
 
 import messager.common.util.*;
-
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 /**
  * 작업 관리자로 부터 보내온 스트림(byte배열)을 분석하여 실행할 명령 코드를 얻는다.
  * 스트림의 포맷
@@ -18,6 +19,8 @@ import messager.common.util.*;
  */
 class ControlCommand
 {
+	private static final Logger LOGGER = LogManager.getLogger(ControlCommand.class.getName());
+	
     /** 발송 리스트 명령 코드 */
     public final static int CMD_LIST = 0;
 
@@ -88,11 +91,13 @@ class ControlCommand
             //스트림에서 SubTaskNo를 얻는다.
             subTaskNo = BytesUtil.bytes2int(bytes, OFFSET_SUB_TASK_NO);
 
-            System.out.println("ControlCommand.readCommand() : command ==> " + command + ",taskNo ==>  " + taskNo + ",subTaskNo ==>  " + subTaskNo);
+            //System.out.println("ControlCommand.readCommand() : command ==> " + command + ",taskNo ==>  " + taskNo + ",subTaskNo ==>  " + subTaskNo);
+            LOGGER.info("ControlCommand.readCommand() : command ==> " + command + ",taskNo ==>  " + taskNo + ",subTaskNo ==>  " + subTaskNo);
 
         }
         catch (Exception ex) {
-            System.out.println("ControlCommand.readCommand() : 에러 발생 ==> " + ex.toString());
+            //System.out.println("ControlCommand.readCommand() : 에러 발생 ==> " + ex.toString());
+        	LOGGER.error("ControlCommand.readCommand() : 에러 발생 ==> " + ex.toString());
             command = CMD_QUIT;
         }
     }

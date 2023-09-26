@@ -4,9 +4,13 @@ import java.sql.*;
 import java.util.*;
 
 import messager.center.db.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 class DBSendToUpdate
 {
+	private static final Logger LOGGER = LogManager.getLogger(DBSendToUpdate.class.getName());
+	
     private JdbcConnection connection;
     private PreparedStatement pstmt;
 
@@ -20,6 +24,7 @@ class DBSendToUpdate
             pstmt = connection.prepareStatement(sql);
         }
         catch (Exception ex) {
+        	LOGGER.error(ex);
             exception = ex;
             ex.printStackTrace();
         }
@@ -46,7 +51,8 @@ class DBSendToUpdate
             }
         }
         catch (Exception ex) {
-            ex.printStackTrace();
+        	LOGGER.error(ex);
+            //ex.printStackTrace();
         }
         return success;
     }
@@ -56,7 +62,7 @@ class DBSendToUpdate
             try {
                 pstmt.close();
             }
-            catch (SQLException ex) {}
+            catch (SQLException ex) {LOGGER.error(ex);}
             pstmt = null;
         }
 

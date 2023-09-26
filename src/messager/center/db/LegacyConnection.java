@@ -3,6 +3,8 @@ package messager.center.db;
 import java.io.*;
 import java.sql.*;
 import java.util.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * JDBC의 Connection 객체 Wrapper 클래스로 DB의 charset과 컨텐츠의 charset으로 String를 변환를
@@ -10,6 +12,9 @@ import java.util.*;
  */
 public class LegacyConnection
 {
+	
+	private static final Logger LOGGER = LogManager.getLogger(LegacyConnection.class.getName());
+	
     /**
      * LegacyConnection Instance 를 얻는다.
      *
@@ -169,6 +174,7 @@ public class LegacyConnection
                 connection.close();
             }
             catch (Exception ex) {
+            	LOGGER.error(ex);
             }
             connection = null;
         }

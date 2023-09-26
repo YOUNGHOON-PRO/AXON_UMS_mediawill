@@ -6,6 +6,8 @@ import java.net.*;
 import messager.common.util.*;
 import messager.generator.config.*;
 import messager.generator.repository.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * 발송 완료된 Unit에 대한 발송 결과 파일을 MessageCenter로 전송한다. 발송 결과 파일들을 로딩 한 후 Unit에 대한 발송
@@ -16,6 +18,8 @@ import messager.generator.repository.*;
 public class UnitLogSender
     extends Thread
 {
+	private static final Logger LOGGER = LogManager.getLogger(UnitLogSender.class.getName());
+	
 
     private static UnitLogSender instance;
 
@@ -50,7 +54,7 @@ public class UnitLogSender
         try {
             sleep(unitLogFetchPeriod);
         }
-        catch (Exception ex) {}
+        catch (Exception ex) {LOGGER.error(ex);}
     }
 
     public void run() {
@@ -75,7 +79,8 @@ public class UnitLogSender
             }
         }
         catch (Exception ex) {
-            System.err.println("UnitLogSender : " + ex.getMessage());
+        	LOGGER.error(ex);
+            //System.err.println("UnitLogSender : " + ex.getMessage());
         }
         finally {
             if (connection != null) {
@@ -100,18 +105,25 @@ public class UnitLogSender
                             if (send(connection, unitName, data)) {
                         boolean success = UnitResultFile.delete(unitName);
                         if (!success) {
-                            System.out.println("UnitLog Delete Fail 1: " + unitName);
+                            //System.out.println("UnitLog Delete Fail 1: " + unitName);
+                        	LOGGER.info("UnitLog Delete Fail 1: " + unitName);
                         }
                     }
                     else {
-                        System.out.println("UnitLog Send Fail: " + unitName);
+                        //System.out.println("UnitLog Send Fail: " + unitName);
+                        LOGGER.info("UnitLog Send Fail: " + unitName);
                         
                         //추가  --------------------------------------------------------
-                        System.out.println("UnitLog Send Fail: " + unitName +" => delete start");
+                        //System.out.println("UnitLog Send Fail: " + unitName +" => delete start");
+                        LOGGER.info("UnitLog Send Fail: " + unitName +" => delete start");
+                        
                         boolean success = UnitResultFile.delete(unitName);
-                        System.out.println("UnitLog Send Fail: " + unitName +" => delete complete");
+                        //System.out.println("UnitLog Send Fail: " + unitName +" => delete complete");
+                        LOGGER.info("UnitLog Send Fail: " + unitName +" => delete complete");
+                        
                         if (!success) {
-                            System.out.println("UnitLog Delete Fail 2: " + unitName);
+                            //System.out.println("UnitLog Delete Fail 2: " + unitName);
+                        	LOGGER.info("UnitLog Delete Fail 2: " + unitName);
                         }
                         //  ----------------------------------------------------------
                     }
@@ -119,11 +131,16 @@ public class UnitLogSender
                 
                 //추가  --------------------------------------------------------
                 if (data.length == 0) {
-                	System.out.println("UnitLog Data : " + data.length + " " + unitName +" => delete start");
+                	//System.out.println("UnitLog Data : " + data.length + " " + unitName +" => delete start");
+                	LOGGER.info("UnitLog Data : " + data.length + " " + unitName +" => delete start");
+                	
                 	boolean success2 = UnitResultFile.delete(unitName);
-                	System.out.println("UnitLog Data : " + data.length + " " + unitName +" => delete complete");
+                	//System.out.println("UnitLog Data : " + data.length + " " + unitName +" => delete complete");
+                	LOGGER.info("UnitLog Data : " + data.length + " " + unitName +" => delete complete");
+                	
                 	if (!success2) {
-                        System.out.println("UnitLog Delete Fail 3: " + unitName);
+                        //System.out.println("UnitLog Delete Fail 3: " + unitName);
+                		LOGGER.info("UnitLog Delete Fail 3: " + unitName);
                     }
                 }
                 //  ----------------------------------------------------------
@@ -205,21 +222,21 @@ public class UnitLogSender
                 try {
                     in.close();
                 }
-                catch (IOException ex) {}
+                catch (IOException ex) {LOGGER.error(ex);}
                 in = null;
             }
             if (out != null) {
                 try {
                     out.close();
                 }
-                catch (IOException ex) {}
+                catch (IOException ex) {LOGGER.error(ex);}
                 out = null;
             }
             if (socket != null) {
                 try {
                     socket.close();
                 }
-                catch (IOException ex) {}
+                catch (IOException ex) {LOGGER.error(ex);}
                 socket = null;
             }
         }

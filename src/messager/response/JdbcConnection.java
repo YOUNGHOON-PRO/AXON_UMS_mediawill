@@ -10,6 +10,8 @@ import messager.common.util.EncryptUtil;
 
 import messager.center.config.*;
 import messager.center.creator.FetchException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * JDBC의 Connection 객체 Wrapper 클래스로 DB의 charset과 컨텐츠의 charset으로 String를 변환를
@@ -17,6 +19,9 @@ import messager.center.creator.FetchException;
  */
 public class JdbcConnection
 {
+	
+	private static final Logger LOGGER = LogManager.getLogger(JdbcConnection.class.getName());
+	
     //WorkDB의 접속 정보가 들어있는 Properties 객체
     private static Properties workDBProperties;
 
@@ -82,8 +87,9 @@ public class JdbcConnection
 				password = CustInfo.getDecrypt(password, KEYSTRING);
 				props.put("password", password);
 			} catch (Exception e) {
+				LOGGER.error(e);
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				//e.printStackTrace();
 			}
         	
          }else {
@@ -259,6 +265,7 @@ public class JdbcConnection
                 connection.close();
             }
             catch (Exception ex) {
+            	LOGGER.error(ex);
             }
             connection = null;
         }

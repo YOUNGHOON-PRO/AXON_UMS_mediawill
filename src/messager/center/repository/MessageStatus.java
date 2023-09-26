@@ -4,9 +4,13 @@ import java.io.*;
 
 import messager.center.config.*;
 import messager.common.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class MessageStatus
 {
+	private static final Logger LOGGER = LogManager.getLogger(MessageStatus.class.getName());
+	
     /** Message를 가져오는 중인 상태 */
     public final static int CREATE_RUN = 0;
 
@@ -228,6 +232,7 @@ public class MessageStatus
             out.writeInt(createUnitID);
         }
         catch (IOException ex) {
+        	LOGGER.error(ex);
             exception = ex;
         }
         finally {
@@ -236,6 +241,7 @@ public class MessageStatus
                     out.close();
                 }
                 catch (IOException ex) {
+                	LOGGER.error(ex);
                 }
                 out = null;
             }
@@ -284,6 +290,7 @@ public class MessageStatus
             endTime = in.readLong();
         }
         catch (IOException ex) {
+        	LOGGER.error(ex);
             exception = ex;
         }
         finally {
@@ -292,6 +299,7 @@ public class MessageStatus
                     in.close();
                 }
                 catch (IOException ex) {
+                	LOGGER.error(ex);
                 }
                 in = null;
             }
@@ -385,6 +393,7 @@ public class MessageStatus
             out.writeByte( (byte) status);
         }
         catch (Exception ex) {
+        	LOGGER.error(ex);
             exception = ex;
         }
         finally {
@@ -393,6 +402,7 @@ public class MessageStatus
                     out.close();
                 }
                 catch (IOException ex) {
+                	LOGGER.error(ex);
                 }
                 out = null;
             }
@@ -419,6 +429,7 @@ public class MessageStatus
             out.writeByte( (byte) unitStatus);
         }
         catch (Exception ex) {
+        	LOGGER.error(ex);
             exception = ex;
         }
         finally {
@@ -427,6 +438,7 @@ public class MessageStatus
                     out.close();
                 }
                 catch (IOException ex) {
+                	LOGGER.error(ex);
                 }
                 out = null;
             }
@@ -456,6 +468,7 @@ public class MessageStatus
             outFile.writeInt(unitID);
         }
         catch (Exception ex1) {
+        	LOGGER.error(ex1);
             ex = ex1;
         }
         finally {
@@ -464,6 +477,7 @@ public class MessageStatus
                     outFile.close();
                 }
                 catch (IOException ex2) {
+                	LOGGER.error(ex2);
                 }
                 outFile = null;
             }
@@ -486,6 +500,7 @@ public class MessageStatus
                 setUnitStatus(UNIT_LOAD_END);
             }
             catch (Exception ex) {
+            	LOGGER.error(ex);
             }
             return -1;
         }
@@ -508,6 +523,7 @@ public class MessageStatus
             out.writeInt(loadUnitID);
         }
         catch (IOException ex) {
+        	LOGGER.error(ex);
             exception = ex;
         }
         finally {
@@ -516,6 +532,7 @@ public class MessageStatus
                     out.close();
                 }
                 catch (IOException ex) {
+                	LOGGER.error(ex);
                 }
                 out = null;
             }
@@ -551,6 +568,7 @@ public class MessageStatus
             out.writeInt(deliveryCount);
         }
         catch (Exception ex) {
+        	LOGGER.error(ex);
             exception = ex;
         }
         finally {
@@ -559,6 +577,7 @@ public class MessageStatus
                     out.close();
                 }
                 catch (IOException ex) {
+                	LOGGER.error(ex);
                 }
                 out = null;
             }
@@ -596,6 +615,7 @@ public class MessageStatus
             out.writeLong(time);
         }
         catch (Exception ex) {
+        	LOGGER.error(ex);
         }
         finally {
             if (out != null) {
@@ -603,6 +623,7 @@ public class MessageStatus
                     out.close();
                 }
                 catch (Exception ex) {
+                	LOGGER.error(ex);
                 }
                 out = null;
             }
@@ -659,6 +680,7 @@ public class MessageStatus
             
         }
         catch (Exception ex) {
+        	LOGGER.error(ex);
             exception = ex;
         }
         finally {
@@ -667,6 +689,7 @@ public class MessageStatus
                     out.close();
                 }
                 catch (Exception ex) {
+                	LOGGER.error(ex);
                 }
                 out = null;
             }
@@ -730,6 +753,7 @@ public class MessageStatus
             out.write(bytes, 0, len);
         }
         catch (Exception ex) {
+        	LOGGER.error(ex);
             exception = ex;
         }
         finally {
@@ -738,6 +762,7 @@ public class MessageStatus
                     out.close();
                 }
                 catch (Exception ex) {
+                	LOGGER.error(ex);
                 }
                 out = null;
             }
@@ -773,6 +798,7 @@ public class MessageStatus
             message = (Message) ObjectStream.toObject(bytes);
         }
         catch (Exception ex) {
+        	LOGGER.error(ex);
             exception = ex;
         }
         finally {
@@ -781,6 +807,7 @@ public class MessageStatus
                     in.close();
                 }
                 catch (Exception ex) {
+                	LOGGER.error(ex);
                 }
                 in = null;
             }
@@ -818,6 +845,7 @@ public class MessageStatus
             contents = (Contents) ObjectStream.toObject(bytes);
         }
         catch (Exception ex) {
+        	LOGGER.error(ex);
             exception = ex;
         }
         finally {
@@ -826,6 +854,7 @@ public class MessageStatus
                     in.close();
                 }
                 catch (Exception ex) {
+                	LOGGER.error(ex);
                 }
                 in = null;
             }
@@ -864,6 +893,7 @@ public class MessageStatus
             contents2 = (Contents2) ObjectStream.toObject(bytes);
         }
         catch (Exception ex) {
+        	LOGGER.error(ex);
             exception = ex;
         }
         finally {
@@ -872,6 +902,7 @@ public class MessageStatus
                     in.close();
                 }
                 catch (Exception ex) {
+                	LOGGER.error(ex);
                 }
                 in = null;
             }
@@ -905,6 +936,7 @@ public class MessageStatus
             out.writeInt(successCount);
         }
         catch (Exception ex) {
+        	LOGGER.error(ex);
             exception = ex;
         }
         finally {
@@ -913,6 +945,7 @@ public class MessageStatus
                     out.close();
                 }
                 catch (Exception ex) {
+                	LOGGER.error(ex);
                 }
                 out = null;
             }
@@ -953,14 +986,15 @@ public class MessageStatus
             out.writeShort(sendNo);
         }
         catch (Exception ex) {
-            ex.printStackTrace();
+        	LOGGER.error(ex);
+            //ex.printStackTrace();
         }
         finally {
             if (out != null) {
                 try {
                     out.close();
                 }
-                catch (Exception ex) {}
+                catch (Exception ex) {LOGGER.error(ex);}
                 out = null;
             }
         }

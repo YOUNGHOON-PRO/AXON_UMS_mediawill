@@ -7,10 +7,15 @@ import java.util.*;
 import messager.mailsender.code.*;
 import messager.mailsender.config.*;
 import messager.mailsender.util.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class ConnectManager
     extends Socket
 {
+	
+	private static final Logger LOGGER = LogManager.getLogger(ConnectManager.class.getName());
+	
     private String className = "ConnectManager";
     private InputStream iStream;
     private OutputStream oStream;
@@ -59,47 +64,58 @@ public class ConnectManager
             }
         }
         catch (BindException be) {
+        	LOGGER.error(be);
             Connect_ErrorCode = ErrorCode.STS_BindException; // Network_BindException
             initConnect_errorMsg = be.getMessage();
             LogWriter.writeException("ConnectManager", "initConnect()", "sender.properties 의 SEND.IP를 확인해 보세요", be);
         }
         catch (UnknownHostException uhe) {
+        	LOGGER.error(uhe);
             Connect_ErrorCode = "unhost"; // Network_UnknownHostException
             initConnect_errorMsg = uhe.getMessage();
         }
         catch (NoRouteToHostException nrthe) {
+        	LOGGER.error(nrthe);
             Connect_ErrorCode = ErrorCode.STS_NoRouteToHostException; // Network_NoRouteToHostException
             initConnect_errorMsg = nrthe.getMessage();
         }
         catch (ConnectException ce) {
+        	LOGGER.error(ce);
             Connect_ErrorCode = ErrorCode.STS_ConnectException; // NetWork_ConnectException
             initConnect_errorMsg = ce.getMessage();
         }
         catch (ProtocolException pe) {
+        	LOGGER.error(pe);
             Connect_ErrorCode = ErrorCode.STS_ConnectException; // Network_ProtocolException
             initConnect_errorMsg = pe.getMessage();
         }
         catch (MalformedURLException mue) {
+        	LOGGER.error(mue);
             Connect_ErrorCode = ErrorCode.STS_MalformedURLException; // Network_MailformedURLException
             initConnect_errorMsg = mue.getMessage();
         }
         catch (UnknownServiceException use) {
+        	LOGGER.error(use);
             Connect_ErrorCode = ErrorCode.STS_UnknownServiceException; // Network_UnknownServiceException
             initConnect_errorMsg = use.getMessage();
         }
         catch (SocketTimeoutException ste) {
+        	LOGGER.error(ste);
             Connect_ErrorCode = ErrorCode.STS_SockTimeoutException; // Network_SockTimeoutException
             initConnect_errorMsg = ste.getMessage();
         }
         catch (SocketException se) {
+        	LOGGER.error(se);
             Connect_ErrorCode = ErrorCode.STS_SocketException; // Network_SocketException
             initConnect_errorMsg = se.getMessage();
         }
         catch (IOException ioe) {
+        	LOGGER.error(ioe);
             Connect_ErrorCode = ErrorCode.STS_MalformedURLException; // Network_IOException
             initConnect_errorMsg = ioe.getMessage();
         }
         catch (Exception e) {
+        	LOGGER.error(e);
             Connect_ErrorCode = ErrorCode.STS_NetworkETC; // Network_ETC
             if (e == null) {
                 initConnect_errorMsg = "Network Error";
@@ -119,6 +135,7 @@ public class ConnectManager
             return true;
         }
         catch (Exception e) {
+        	LOGGER.error(e);
             if (e instanceof IOException) {
                 this.errorMessage = e.getMessage();
             }
@@ -138,6 +155,7 @@ public class ConnectManager
                 return true;
             }
             catch (Exception e) {
+            	LOGGER.error(e);
                 closeConnect();
                 LogWriter.writeException("ConnectManager", "cmdQuit()", "로그를 확인해 보세요", e);
                 return false;
@@ -181,6 +199,7 @@ public class ConnectManager
             }
         }
         catch (Exception e) {
+        	LOGGER.error(e);
             LogWriter.writeException("ConnectManger", "cmdMailFrom()", " ", e);
         }
         return retVal;
@@ -200,6 +219,7 @@ public class ConnectManager
             }
         }
         catch (Exception e) {
+        	LOGGER.error(e);
             LogWriter.writeException("ConnectManger", "cmdRcptTo()", " ", e);
         }
         return retVal;
@@ -217,6 +237,7 @@ public class ConnectManager
             }
         }
         catch (Exception e) {
+        	LOGGER.error(e);
             LogWriter.writeException("ConnectManger", "cmdRset()", " ", e);
         }
         return retVal;
@@ -234,6 +255,7 @@ public class ConnectManager
             }
         }
         catch (Exception e) {
+        	LOGGER.error(e);
             LogWriter.writeException("ConnectManger", "cmdData()", " ", e);
         }
         return retVal;
@@ -253,6 +275,7 @@ public class ConnectManager
             }
         }
         catch (Exception e) {
+        	LOGGER.error(e);
             LogWriter.writeException("ConnectManger", "cmdDataTransferComplete()", " ", e);
         }
         return retVal;
@@ -300,7 +323,7 @@ public class ConnectManager
                 bis = null;
             }
         }
-        catch (Exception e) {}
+        catch (Exception e) {LOGGER.error(e);}
 
     }
 
@@ -378,6 +401,7 @@ public class ConnectManager
             bResult = readFully(sb);
         }
         catch (Exception e) {
+        	LOGGER.error(e);
             returnVal = "999";
             bResult = true;
             if (e instanceof SocketTimeoutException) {
@@ -419,21 +443,21 @@ public class ConnectManager
                 pw.close();
             }
         }
-        catch (Exception e) {}
+        catch (Exception e) {LOGGER.error(e);}
 
         try {
             this.shutdownInput();
         }
-        catch (Exception e) {}
+        catch (Exception e) {LOGGER.error(e);}
 
         try {
             this.shutdownOutput();
         }
-        catch (Exception e) {}
+        catch (Exception e) {LOGGER.error(e);}
 
         try {
             close();
         }
-        catch (Exception e) {}
+        catch (Exception e) {LOGGER.error(e);}
     }
 }

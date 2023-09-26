@@ -2,10 +2,15 @@ package messager.center.control;
 
 import java.io.*;
 import java.net.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class MessageController
     extends Thread
 {
+	
+	private static final Logger LOGGER = LogManager.getLogger(MessageController.class.getName());
+	
     private Socket socket;
     private InputStream in;
     private OutputStream out;
@@ -36,6 +41,7 @@ public class MessageController
                 in.close();
             }
             catch (Exception ex) {
+            	LOGGER.error(ex);
             }
             in = null;
         }
@@ -45,6 +51,7 @@ public class MessageController
                 out.close();
             }
             catch (Exception ex) {
+            	LOGGER.error(ex);
             }
             out = null;
         }
@@ -54,6 +61,7 @@ public class MessageController
                 socket.close();
             }
             catch (Exception ex) {
+            	LOGGER.error(ex);
             }
             socket = null;
         }
@@ -71,31 +79,37 @@ public class MessageController
                 byte[] responseData = null;
                 switch (controlCmd.command) {
                     case ControlCommand.CMD_LIST:
-                        System.out.println("MessageController.run() : CMD_LIST");
+                        //System.out.println("MessageController.run() : CMD_LIST");
+                        LOGGER.info("MessageController.run() : CMD_LIST");
                         responseData = response.getList();
                         break;
                     case ControlCommand.CMD_PAUSE:
-                        System.out.println("MessageController.run() : CMD_PAUSE");
+                        //System.out.println("MessageController.run() : CMD_PAUSE");
+                    	LOGGER.info("MessageController.run() : CMD_PAUSE");
                         responseData =
                             response.pause(controlCmd.taskNo, controlCmd.subTaskNo);
                         break;
                     case ControlCommand.CMD_STOP:
-                        System.out.println("MessageController.run() : CMD_STOP");
+                        //System.out.println("MessageController.run() : CMD_STOP");
+                    	LOGGER.info("MessageController.run() : CMD_STOP");
                         responseData = response.stop(controlCmd.taskNo,
                             controlCmd.subTaskNo);
                         break;
                     case ControlCommand.CMD_SEND:
-                        System.out.println("MessageController.run() : CMD_SEND");
+                        //System.out.println("MessageController.run() : CMD_SEND");
+                    	LOGGER.info("MessageController.run() : CMD_SEND");
                         responseData = response.start(controlCmd.taskNo,
                             controlCmd.subTaskNo);
                         break;
                     case ControlCommand.CMD_INFO:
-                        System.out.println("MessageController.run() : CMD_INFO");
+                        //System.out.println("MessageController.run() : CMD_INFO");
+                        LOGGER.info("MessageController.run() : CMD_INFO");
                         responseData = response.getInfo(controlCmd.taskNo,
                             controlCmd.subTaskNo);
                         break;
                     default:
-                        System.out.println("MessageController.run() : default");
+                        //System.out.println("MessageController.run() : default");
+                    	LOGGER.info("MessageController.run() : default");
                         b_run = false;
                         break;
                 }
@@ -106,7 +120,8 @@ public class MessageController
 
         }
         catch (Exception ex) {
-            ex.printStackTrace();
+        	LOGGER.error(ex);
+            //ex.printStackTrace();
         }
         finally {
             closeSocket();

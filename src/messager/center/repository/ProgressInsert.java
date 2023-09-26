@@ -3,6 +3,9 @@ package messager.center.repository;
 import java.sql.*;
 import java.util.*;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.custinfo.safedata.CustInfoSafeData;
 
 import messager.center.config.*;
@@ -12,6 +15,8 @@ import messager.common.util.EncryptUtil;
 public class ProgressInsert
     extends Thread
 {
+	private static final Logger LOGGER = LogManager.getLogger(ProgressInsert.class.getName());
+	
     private String MNAME = "ProgressInsert";
 
     /**************** DBHandle Values **************/
@@ -49,8 +54,9 @@ public class ProgressInsert
 				db_password = CustInfo.getDecrypt((String) props.get("db.password"), KEYSTRING);
 				this.passwd = db_password;
 			} catch (Exception e) {
+				LOGGER.error(e);
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				//e.printStackTrace();
 			}
         }else {
         	   this.passwd = (String) props.get("db.password");
@@ -81,11 +87,13 @@ public class ProgressInsert
             Class.forName(dbDriver);
             this.myConn = DriverManager.getConnection(dbUrl, user, passwd);
             this.pstmt_send_progress = myConn.prepareStatement(strSendProgressQuery);
-            System.out.println("SEND PROGRESS UPDATE DB CONNECTION SUCCESS ...");
+            //System.out.println("SEND PROGRESS UPDATE DB CONNECTION SUCCESS ...");
+            LOGGER.info("SEND PROGRESS UPDATE DB CONNECTION SUCCESS ...");
             return true;
         }
         catch (Exception e) {
-            System.out.println("SEND PROGRESS UPDATE DB CONNECTION FAIL ..." + e.toString());
+            //System.out.println("SEND PROGRESS UPDATE DB CONNECTION FAIL ..." + e.toString());
+        	LOGGER.error("SEND PROGRESS UPDATE DB CONNECTION FAIL ..." + e.toString());
             return false;
         }
     }
@@ -95,7 +103,8 @@ public class ProgressInsert
             myConn.close();
         }
         catch (SQLException e) {
-            System.out.println("SEND PROGRESS DB CONNECTION CLOSE FAIL ..." + e.toString());
+            //System.out.println("SEND PROGRESS DB CONNECTION CLOSE FAIL ..." + e.toString());
+        	LOGGER.error("SEND PROGRESS DB CONNECTION CLOSE FAIL ..." + e.toString());
         }
     }
 
@@ -141,12 +150,19 @@ public class ProgressInsert
                 int suc_send_cnt = temp[3];
                 int fail_send_cnt = temp[4];
 
-                System.out.println("====== K-Y-H =====");
-                System.out.println("task_no : "+task_no);
-                System.out.println("cur_send_cnt : "+cur_send_cnt);
-                System.out.println("suc_send_cnt : "+suc_send_cnt);
-                System.out.println("fail_send_cnt : "+fail_send_cnt);
-                System.out.println("====== K-Y-H =====");
+                //System.out.println("====== K-Y-H =====");
+                //System.out.println("task_no : "+task_no);
+                //System.out.println("cur_send_cnt : "+cur_send_cnt);
+                //System.out.println("suc_send_cnt : "+suc_send_cnt);
+                //System.out.println("fail_send_cnt : "+fail_send_cnt);
+                //System.out.println("====== K-Y-H =====");
+                
+                LOGGER.info("====== K-Y-H =====");
+                LOGGER.info("task_no : "+task_no);
+                LOGGER.info("cur_send_cnt : "+cur_send_cnt);
+                LOGGER.info("suc_send_cnt : "+suc_send_cnt);
+                LOGGER.info("fail_send_cnt : "+fail_send_cnt);
+                LOGGER.info("====== K-Y-H =====");
                 
                 //발송 진행률 업데이트
                 pstmt_send_progress.setInt(1, cur_send_cnt); //현재 발송수
@@ -158,7 +174,9 @@ public class ProgressInsert
 
             }
             catch (Exception x) {
-                System.out.println("SEND PROGRESS UPDATE FAIL ..." + x.toString());
+                //System.out.println("SEND PROGRESS UPDATE FAIL ..." + x.toString());
+            	LOGGER.error("SEND PROGRESS UPDATE FAIL ..." + x.toString());
+            	
             }
 
         }
@@ -175,7 +193,9 @@ public class ProgressInsert
 
                 //DB CONNECTION 이 정상인지 확인한다.
                 if (myConn.isClosed()) {
-                    System.out.println("SEND PROGRESS DB CONNECTION CLOSED, DB CONNECTION CONNECT TRY ..... ");
+                    //System.out.println("SEND PROGRESS DB CONNECTION CLOSED, DB CONNECTION CONNECT TRY ..... ");
+                	LOGGER.info("SEND PROGRESS DB CONNECTION CLOSED, DB CONNECTION CONNECT TRY ..... ");
+                	
                     //DB CONNECTION 재설정
                     makeConnection();
                 }
@@ -185,17 +205,20 @@ public class ProgressInsert
 
             }
             catch (NullPointerException e) {
-                System.out.println("SEND PROGRESS UPDATE FAIL ..... " + e.toString());
+                //System.out.println("SEND PROGRESS UPDATE FAIL ..... " + e.toString());
+            	LOGGER.error("SEND PROGRESS UPDATE FAIL ..... " + e.toString());
             }
             catch (Exception ex) {
-                System.out.println("SEND PROGRESS UPDATE FAIL ..... " + ex.toString());
+                //System.out.println("SEND PROGRESS UPDATE FAIL ..... " + ex.toString());
+            	LOGGER.error("SEND PROGRESS UPDATE FAIL ..... " + ex.toString());
             }
 
             try {
                 Thread.sleep(1000);
             }
             catch (InterruptedException e) {
-                System.out.println("SEND PROGRESS THREAD SLEEP FAIL ..... " + e.toString());
+                //System.out.println("SEND PROGRESS THREAD SLEEP FAIL ..... " + e.toString());
+            	LOGGER.error("SEND PROGRESS THREAD SLEEP FAIL ..... " + e.toString());
             }
         }
     }

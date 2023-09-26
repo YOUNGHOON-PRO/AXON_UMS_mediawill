@@ -1,6 +1,8 @@
 package messager.center.repository;
 
 import messager.center.config.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * 주기적으로 발송 중인 Message의 리스트를 체크하여 발송 중이 Message의 Unit를 로딩하는
@@ -15,6 +17,8 @@ import messager.center.config.*;
 public class UnitAgentManager
     extends Thread
 {
+	private static final Logger LOGGER = LogManager.getLogger(UnitAgentManager.class.getName());
+	
     private static final ThreadGroup agentGroup = new ThreadGroup("unit_group");
 
     private static final Object lock = new Object();
@@ -58,7 +62,7 @@ public class UnitAgentManager
             try {
                 sleep(checkPeriod);
             }
-            catch (InterruptedException ex) {}
+            catch (InterruptedException ex) {LOGGER.error(ex);}
         }
     }
 
@@ -84,7 +88,8 @@ public class UnitAgentManager
             }
         }
         catch (Exception ex) {
-            ex.printStackTrace();
+        	LOGGER.error(ex);
+            //ex.printStackTrace();
         }
     }
 }

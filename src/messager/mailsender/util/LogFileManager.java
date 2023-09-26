@@ -1,6 +1,9 @@
 package messager.mailsender.util;
 
 import java.io.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.text.*;
 import java.util.*;
 
@@ -9,6 +12,9 @@ import messager.mailsender.config.*;
 public class LogFileManager
     extends Thread
 {
+	
+	private static final Logger LOGGER = LogManager.getLogger(LogFileManager.class.getName());
+	
     SimpleDateFormat day;
     String daily;
 
@@ -45,13 +51,15 @@ public class LogFileManager
                 }
             }
             catch (Exception e) {
-                e.printStackTrace();
+            	LOGGER.error(e);
+                //e.printStackTrace();
             }
             try {
                 super.sleep(Integer.parseInt(ConfigLoader.DELETE_PERIOD.trim()));
             }
             catch (Exception e) {
-                e.printStackTrace();
+            	LOGGER.error(e);
+                //e.printStackTrace();
             }
         }
     }
@@ -64,7 +72,8 @@ public class LogFileManager
             return fileList;
         }
         catch (Exception e) {
-            e.printStackTrace();
+        	LOGGER.error(e);
+            //e.printStackTrace();
         }
         return fileList;
     }

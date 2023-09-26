@@ -4,9 +4,14 @@ import java.io.*;
 
 import messager.mailsender.code.*;
 import messager.mailsender.config.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class FileManager
 {
+	
+	private static final Logger LOGGER = LogManager.getLogger(FileManager.class.getName());
+	
     /**
      * Create Process file
      * @param path
@@ -20,6 +25,7 @@ public class FileManager
             return makeFile(new StringBuffer(path).append(objName).toString());
         }
         catch (Exception e) {
+        	LOGGER.error(e);
             LogWriter.writeException("FileManager", "makeNameFile", "Make Fail", e);
             return ErrorCode.EXCEPT;
         }
@@ -37,6 +43,7 @@ public class FileManager
             targetDir.mkdir();
         }
         catch (Exception e) {
+        	LOGGER.error(e);
             LogWriter.writeException("FileManager", "makeDirectory", "Make Fail", e);
         }
     }
@@ -62,6 +69,7 @@ public class FileManager
             }
         }
         catch (Exception e) {
+        	LOGGER.error(e);
             LogWriter.writeException("FileManager", "makeFile", "Make Fail" + path, e);
             return ErrorCode.EXCEPT;
         }
@@ -226,6 +234,7 @@ public class FileManager
             //}
         }
         catch (IOException e) {
+        	LOGGER.error(e);
             LogWriter.writeException("FileManager", "loadEml()", "MCF 파일을 읽는데 실패했습니다", e);
         }
         finally {
@@ -235,7 +244,7 @@ public class FileManager
                     fis = null;
                 }
             }
-            catch (Exception e) {}
+            catch (Exception e) {LOGGER.error(e);}
         }
         return eml;
     }
@@ -256,6 +265,7 @@ public class FileManager
             }
         }
         catch (IOException e) {
+        	LOGGER.error(e);
             LogWriter.writeException("FileManager", "loadAttachFile()", "첨부 파일을 읽는데 실패했습니다", e);
         }
         finally {
@@ -265,7 +275,7 @@ public class FileManager
                     fis = null;
                 }
             }
-            catch (Exception e) {}
+            catch (Exception e) {LOGGER.error(e);}
         }
         return attachData;
     }

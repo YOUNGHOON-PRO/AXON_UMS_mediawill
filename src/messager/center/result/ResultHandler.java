@@ -4,6 +4,8 @@ import java.util.*;
 
 import messager.center.config.*;
 import messager.center.repository.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * 발송 결과 디렉토리를 검색하여 Message별로 MessageHandler를 이용하여
@@ -19,6 +21,8 @@ import messager.center.repository.*;
 public class ResultHandler
     extends Thread
 {
+	private static final Logger LOGGER = LogManager.getLogger(ResultHandler.class.getName());
+	
     /** MessageHandler를 얻는다 */
     private MessageMap messageMap;
 
@@ -49,13 +53,14 @@ public class ResultHandler
                 work();
             }
             catch (Exception ex) {
+            	LOGGER.error(ex);
             }
-            catch (Error err) {}
+            catch (Error err) {LOGGER.error(err);}
 
             try {
                 sleep(period);
             }
-            catch (Exception ex) {
+            catch (Exception ex) {LOGGER.error(ex);
             }
         }
     }
@@ -82,7 +87,8 @@ public class ResultHandler
                 }
             }
             catch (Exception ex) {
-                ex.printStackTrace();
+            	LOGGER.error(ex);
+                //ex.printStackTrace();
             }
             finally {
                 endTimeManager.close();

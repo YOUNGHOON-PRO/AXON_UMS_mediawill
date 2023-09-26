@@ -7,6 +7,8 @@ import java.io.PrintWriter;
 import java.util.Hashtable;
 
 import messager.response.Config_File_Receiver;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * 에러 로그 관리 클래스
@@ -15,6 +17,8 @@ import messager.response.Config_File_Receiver;
  */
 public class utilLogWriter
 {
+	
+	private static final Logger LOGGER = LogManager.getLogger(utilLogWriter.class.getName());
 	
 	public utilLogWriter() {
 		// TODO Auto-generated constructor stub
@@ -80,7 +84,8 @@ public class utilLogWriter
 	      return_value = true;
 	    }
 	    catch (Exception e) {
-	      e.printStackTrace();
+	    	LOGGER.error(e);
+	      //e.printStackTrace();
 	      return_value = false;
 	    }
 	    finally {

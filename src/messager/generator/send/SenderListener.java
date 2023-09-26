@@ -5,6 +5,8 @@ import java.net.*;
 import java.util.*;
 
 import messager.generator.config.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * MailSender 의 접속을 받아 들이고 데이타 전달를 하는 통신을 하는 클래스 메일 발송에 필요한 데이타는 통신시 전달이 이루어 지지
@@ -13,6 +15,9 @@ import messager.generator.config.*;
 public class SenderListener
     extends Thread
 {
+	
+	private static final Logger LOGGER = LogManager.getLogger(SenderListener.class.getName());
+	
     private final static String LISTEN_HOST = "127.0.0.1";
 
     private static SenderListener instance;
@@ -87,7 +92,8 @@ public class SenderListener
             }
         }
         catch (Exception ex) {
-            System.err.println("SenderListener: " + ex.getMessage());
+            //System.err.println("SenderListener: " + ex.getMessage());
+        	LOGGER.error(ex);
             exception = ex;
         }
         finally {
@@ -96,7 +102,7 @@ public class SenderListener
                     try {
                         server.close();
                     }
-                    catch (Exception ex) {}
+                    catch (Exception ex) {LOGGER.error(ex);}
                     server = null;
                 }
             }
@@ -143,7 +149,7 @@ public class SenderListener
                 try {
                     in.close();
                 }
-                catch (IOException ex) {}
+                catch (IOException ex) {LOGGER.error(ex);}
                 in = null;
             }
 
@@ -156,7 +162,7 @@ public class SenderListener
                 try {
                     socket.close();
                 }
-                catch (IOException ex) {}
+                catch (IOException ex) {LOGGER.error(ex);}
                 socket = null;
             }
         }
@@ -193,7 +199,8 @@ public class SenderListener
                 }
             }
             catch (Exception ex) {
-                System.err.println("UnitSender: [" + senderID + "] " + ex.getMessage());
+            	LOGGER.error(ex);
+                //System.err.println("UnitSender: [" + senderID + "] " + ex.getMessage());
             }
             finally {
                 socketClose();

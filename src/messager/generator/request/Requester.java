@@ -3,6 +3,9 @@ package messager.generator.request;
 import java.io.*;
 import java.util.*;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import messager.common.*;
 import messager.common.util.*;
 import messager.generator.*;
@@ -14,6 +17,8 @@ import messager.generator.repository.*;
  */
 public class Requester
 {
+	private static final Logger LOGGER = LogManager.getLogger(Requester.class.getName());
+	
     private static boolean b_run = false;
 
     public static void execute() {
@@ -29,6 +34,7 @@ public class Requester
                 requestPeriod = Integer.parseInt(str) * 1000;
             }
             catch (Exception ex) {
+            	LOGGER.error(ex);
                 requestPeriod = 2000;
             }
 
@@ -160,6 +166,7 @@ public class Requester
                                     sleep(requestPeriod);
                                 }
                                 catch (InterruptedException ex) {
+                                	LOGGER.error(ex);
                                 }
                             }
 
@@ -173,10 +180,11 @@ public class Requester
                     }
                 }
                 catch (Exception ex) {
+                	LOGGER.error(ex);
                     if (ex instanceof IOException) {
                         throw (IOException) ex;
                     }
-                    ex.printStackTrace();
+                    //ex.printStackTrace();
                 }
             }
         }
@@ -193,10 +201,12 @@ public class Requester
                     requestMain(connection);
                 }
                 catch (IOException ex) {
-                    ex.printStackTrace();
+                	LOGGER.error(ex);
+                    //ex.printStackTrace();
                 }
                 catch (Exception ex) {
-                    ex.printStackTrace();
+                	LOGGER.error(ex);
+                    //ex.printStackTrace();
                 }
                 finally {
                     if (connection != null) {
@@ -273,6 +283,7 @@ public class Requester
                         sleep(requestPeriod);
                     }
                     catch (InterruptedException ex) {
+                    	LOGGER.error(ex);
                     }
                     continue;
                 }
@@ -304,6 +315,7 @@ public class Requester
                                 sleep(1000);
                             }
                             catch (Exception ex) {
+                            	LOGGER.error(ex);
                             }
                         }
                         while (messageInfo != null && retry < 5);
@@ -318,6 +330,7 @@ public class Requester
                         sleep(requestPeriod);
                     }
                     catch (InterruptedException ex) {
+                    	LOGGER.error(ex);
                     }
                 }
             }
@@ -457,10 +470,12 @@ public class Requester
                 object = inobj.readObject();
             }
             catch (IOException ex) {
-                ex.printStackTrace();
+            	LOGGER.error(ex);
+                //ex.printStackTrace();
             }
             catch (Exception ex) {
-                ex.printStackTrace();
+            	LOGGER.error(ex);
+                //ex.printStackTrace();
             }
             finally {
                 if (inobj != null) {
@@ -468,12 +483,14 @@ public class Requester
                         inobj.close();
                     }
                     catch (IOException ex) {
+                    	LOGGER.error(ex);
                     }
                 }
                 try {
                     in.close();
                 }
                 catch (IOException ex) {
+                	LOGGER.error(ex);
                 }
             }
             return object;

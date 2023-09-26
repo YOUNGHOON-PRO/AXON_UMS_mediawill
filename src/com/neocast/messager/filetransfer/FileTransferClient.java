@@ -9,6 +9,9 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.net.Socket;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 
 /**
  * 요청자의 파일을 전송하기 위한 파일트랜스퍼 클라이언트
@@ -18,6 +21,8 @@ import java.net.Socket;
 
 class FileTransferClient extends Thread
 {
+  private static final Logger LOGGER = LogManager.getLogger(FileTransferClient.class.getName());
+	
   private static String rootPath;
   private Socket socket;
   private InputStream in;
@@ -44,17 +49,19 @@ class FileTransferClient extends Thread
         try {
         	str = readRequest();
 		} catch (Exception e) {
-			// TODO: handle exception
+			 LOGGER.error(e);
 		}
         
         if (str == null) {
           break;
         }
-        System.out.println("request: " + str);
+        //System.out.println("request: " + str);
+        LOGGER.info("request: " + str);
         response(str);
       }
     } catch (Exception localException) {
-      localException.printStackTrace();
+      //localException.printStackTrace();
+      LOGGER.error(localException);
     } finally {
       closeSocket();
     }
@@ -64,6 +71,7 @@ class FileTransferClient extends Thread
     if (this.in != null) {
       try {
         this.in.close(); } catch (IOException localIOException1) {
+        	LOGGER.error(localIOException1);
       }
       this.in = null;
     }
@@ -71,6 +79,7 @@ class FileTransferClient extends Thread
     if (this.out != null) {
       try {
         this.out.close(); } catch (IOException localIOException2) {
+        	LOGGER.error(localIOException2);
       }
       this.out = null;
     }
@@ -78,6 +87,7 @@ class FileTransferClient extends Thread
     if (this.socket == null) return;
     try {
       this.socket.close(); } catch (IOException localIOException3) {
+    	  LOGGER.error(localIOException3);
     }
     this.socket = null;
   }
@@ -94,7 +104,9 @@ class FileTransferClient extends Thread
     while (i < paramInt2) {
     	// TODO Transfer - inputstream 을 읽는데 이해가 잘 안되네....
       int j = this.in.read(paramArrayOfByte, paramInt1, paramInt2);
-      System.out.println("read count: " + j);
+      //System.out.println("read count: " + j);
+      LOGGER.info("read count: " + j);
+      
       if (j == -1) {
         return -1;
       }
@@ -115,6 +127,7 @@ class FileTransferClient extends Thread
 
     for (int j = 0; j < 4; ++j) {
      // System.out.println("byte: " + arrayOfByte[j]);
+    	LOGGER.info("byte: " + arrayOfByte[j]);
     }
     
     // TODO Transfer - << shift 연산자를 이용하는데 이해가 되지 않는다...
@@ -219,6 +232,7 @@ class FileTransferClient extends Thread
         this.out.flush();
       }
     } catch (Exception localException) {
+    	LOGGER.error(localException);
       localObject1 = localException;
     } finally {
       if (localBufferedInputStream != null)
@@ -226,6 +240,7 @@ class FileTransferClient extends Thread
           localBufferedInputStream.close();
         }
         catch (IOException localIOException) {
+        	LOGGER.error(localIOException);
         }
     }
     if (localObject1 != null) {

@@ -4,12 +4,16 @@ import java.util.*;
 
 import messager.common.*;
 import messager.common.util.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Mail의 header를 생성한다.
  */
 public class MailHeader
 {
+	private static final Logger LOGGER = LogManager.getLogger(MailHeader.class.getName());
+	
     private static final String lineSeparator = "\r\n";
 
     private static String mailerName;
@@ -193,14 +197,17 @@ public class MailHeader
             buffer.append(headerEncoder.encodeText(subject.create(receiver)));
         }
         catch (MergeException ex) {
+        	LOGGER.error(ex);
             throw new GeneratorException(ErrorCode.MERGE_ERROR, "Subject : "
                                          + ex.getMessage());
         }
         catch (java.io.UnsupportedEncodingException ex) {
+        	LOGGER.error(ex);
             throw new GeneratorException(ErrorCode.ENCODING_ERROR,
                                          "UnsupportedException: Subject");
         }
         catch (Exception ex) {
+        	LOGGER.error(ex);
             throw new GeneratorException(ErrorCode.CONTENT_INVALID, ex
                                          .getMessage());
         }
@@ -257,13 +264,16 @@ public class MailHeader
 
         }
         catch (java.io.UnsupportedEncodingException ex) {
+        	LOGGER.error(ex);
             throw new GeneratorException(ErrorCode.ENCODING_ERROR, ex
                                          .getMessage());
         }
         catch (MergeException ex) {
+        	LOGGER.error(ex);
             throw new GeneratorException(ErrorCode.MERGE_ERROR, ex.getMessage());
         }
         catch (Exception ex) {
+        	LOGGER.error(ex);
             throw new GeneratorException(ErrorCode.CONTENT_INVALID, ex
                                          .getMessage());
         }
@@ -284,6 +294,7 @@ public class MailHeader
                 buffer.append(headerEncoder.encodeText(message.fromName));
             }
             catch (java.io.UnsupportedEncodingException ex) {
+            	LOGGER.error(ex);
                 throw new GeneratorException(ErrorCode.ENCODING_ERROR,
                                              "UnsupportedException: From");
             }

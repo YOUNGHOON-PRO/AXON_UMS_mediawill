@@ -1,6 +1,8 @@
 package messager.common.util;
 
 import java.util.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * 정의 된 머지키 리스트를 리소스 파일에서 읽는다.
@@ -11,6 +13,8 @@ import java.util.*;
  */
 public class MessageKey
 {
+	private static final Logger LOGGER = LogManager.getLogger(MessageKey.class.getName());
+	
     /** 리소스 파일 경로 */
     private final static String MESSAGE_RESOURCE =
         "messager.common.resource.message";
@@ -47,7 +51,8 @@ public class MessageKey
             TO_BIZKEY = getName("TO.USER.BIZKEY");
         }
         catch (MissingResourceException ex) {
-            ex.printStackTrace();
+        	LOGGER.error(ex);
+            //ex.printStackTrace();
             System.exit(1);
         }
     }
@@ -68,7 +73,7 @@ public class MessageKey
                 name = localeName;
             }
         }
-        catch (Exception ex) {}
+        catch (Exception ex) {LOGGER.error(ex);}
 
         return name;
     }

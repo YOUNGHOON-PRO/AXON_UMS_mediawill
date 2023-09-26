@@ -6,6 +6,8 @@ import java.net.*;
 import messager.center.repository.*;
 import messager.common.*;
 import messager.common.util.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Generator의 요청에 의해 UnitInfo객체와 MessageInfo객체를 전달한다. UnitInfo객체 요청시
@@ -16,6 +18,8 @@ import messager.common.util.*;
 class DeliveryAgent
     extends Thread
 {
+	private static final Logger LOGGER = LogManager.getLogger(DeliveryAgent.class.getName());
+	
     private static final int UNIT_TYPE = 1;
     private static final int MESSAGE_TYPE = 2;
     private static final int ACCEPT_TYPE = 3;
@@ -46,6 +50,7 @@ class DeliveryAgent
             }
         }
         catch (Exception ex) {
+        	LOGGER.error(ex);
         }
         finally {
             //Thread가 종료될 때는 Connectin를 닫는다.
@@ -179,7 +184,8 @@ class DeliveryAgent
                         messageInfo = msgHandler.readMessageInfo();
                     }
                     catch (Exception ex) {
-                        ex.printStackTrace();
+                        //ex.printStackTrace();
+                    	LOGGER.error(ex);
                     }
                 }
             }

@@ -17,9 +17,13 @@ package messager.center.delivery;
 import java.io.*;
 
 import messager.center.config.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 class DeliverySyncUnit
 {
+	private static final Logger LOGGER = LogManager.getLogger(DeliverySyncUnit.class.getName());
+	
     private static final String dirName = "delivery";
 
     /**
@@ -117,6 +121,8 @@ class DeliverySyncUnit
                 uFile.createNewFile();
             }
             catch (IOException ex) {
+            	LOGGER.error(ex);
+            	
             }
         }
     }

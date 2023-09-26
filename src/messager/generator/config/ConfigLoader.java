@@ -2,12 +2,16 @@ package messager.generator.config;
 
 import java.io.*;
 import java.util.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Generator의 환경 설정 파일을 로딩한다.
  */
 public class ConfigLoader
 {
+	private static final Logger LOGGER = LogManager.getLogger(ConfigLoader.class.getName());
+	
     private static Properties props;
     static {
         props = new Properties();
@@ -26,7 +30,8 @@ public class ConfigLoader
             props.load(is);
         }
         catch (IOException ex) {
-            ex.printStackTrace();
+        	LOGGER.error(ex);
+            //ex.printStackTrace();
         }
         finally {
             if (is != null) {
@@ -34,6 +39,7 @@ public class ConfigLoader
                     is.close();
                 }
                 catch (IOException ex) {
+                	LOGGER.error(ex);
                 }
             }
         }
@@ -66,6 +72,7 @@ public class ConfigLoader
                     ivalue = Integer.parseInt(value);
                 }
                 catch (NumberFormatException ex) {
+                	LOGGER.error(ex);
                 }
             }
         }

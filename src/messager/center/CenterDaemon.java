@@ -3,9 +3,15 @@ package messager.center;
 import org.apache.commons.daemon.Daemon;
 import org.apache.commons.daemon.DaemonContext;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 public class CenterDaemon
     implements Daemon
 {
+	
+	private static final Logger LOGGER = LogManager.getLogger(CenterDaemon.class.getName());
+	
     private Main main;
 
     public CenterDaemon() {
@@ -47,6 +53,8 @@ public class CenterDaemon
     }
 
     private void println(String msg) {
-        System.out.println(getCurrentTime() + " : " + msg);
+        //System.out.println(getCurrentTime() + " : " + msg);
+        LOGGER.info(getCurrentTime() + " : " + msg);
+        
     }
 }

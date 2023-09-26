@@ -208,7 +208,6 @@
 	<classpathentry kind="lib" path="E:/JAVA/lib/jsdk23.jar"/>
 	<classpathentry kind="lib" path="E:/JAVA/lib/json-simple-1.1.1.jar"/>
 	<classpathentry kind="lib" path="E:/JAVA/lib/jxl.jar"/>
-	<classpathentry kind="lib" path="E:/JAVA/lib/log4j-1.2.17.jar"/>
 	<classpathentry kind="lib" path="E:/JAVA/lib/mail.jar"/>
 	<classpathentry kind="lib" path="E:/JAVA/lib/mplib_1.0.jar"/>
 	<classpathentry kind="lib" path="E:/JAVA/lib/mplib_1.1.jar"/>

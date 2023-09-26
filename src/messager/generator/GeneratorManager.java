@@ -8,11 +8,16 @@ import messager.common.*;
 import messager.generator.config.ConfigLoader;
 import messager.generator.repository.UnitInfoFile;
 import messager.generator.send.SendQueue;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * 컨텐츠 생성 쓰레드를 실행하고 실행된 쓰레드를 관리한다.
  */
 public class GeneratorManager {
+	
+	private static final Logger LOGGER = LogManager.getLogger(GeneratorManager.class.getName());
+	
 	private static GeneratorManager instance;
 
 	/** 컨테츠 생성 쓰레드들의 그룹 */
@@ -171,25 +176,26 @@ public class GeneratorManager {
 
 				//윤노과장이 개발한 파일매니저를 통해 내부에서 외부서버로 파일 전송을 진행 후 SendQueue 에 적재를 한다.
 				if (addValue) {
-//					String taskId = unitName.split("-")[0];
-//					BulkInternalSendAgent agent = new BulkInternalSendAgent(unitName);
-//					boolean state = agent.run();
-//					if ( state ) { 
-//						SendQueue.push(unitName);  
-//					} else { 
-//						state = agent.run();
-//						if ( state ) {
-//							SendQueue.push(unitName);  
-//						}else {
-//							throw new Exception (String.format("TaskID : %s, 파일 전송이 이뤄지지 않았습니다.", taskId));
-//						};
-//					}
+					String taskId = unitName.split("-")[0];
+					BulkInternalSendAgent agent = new BulkInternalSendAgent(unitName);
+					boolean state = agent.run();
+					if ( state ) { 
+						SendQueue.push(unitName);  
+					} else { 
+						state = agent.run();
+						if ( state ) {
+							SendQueue.push(unitName);  
+						}else {
+							throw new Exception (String.format("TaskID : %s, 파일 전송이 이뤄지지 않았습니다.", taskId));
+						};
+					}
 				
-					SendQueue.push(unitName);  
+//					SendQueue.push(unitName);  
 				
 				}
 			} catch (Exception ex) {
-				ex.printStackTrace();
+				LOGGER.error(ex);
+				//ex.printStackTrace();
 			}
 
 

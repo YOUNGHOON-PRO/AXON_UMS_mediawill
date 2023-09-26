@@ -1,9 +1,13 @@
 package messager.center.repository;
 
 import java.io.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class ObjectStream
 {
+	private static final Logger LOGGER = LogManager.getLogger(ObjectStream.class.getName());
+	
     /**
      * byte배열을 Object로 변환한다.
      * @param bytes 객체로 변환할 바이트 스트림
@@ -21,6 +25,7 @@ public class ObjectStream
             object = oin.readObject();
         }
         catch (Exception ex) {
+        	LOGGER.error(ex);
             exception = ex;
         }
         finally {
@@ -29,6 +34,7 @@ public class ObjectStream
                     oin.close();
                 }
                 catch (Exception ex) {
+                	LOGGER.error(ex);
                 }
                 oin = null;
             }
@@ -61,6 +67,7 @@ public class ObjectStream
             bytes = os.toByteArray();
         }
         catch (Exception ex) {
+        	LOGGER.error(ex);
             exception = ex;
         }
         finally {
@@ -69,6 +76,7 @@ public class ObjectStream
                     oout.close();
                 }
                 catch (Exception ex) {
+                	LOGGER.error(ex);
                 }
 
                 oout = null;

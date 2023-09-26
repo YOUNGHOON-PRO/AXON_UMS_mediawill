@@ -5,9 +5,13 @@ import java.io.*;
 import messager.center.config.*;
 import messager.common.*;
 import messager.common.util.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class UnitFileManager
 {
+	private static final Logger LOGGER = LogManager.getLogger(UnitFileManager.class.getName());
+	
     private final static String dirName = "unit";
 
     private static File dirFile;
@@ -53,6 +57,7 @@ public class UnitFileManager
             ObjectFile.writeObject(uFile, unit);
         }
         catch (Exception ex) {
+        	LOGGER.error(ex);
             throw new RepositoryException(ex.getMessage());
         }
     }
@@ -80,6 +85,7 @@ public class UnitFileManager
             unit = (UnitInfo) ObjectFile.readObject(uFile);
         }
         catch (Exception ex) {
+        	LOGGER.error(ex);
             throw new RepositoryException(ex.getMessage());
         }
         return unit;

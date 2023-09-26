@@ -3,9 +3,13 @@ package messager.mailsender.send.dns;
 import java.io.*;
 import java.util.*;
 import messager.mailsender.util.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class Packet
 {
+	private static final Logger LOGGER = LogManager.getLogger(Packet.class.getName());
+	
     private int queryID;
     private static int globalID;
     private String queryHost;
@@ -49,6 +53,7 @@ public class Packet
             dataOut.writeShort(queryClass);
         }
         catch (IOException e) {
+        	LOGGER.error(e);
             LogWriter.writeException("Packet", "extractQuery()", "OutputStream", e);
         }
         return byteArrayOut.toByteArray();
@@ -94,6 +99,7 @@ public class Packet
             }
         }
         catch (EOFException e) {
+        	LOGGER.error(e);
             if (!truncated) {
                 LogWriter.writeException("Packet", "receiveResponse()", "EOFException", e);
             }

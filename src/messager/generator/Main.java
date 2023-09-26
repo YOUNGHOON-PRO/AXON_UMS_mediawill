@@ -1,15 +1,28 @@
 package messager.generator;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import com.mysql.jdbc.log.Log4JLogger;
+
+import messager.center.DemonCheck_Center;
+import messager.center.repository.ProgressInsert;
 import messager.generator.config.ConfigLoader;
 import messager.generator.request.*;
 import messager.generator.send.SenderListener;
 import messager.generator.send.UnitLogSender;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 /**
  * Main Class
  */
 public class Main {
-
+	private static final Logger LOGGER = LogManager.getLogger(Main.class.getName());
 	/**
 	 * main
 	 */
@@ -29,11 +42,16 @@ public class Main {
 		
 		//MessageCenter에서 Unit을 요청하기 위해 Requester 실행
 		Requester.execute();
+		
+		
+		new DemonCheck_Generator("Generator").start();
 	}
 
         public static void shutdown(){
-          System.out.println("Generator shutdown.");
+          //System.out.println("Generator shutdown.");
           System.exit(0);
+          LOGGER.info("Generator shutdown.");
+          
         }
 
 }

@@ -3,10 +3,14 @@ package messager.center.control;
 import java.net.*;
 
 import messager.center.config.*;
-
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 public class ControlListener
     extends Thread
 {
+	
+	private static final Logger LOGGER = LogManager.getLogger(ControlListener.class.getName());
+	
     private ServerSocket server;
 
     public ControlListener()
@@ -24,6 +28,7 @@ public class ControlListener
             }
         }
         catch (Exception e) {
+        	LOGGER.error(e);
             StringBuffer err = new StringBuffer();
             err.append("ControlListener() - ")
                 .append("host : ").append(host).append(" - ")
@@ -40,7 +45,7 @@ public class ControlListener
                 MessageController controller = new MessageController(socket);
                 controller.start();
             }
-            catch (Exception ex) {}
+            catch (Exception ex) {LOGGER.error(ex);}
         }
     }
 }

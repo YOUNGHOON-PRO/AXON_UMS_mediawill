@@ -14,9 +14,14 @@ import java.io.*;
 import java.util.*;
 
 import messager.response.LogWriter;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class Config_File_Receiver
 {
+	
+	private static final Logger LOGGER = LogManager.getLogger(Config_File_Receiver.class.getName());
+	
 	private static  Config_File_Receiver instance;
 
 	LogWriter logWriter;
@@ -68,6 +73,7 @@ public class Config_File_Receiver
 		}
 		catch(Exception e)
 		{
+			LOGGER.error(e);
 			logWriter.logWrite("CONFIG_FILE_RECEIVER ERROR","construct",e);
 		}finally{
                   try{
@@ -75,7 +81,7 @@ public class Config_File_Receiver
                       config.close();
                     if (dbconf != null)
                       dbconf.close();
-                  }catch(Exception e){}
+                  }catch(Exception e){LOGGER.error(e);}
                 }
 	}
 }

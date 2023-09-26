@@ -4,12 +4,17 @@ import java.util.*;
 
 import messager.center.config.*;
 import messager.common.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Unit 저장하는 Queue
  */
 public class UnitQueue
 {
+	
+	private static final Logger LOGGER = LogManager.getLogger(UnitQueue.class.getName());
+	
     private static HashMap unitMap;
 
     /**
@@ -63,7 +68,7 @@ public class UnitQueue
                     try {
                         lock.wait();
                     }
-                    catch (InterruptedException ex) {}
+                    catch (InterruptedException ex) {LOGGER.error(ex);}
                 }
             }
             while (!isSuccess);

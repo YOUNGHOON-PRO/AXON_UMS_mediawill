@@ -4,7 +4,8 @@ import java.io.*;
 
 import messager.center.creator.parse.*;
 import messager.common.*;
-
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 /**
  * 이 클래스는 Mail Template FilePath로 FileRequest를 이용해서 Stream를 얻고 Stream를
  * TemplateParser로 분석해서 Template 객체를 생성한다.
@@ -12,6 +13,9 @@ import messager.common.*;
 
 class ContentFetcher
 {
+	
+	private static final Logger LOGGER = LogManager.getLogger(ContentFetcher.class.getName());
+	
     /** template 파일 경로 (요청 경로) */
     private String path;
 
@@ -82,6 +86,7 @@ class ContentFetcher
             }
         }
         catch (Exception ex) {
+        	LOGGER.error(ex);
             exception = ex;
         }
         finally {
@@ -92,6 +97,7 @@ class ContentFetcher
                     reader.close();
                 }
                 catch (IOException ex) {
+                	LOGGER.error(ex);
                 }
             }
         }
@@ -146,6 +152,7 @@ class ContentFetcher
 //            }
         }
         catch (Exception ex) {
+        	LOGGER.error(ex);
             exception = ex;
         }
         finally {
@@ -156,6 +163,7 @@ class ContentFetcher
                     reader.close();
                 }
                 catch (IOException ex) {
+                	LOGGER.error(ex);
                 }
             }
         }

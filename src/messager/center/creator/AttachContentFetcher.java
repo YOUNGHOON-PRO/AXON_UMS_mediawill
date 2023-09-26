@@ -14,7 +14,8 @@ import messager.common.util.*;
 import messager.center.config.ConfigLoader;
 import synap.next.JFilterUtil;
 import synap.next.ParttenCheckUtil;
-
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 /**
  * 첨부 파일이 포함 되었을 경우 AttachFile 테이블에서 AttachFile 리스트를 검색하여 FileRequester를 이용해 첨부
  * 파일의 Stream를 얻고 Template 형태의 첨부 파일일 경우 Template 객체를 생성하고 일반 첨부 파일일 경우
@@ -22,6 +23,9 @@ import synap.next.ParttenCheckUtil;
  */
 class AttachContentFetcher
 {
+	
+	private static final Logger LOGGER = LogManager.getLogger(AttachContentFetcher.class.getName());
+	
     // AttachFile 테이블 검색 SQL
     private static final String searchSQL = "SELECT ATT_NM, ATT_FL_PATH, ATT_FL_TY, ENCRYPT_YN, "
         + "ENCRYPT_KEY, ENCRYPT_TY " + "FROM NEO_ATTACH WHERE TASK_NO = ?"; // chk cskim 070904
@@ -182,6 +186,7 @@ class AttachContentFetcher
             
         }
         catch (Exception ex) {
+        	LOGGER.error(ex);
             String detail = "[" + Integer.toString(taskNo) + "] Exception: "
                 + ex.getMessage();
             exception = new FetchException(ex.getMessage(),
@@ -193,6 +198,7 @@ class AttachContentFetcher
                     rset.close();
                 }
                 catch (SQLException ex) {
+                	LOGGER.error(ex);
                 }
             }
             if (pstmt != null) {
@@ -200,6 +206,7 @@ class AttachContentFetcher
                     pstmt.close();
                 }
                 catch (SQLException ex) {
+                	LOGGER.error(ex);
                 }
             }
         }
@@ -254,6 +261,7 @@ class AttachContentFetcher
             }
         }
         catch (Exception exception) {
+        	LOGGER.error(exception);
             String detail = path + " " + exception.getMessage();
             throw new FetchException(detail, ErrorCode.ATTACH_FILE_FETCH_FAIL);
         }
@@ -290,6 +298,7 @@ class AttachContentFetcher
             aTemplate = parser.parse(reader);
         }
         catch (Exception ex) {
+        	LOGGER.error(ex);
             exception = ex;
         }
         finally {
@@ -298,6 +307,7 @@ class AttachContentFetcher
                     reader.close();
                 }
                 catch (IOException ex) {
+                	LOGGER.error(ex);
                 }
                 reader = null;
             }

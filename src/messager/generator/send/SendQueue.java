@@ -4,6 +4,8 @@ import java.util.*;
 
 import messager.generator.config.*;
 import messager.generator.repository.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * 생성완료된 Unit의 UnitName(MessageID^UnitID)를 담는 Queue MailSender의 요청이 있을 때 꺼내어서
@@ -12,6 +14,8 @@ import messager.generator.repository.*;
  */
 public class SendQueue
 {
+	private static final Logger LOGGER = LogManager.getLogger(SendQueue.class.getName());
+	
 	//Unit의 UnitName(MessageID^UnitID)를 저장할 list
     private static ArrayList list;
 
@@ -29,6 +33,7 @@ public class SendQueue
             queueSize = Integer.parseInt(str);
         }
         catch (Exception ex) {
+        	LOGGER.error(ex);
             queueSize = 10;
         }
         str = ConfigLoader.getProperty("send.queue.wait.time");
@@ -36,6 +41,7 @@ public class SendQueue
             waitTime = Long.parseLong(str);
         }
         catch (Exception ex) {
+        	LOGGER.error(ex);
             waitTime = 0;
         }
         list = new ArrayList(queueSize);
@@ -94,6 +100,7 @@ public class SendQueue
                         }
                     }
                     catch (InterruptedException ex) {
+                    	LOGGER.error(ex);
                     }
                 }
             }

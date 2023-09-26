@@ -4,6 +4,8 @@ package messager.mailsender.sendlog;
 import java.io.*;
 
 import messager.mailsender.util.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * SendLogRecord Format
@@ -46,6 +48,9 @@ import messager.mailsender.util.*;
 
 public class SendLogFileAccess
 {
+	
+	private static final Logger LOGGER = LogManager.getLogger(SendLogFileAccess.class.getName());
+	
     private PrintWriter accessFile;
     private RandomAccessFile unitFile;
     private String separator = "";
@@ -67,6 +72,7 @@ public class SendLogFileAccess
             unitFile = new RandomAccessFile(unitlogFile, "rw");
         }
         catch (Exception exception) {
+        	LOGGER.error(exception);
             ex = exception;
             LogWriter.writeException("SendLogFileAccess", "SendLogFileAccess()",
                                      "파일 객체를 생성할수 없습니다.", ex);
@@ -132,6 +138,7 @@ public class SendLogFileAccess
                 }
             }
             catch (IOException e1) {
+            	LOGGER.error(e1);
                 LogWriter.writeException("SendLogFileAccess", "writeSendLogRecord()",
                                          "에러를 확인해 보세요", e1);
             }
@@ -164,6 +171,7 @@ public class SendLogFileAccess
             }
         }
         catch (IOException e) {
+        	LOGGER.error(e);
             ex = e;
             LogWriter.writeException("SendLofFileAccess", "writeUnitLogEndTime",
                                      "에러 확인", e);
@@ -224,6 +232,7 @@ public class SendLogFileAccess
             }
         }
         catch (IOException e) {
+        	LOGGER.error(e);
             ex = e;
             LogWriter.writeException("SendLogFileAccess", "writeUnitLog()",
                                      "에러 로그 확인", e);
@@ -264,6 +273,7 @@ public class SendLogFileAccess
             }
         }
         catch (IOException e) {
+        	LOGGER.error(e);
             LogWriter.writeException("SendLogFileAccess", "close()", "에러 로그 확인", e);
         }
 

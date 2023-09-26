@@ -3,10 +3,14 @@ package messager.mailsender.send.dns;
 import java.io.*;
 
 import messager.mailsender.util.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class DNSInputStream
     extends ByteArrayInputStream
 {
+	private static final Logger LOGGER = LogManager.getLogger(DNSInputStream.class.getName());
+	
     protected DataInputStream dataIn;
     public DNSInputStream(byte[] data, int off, int len) {
         super(data, off, len);
@@ -73,6 +77,7 @@ public class DNSInputStream
             return rr;
         }
         catch (Exception e) {
+        	LOGGER.error(e);
             LogWriter.writeException("DNSInputStream", "readRR()", "Dynamic Class Loading(" + type + ")", e);
             return null;
         }

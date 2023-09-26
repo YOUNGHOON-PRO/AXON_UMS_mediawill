@@ -8,10 +8,14 @@ import java.util.*;
 import messager.common.*;
 import messager.common.util.*;
 import messager.generator.repository.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class MultiPart
     extends Part
 {
+	private static final Logger LOGGER = LogManager.getLogger(MultiPart.class.getName());
+	
     /** boundary의 접두사 */
     private final static String BOUNDARY_PREFIX = "----=_NextPart_000_";
 
@@ -100,7 +104,8 @@ public class MultiPart
     			AAA = readFile("./sample/output/"+ message.taskNo +"_"+toUser.id+"_screatfile.html", "UTF-8");
     		} catch (IOException e) {
     			// TODO Auto-generated catch block
-    			e.printStackTrace();
+    			//e.printStackTrace();
+    			LOGGER.error(e);
     		}
 			
 	        String encodedString = Base64.getEncoder().encodeToString(AAA.getBytes());
@@ -144,7 +149,8 @@ public class MultiPart
 	    		
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				//e.printStackTrace();
+				LOGGER.error(e);
 			}
 	        
 	        buffer.append(lineSeparator);
@@ -184,7 +190,8 @@ public class MultiPart
 	    		
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				//e.printStackTrace();
+				LOGGER.error(e);
 			}
         
 	        buffer.append(lineSeparator);
@@ -299,6 +306,7 @@ public class MultiPart
                 isAttachFileWrite = true;
             }
             catch (Exception ex1) {
+            	LOGGER.error(ex1);
                 ex = ex1;
             }
             finally {

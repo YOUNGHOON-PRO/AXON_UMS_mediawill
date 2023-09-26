@@ -3,6 +3,8 @@ package com.neocast.messager.filetransfer;
 import java.io.PrintStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * 파일트랜스퍼 서버
@@ -12,6 +14,8 @@ import java.net.Socket;
  */
 class FileTransfer extends Thread
 {
+  private static final Logger LOGGER = LogManager.getLogger(FileTransfer.class.getName());
+  
   private static int port;
 
   public void run()
@@ -30,7 +34,8 @@ class FileTransfer extends Thread
       }
     }
     catch (Exception localException) {
-    	localException.printStackTrace();
+    	//localException.printStackTrace();
+    	LOGGER.error(localException);
       
     }
   }

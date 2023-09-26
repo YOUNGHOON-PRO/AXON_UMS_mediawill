@@ -3,9 +3,14 @@ package messager.center.creator;
 import java.sql.*;
 
 import messager.center.db.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class TaskStatusManager
 {
+	
+	private static final Logger LOGGER = LogManager.getLogger(TaskStatusManager.class.getName());
+	
     private final static String NOT_ERROR_CODE = "002";
 
     private final static String UPDATE_SQL = "UPDATE NEO_SUBTASK SET WORK_STATUS = ? WHERE TASK_NO = ? AND SUB_TASK_NO = ?";
@@ -31,6 +36,7 @@ public class TaskStatusManager
             }
         }
         catch (Exception ex) {
+        	LOGGER.error(ex);
             exception = ex;
         }
         finally {
@@ -39,6 +45,7 @@ public class TaskStatusManager
                     pstmt.close();
                 }
                 catch (Exception ex) {
+                	LOGGER.error(ex);
                 }
                 pstmt = null;
             }

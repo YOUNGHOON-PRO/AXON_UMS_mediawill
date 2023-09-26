@@ -4,6 +4,8 @@ import java.io.*;
 import java.net.*;
 
 import messager.center.config.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * UnitInfo객체나 MessageInfo객체를 Generator에 전달 하기 위한 ServerSocket를 생성하고 Generator의
@@ -12,6 +14,8 @@ import messager.center.config.*;
 public class DeliveryListener
     extends Thread
 {
+	private static final Logger LOGGER = LogManager.getLogger(DeliveryListener.class.getName());
+	
     private final static int backlog = 10;
     private static int port;
     private static String localHost;
@@ -71,7 +75,8 @@ public class DeliveryListener
                 agent.start();
             }
             catch (IOException ex) {
-                System.err.println(ex.getMessage());
+            	LOGGER.error(ex);
+                //System.err.println(ex.getMessage());
             }
         }
     }

@@ -5,6 +5,8 @@ import java.util.regex.*;
 
 import messager.mailsender.config.*;
 import messager.mailsender.util.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * 서버로 부터 받은 응답 메세지를 체크하여 응답코드와 메세지 내용이
@@ -29,6 +31,9 @@ import messager.mailsender.util.*;
 
 public class PatternSearch
 {
+	
+	private static final Logger LOGGER = LogManager.getLogger(PatternSearch.class.getName());
+	
     /***************** Common Values *******************/
     private String rMessage; // 메일서버로 부터 받은 응답메시지
     private String patternFile; // 패턴 파일
@@ -61,6 +66,7 @@ public class PatternSearch
                     rCode = (String) ConfigLoader.FILTER_KEY.get(idx);
                 }
                 catch (Exception ee) {
+                	LOGGER.error(ee);
                     LogWriter.writeException("PatternSearch", "filterMessage()",
                                              "패턴 검사중 에러", ee);
                 }

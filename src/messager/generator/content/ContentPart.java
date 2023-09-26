@@ -27,6 +27,9 @@ import messager.center.creator.parse.LineParser;
 import messager.common.MergeElement;
 import messager.common.MergeException;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 /**
  * 컨텐츠를 생성한다.
  * Template 객체를 이용하여 머지를 실행하여 얻는 데이타를 인코딩을 실행한 후
@@ -39,6 +42,8 @@ import messager.common.MergeException;
  */
 public class ContentPart
 {
+	private static final Logger LOGGER = LogManager.getLogger(ContentPart.class.getName());
+	
     /** 라인 구분 String */
     private final static String lineSeparator = "\r\n";
 
@@ -173,15 +178,18 @@ public class ContentPart
          		
     			if((CellCK_subject) || (TellCK_subject) || (PersonalCK_body) || (EmailCK_subject)) {// 제목에 개인정보가 있으면 null 처리
     				data = "personal_subject_error";
-    				System.out.println(message.taskNo + " 제목에 개인정보가 포함되었습니다.");
+    				//System.out.println(message.taskNo + " 제목에 개인정보가 포함되었습니다.");
+    				LOGGER.info(message.taskNo + " 제목에 개인정보가 포함되었습니다.");
+
     			}else if((CellCK_body) || (TellCK_body) || (PersonalCK_body) || (EmailCK_body)) {
     				data = "personal_body_error";
-    				System.out.println(message.taskNo + " 본문에 개인정보가 포함되었습니다.");
+    				LOGGER.info(message.taskNo + " 제목에 개인정보가 포함되었습니다.");
     			}
              }            
             //--------------------------------------------------------------------------- 
         }
         catch (MergeException ex) {
+        	LOGGER.error(ex);
             throw new GeneratorException(ErrorCode.MERGE_ERROR, ex.getMessage());
         }
 
@@ -273,6 +281,7 @@ public class ContentPart
             emlBuffer.append(encData).append(lineSeparator);
         }
         catch (Exception ex) {
+        	LOGGER.error(ex);
             if (ex instanceof java.io.UnsupportedEncodingException) {
                 throw new GeneratorException(ErrorCode.ENCODING_ERROR, ex
                                              .getMessage());

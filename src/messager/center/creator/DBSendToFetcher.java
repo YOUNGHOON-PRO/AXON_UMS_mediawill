@@ -12,12 +12,17 @@ import messager.common.*;
 import com.custinfo.safedata.*;
 import messager.common.util.EncryptUtil;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 /**
  * 이 클래스는 WorkDB에서 대상자를 추출할 DB의 접속정보를 가져와서 대상자가 저장된 DB에 접속하여 대상자를 추출한다.
  */
 public class DBSendToFetcher
     extends SendToFetcher
 {
+	
+	private static final Logger LOGGER = LogManager.getLogger(DBSendToFetcher.class.getName());
+	
     // 대상자를 추출할 DB의 접속 정보를 검색하는 SQL
     private final static String CON_INFO_SQL = " SELECT A.DB_TY, A.DB_DRIVER, A.DB_URL, A.LOGIN_ID,						"
 						+" 	A.LOGIN_PWD, A.DB_CHAR_SET , B.CD_NM AS DB_CHAR_SET_NM		"
@@ -75,6 +80,7 @@ public class DBSendToFetcher
 
         }
         catch (Exception ex) {
+        	LOGGER.error(ex);
             String detail = "[" + message.messageID
                 + "] database connection info search fail: "
                 + ex.getMessage();
@@ -157,6 +163,7 @@ public class DBSendToFetcher
             }
         }
         catch (Exception exception) {
+        	LOGGER.error(exception);
             ex = exception;
         }
         finally {
@@ -165,6 +172,7 @@ public class DBSendToFetcher
                     rset.close();
                 }
                 catch (SQLException ex2) {
+                	LOGGER.error(ex2);
                 }
             }
             if (pstmt != null) {
@@ -172,6 +180,7 @@ public class DBSendToFetcher
                     pstmt.close();
                 }
                 catch (SQLException ex2) {
+                	LOGGER.error(ex2);
                 }
             }
         }
@@ -258,21 +267,28 @@ public class DBSendToFetcher
                     if(rs.next()) { //대상자가 있을 경우 
                     	rs = stmt.executeQuery(sql);
                     }else { // 대상자가 없을 경우 
-                    	System.out.println("============ 정기메일 Retry process start ============ ");
-                    	System.out.println(RETRY_TERM+"밀리세컨드초 간격으로 "+RETRY_CNT+"회 재 발송 시도 (task_no:"+message.taskNo+")");
+                    	//System.out.println("============ 정기메일 Retry process start ============ ");
+                    	//System.out.println(RETRY_TERM+"밀리세컨드초 간격으로 "+RETRY_CNT+"회 재 발송 시도 (task_no:"+message.taskNo+")");
+                    	
+                    	LOGGER.info("============ 정기메일 Retry process start ============ ");
+                    	LOGGER.info(RETRY_TERM+"밀리세컨드초 간격으로 "+RETRY_CNT+"회 재 발송 시도 (task_no:"+message.taskNo+")");
                     	while(a<=RETRY_CNT) { 
-                    		System.out.println(a+"회 시작..");
+                    		//System.out.println(a+"회 시작..");
+                    		LOGGER.info(a+"회 시작..");
+                    		
                     		Thread.sleep(RETRY_TERM);
                     		sql = connection.toDB(fetchSQL);
                         	rs = stmt.executeQuery(sql);
                         	a++;
                         	if(rs.next()){ //대상자가 다시 생겼을 경우
-                        		System.out.println("대상자 생성 확인");
+                        		//System.out.println("대상자 생성 확인");
+                        		LOGGER.info("대상자 생성 확인");
                         		rs = stmt.executeQuery(sql);
                         		break;
                         	}
                     	}
-                    	System.out.println("============ 정기메일 Retry process end ============ ");
+                    	//System.out.println("============ 정기메일 Retry process end ============ ");
+                    	LOGGER.info("============ 정기메일 Retry process end ============ ");
                     }
                 }else {
                 	//정기메일 이지만 분,시 일경우 제외 대상
@@ -284,21 +300,28 @@ public class DBSendToFetcher
                 if(rs.next()) { //대상자가 있을 경우 
                 	rs = stmt.executeQuery(sql);
                 }else { // 대상자가 없을 경우
-                	System.out.println("============ 단기메일 Retry process start ============ ");
-                	System.out.println(RETRY_TERM+"밀리세컨드초 간격으로 "+RETRY_CNT+"회 재 발송 시도 (task_no:"+message.taskNo+")");
+                	//System.out.println("============ 단기메일 Retry process start ============ ");
+                	//System.out.println(RETRY_TERM+"밀리세컨드초 간격으로 "+RETRY_CNT+"회 재 발송 시도 (task_no:"+message.taskNo+")");
+                	
+                	LOGGER.info("============ 단기메일 Retry process start ============ ");
+                	LOGGER.info(RETRY_TERM+"밀리세컨드초 간격으로 "+RETRY_CNT+"회 재 발송 시도 (task_no:"+message.taskNo+")");
                 	while(a<=RETRY_CNT) { 
-                		System.out.println(a+"회 시작..");
+                		//System.out.println(a+"회 시작..");
+                		LOGGER.info(a+"회 시작..");
+                		
                 		Thread.sleep(RETRY_TERM);
                 		sql = connection.toDB(fetchSQL);
                     	rs = stmt.executeQuery(sql);
                     	a++;
                     	if(rs.next()){ //대상자가 다시 생겼을 경우
-                    		System.out.println("대상자 생성 확인");
+                    		//System.out.println("대상자 생성 확인");
+                    		LOGGER.info("대상자 생성 확인");
                     		rs = stmt.executeQuery(sql);
                     		break;
                     	}
                 	}
-                	System.out.println("============ 단기메일 Retry process end ============ ");
+                	//System.out.println("============ 단기메일 Retry process end ============ ");
+                	LOGGER.info("============ 단기메일 Retry process end ============ ");
                 }
             }
 
@@ -647,6 +670,7 @@ public class DBSendToFetcher
             } // if(message.isTest) END ..........
         }
         catch (Exception ex) {
+        	LOGGER.error(ex);
             exception = ex;
         }
         finally {
@@ -655,6 +679,7 @@ public class DBSendToFetcher
                     rs.close();
                 }
                 catch (SQLException ex) {
+                	LOGGER.error(ex);
                 }
                 rs = null;
             }
@@ -663,6 +688,7 @@ public class DBSendToFetcher
                     stmt.close();
                 }
                 catch (SQLException ex) {
+                	LOGGER.error(ex);
                 }
                 stmt = null;
             }
@@ -676,7 +702,8 @@ public class DBSendToFetcher
                     conn.close();
                 }
                 catch (SQLException e) {
-                    e.printStackTrace();
+                	LOGGER.error(e);
+                    //e.printStackTrace();
                 }
                 conn = null;
             }
@@ -686,7 +713,8 @@ public class DBSendToFetcher
         }
 
         if (exception != null) {
-            System.out.println("exception 발생 ==> " + exception.toString());
+            //System.out.println("exception 발생 ==> " + exception.toString());
+        	LOGGER.info("exception 발생 ==> " + exception.toString());
 
             if (exception instanceof FetchException) {
                 throw (FetchException) exception;

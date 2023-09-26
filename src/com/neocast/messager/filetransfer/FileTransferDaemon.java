@@ -7,9 +7,14 @@ import java.util.Locale;
 import org.apache.commons.daemon.Daemon;
 import org.apache.commons.daemon.DaemonContext;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 public class FileTransferDaemon
   implements Daemon
 {
+	private static final Logger LOGGER = LogManager.getLogger(FileTransferDaemon.class.getName());
+	
   private Main main;
 
   public void init(DaemonContext paramDaemonContext)
@@ -48,6 +53,7 @@ public class FileTransferDaemon
   }
 
   private void println(String paramString) {
-    System.out.println(getCurrentTime() + " : " + paramString);
+    //System.out.println(getCurrentTime() + " : " + paramString);
+	  LOGGER.info(getCurrentTime() + " : " + paramString);
   }
 }

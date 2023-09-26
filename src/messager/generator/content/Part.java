@@ -5,9 +5,14 @@ import java.util.*;
 
 import messager.common.*;
 import messager.generator.agent.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public abstract class Part
 {
+	
+	private static final Logger LOGGER = LogManager.getLogger(Part.class.getName());
+	
     /** 컨텐츠의 라인 구분 String */
     protected final static String lineSeparator = "\r\n";
 
@@ -99,6 +104,7 @@ public abstract class Part
             out.write(content);
         }
         catch (Exception exception) {
+        	LOGGER.error(exception);
             ex = exception;
         }
         finally {
@@ -107,6 +113,7 @@ public abstract class Part
                     out.close();
                 }
                 catch (IOException excep) {
+                	LOGGER.error(excep);
                 }
                 out = null;
             }
@@ -184,6 +191,7 @@ public abstract class Part
             
         }
         catch (Exception ex) {
+        	LOGGER.error(ex);
             exception = ex;
         }
 
@@ -217,11 +225,12 @@ public abstract class Part
                     action.create(receiver);
                 }
                 catch (Exception ex) {
+                	LOGGER.error(ex);
                     if (ex instanceof GeneratorException) {
                         throw (GeneratorException) ex;
                     }
                     else {
-                        ex.printStackTrace();
+                        //ex.printStackTrace();
                         throw new GeneratorException(ErrorCode.UNKNOWN_ERROR, ex
                                                      .getMessage());
                     }
@@ -250,11 +259,12 @@ public abstract class Part
                     action2.create2(receiver);
                 }
                 catch (Exception ex) {
+                	LOGGER.error(ex);
                     if (ex instanceof GeneratorException) {
                         throw (GeneratorException) ex;
                     }
                     else {
-                        ex.printStackTrace();
+                        //ex.printStackTrace();
                         throw new GeneratorException(ErrorCode.UNKNOWN_ERROR, ex
                                                      .getMessage());
                     }

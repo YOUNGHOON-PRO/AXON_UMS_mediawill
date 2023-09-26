@@ -9,6 +9,9 @@ import messager.center.db.*;
 import messager.center.repository.*;
 import messager.common.*;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 /**
  * QMessage[메일 큐테이블의 내용] 객체에 대한 Message를 생성 시키고 결과 물인 MessageInfo 객체와 대상자를 포함한
  * UnitInfo 객체를 생성후 저장한다 진행 순서 1. CampaignExe, Segment, Template 테이블 검색 2. 정기메일일
@@ -18,6 +21,9 @@ import messager.common.*;
 public class MessageCreator
     extends Thread
 {
+	
+	private static final Logger LOGGER = LogManager.getLogger(MessageCreator.class.getName());
+	
     private static MessageMap messageMap;
     static {
         messageMap = MessageMap.getInstance();
@@ -62,7 +68,8 @@ public class MessageCreator
             connection = JdbcConnection.getWorkConnection();
         }
         catch (Exception ex) {
-            ex.printStackTrace();
+        	LOGGER.error(ex);
+            //ex.printStackTrace();
         }
     }
 
@@ -80,7 +87,8 @@ public class MessageCreator
             connection.openConnection();
         }
         catch (Exception ex) {
-            ex.printStackTrace();
+        	LOGGER.error(ex);
+            //ex.printStackTrace();
             return;
         }
 
@@ -92,11 +100,17 @@ public class MessageCreator
             taskFetcher.fetch(connection);  //DB에 있는 데이터(neo_task, neo_segment)를 다 읽어 Message 객체에 (VO)에 적재
 
             //debug
-            System.out.println("============");
-            System.out.println(message.keyMap);
-            System.out.println("------------");
-            System.out.println(message.taskMap);
-            System.out.println("============");
+            //System.out.println("============");
+            //System.out.println(message.keyMap);
+            //System.out.println("------------");
+            //System.out.println(message.taskMap);
+            //System.out.println("============");
+            
+            LOGGER.info("============");
+            LOGGER.info(message.keyMap);
+            LOGGER.info("------------");
+            LOGGER.info(message.taskMap);
+            LOGGER.info("============");
 
             parser = new TemplateParser(message);
 
@@ -107,6 +121,7 @@ public class MessageCreator
                 fileRequester = new FileRequester();
             }
             catch (IOException ex) {
+            	LOGGER.error(ex);
                 String detail = "FileRequester open Fail";
                 throw new FetchException(detail, ErrorCode.FILE_CONNECT_FAIL);
             }
@@ -162,13 +177,15 @@ public class MessageCreator
                 
             }
             catch (Exception ex) {
+            	LOGGER.error(ex);
                 String detail = "[" + message.messageID
                     + "] MessageStatus File: " + ex.getMessage();
                 throw new FetchException(detail, ErrorCode.EXCEPTION);
             }
         }
         catch (FetchException ex) {
-            ex.printStackTrace();
+        	LOGGER.error(ex);
+            //ex.printStackTrace();
             resultCode = ex.getErrorCode();
         }
         finally {
@@ -182,6 +199,7 @@ public class MessageCreator
                                      message.subTaskNo, resultCode);   //발송중으로 DB 업데이트
         }
         catch (SQLException ex) {
+        	LOGGER.error(ex);
             ex.printStackTrace();
         }
 
@@ -204,6 +222,7 @@ public class MessageCreator
                 sTemplate = parser.parse(subject);
             }
             catch (Exception ex) {
+            	LOGGER.error(ex);
                 String detail = "[" + message.messageID
                     + "] Subject Parse Error " + ex.getMessage();
                 throw new FetchException(detail, ErrorCode.INVALID_SUBJECT);
@@ -228,6 +247,7 @@ public class MessageCreator
                 tnTemplate = parser.parse(toName);
             }
             catch (Exception ex) {
+            	LOGGER.error(ex);
                 String detail = "[" + message.messageID
                     + "] Invalid NM_MERGE: " + ex.getMessage();
                 throw new FetchException(detail, ErrorCode.INVALID_NM_MERGE);
@@ -262,6 +282,7 @@ public class MessageCreator
             mainContent = contentFetcher.fetch(fileRequester, parser);
         }
         catch (Exception ex) {
+        	LOGGER.error(ex);
             if (ex instanceof FetchException) {
                 throw (FetchException) ex;
             }
@@ -314,6 +335,7 @@ public class MessageCreator
                 
             }
             catch (Exception ex) {
+            	LOGGER.error(ex);
                 if (ex instanceof FetchException) {
                     throw (FetchException) ex;
                 }

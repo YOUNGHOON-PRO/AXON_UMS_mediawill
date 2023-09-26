@@ -19,13 +19,17 @@ import messager.center.config.ConfigLoader;
 import messager.center.db.JdbcConnection_bank;
 import messager.common.util.EncryptUtil;
 
-
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 /**
  * 마케팅 수신동의 체크 
  * @author younghoon
  *
  */
 public class MktCheck {
+	
+	private static final Logger LOGGER = LogManager.getLogger(MktCheck.class.getName());
+	
 	
 	public HashMap<String, String>  MktCheckWhere(String gubun,  String queryWhere) throws FetchException {
 		// TODO Auto-generated method stub
@@ -67,8 +71,8 @@ public class MktCheck {
 				bank_db_password = CustInfo.getEncrypt(dbProps.getProperty("bank.db.password"), KEYSTRING);
 				bankProps.setProperty("password", bank_db_password);
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				//e.printStackTrace();
+				LOGGER.error(e);
 			}
         		
         }else {
@@ -94,7 +98,8 @@ public class MktCheck {
 				cardProps.setProperty("password", card_db_password);
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				//e.printStackTrace();
+				LOGGER.error(e);
 			}
 				
         }else {
@@ -120,7 +125,8 @@ public class MktCheck {
 				mydataProps.setProperty("password", mydata_db_password);
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				//e.printStackTrace();
+				LOGGER.error(e);
 			}
         		
         }else {
@@ -146,7 +152,8 @@ public class MktCheck {
 				mydataBankProps.setProperty("password", mydataBank_db_password);
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				//e.printStackTrace();
+				LOGGER.error(e);
 			}
         		
         }else {
@@ -241,7 +248,8 @@ public class MktCheck {
     			//System.out.println("mydataBankQuery : "+mydataBankQuery);
     			
     		} catch (Exception e) {
-    			e.printStackTrace();
+    			//e.printStackTrace();
+    			LOGGER.error(e);
     		}
     	/* ---------------------------------------------------------------------------*/
     		
@@ -297,12 +305,14 @@ public class MktCheck {
 	  			
 	  		} catch (ClassNotFoundException e) {
 	  			// TODO Auto-generated catch block
-	  			e.printStackTrace();
+	  			//e.printStackTrace();
+	  			LOGGER.error(e);
 	  			throw new FetchException("마케팅동의 체크 오류 DB접속정보를 확인하세요 (ClassNotFoundException)",
 	                      ErrorCode.MTK_CK_ERROR);
 	  		} catch (SQLException e) {
 	  			// TODO Auto-generated catch block
-	  			e.printStackTrace();
+	  			//e.printStackTrace();
+	  			LOGGER.error(e);
 	  			throw new FetchException("마케팅동의 체크 오류 DB접속정보를 확인하세요 (SQLException)",
 	                      ErrorCode.MTK_CK_ERROR);
 	  		}finally {
@@ -316,7 +326,8 @@ public class MktCheck {
 	  				}
 	  			} catch (SQLException e) {
 	  				// TODO Auto-generated catch block
-	  				e.printStackTrace();
+	  				//e.printStackTrace();
+	  				LOGGER.error(e);
 	  			}
 	  		}
 	    
@@ -345,12 +356,14 @@ public class MktCheck {
 		  			
 		  		} catch (ClassNotFoundException e) {
 		  			// TODO Auto-generated catch block
-		  			e.printStackTrace();
+		  			//e.printStackTrace();
+		  			LOGGER.error(e);
 		  			throw new FetchException("마케팅동의 체크 오류 DB접속정보를 확인하세요 (ClassNotFoundException)",
 		                      ErrorCode.MTK_CK_ERROR);
 		  		} catch (SQLException e) {
 		  			// TODO Auto-generated catch block
-		  			e.printStackTrace();
+		  			//e.printStackTrace();
+		  			LOGGER.error(e);
 		  			throw new FetchException("마케팅동의 체크 오류 DB접속정보를 확인하세요 (SQLException)",
 		                      ErrorCode.MTK_CK_ERROR);
 		  		}finally {
@@ -364,7 +377,8 @@ public class MktCheck {
 		  				}
 		  			} catch (SQLException e) {
 		  				// TODO Auto-generated catch block
-		  				e.printStackTrace();
+		  				//e.printStackTrace();
+		  				LOGGER.error(e);
 		  			}
 		  		}
 	    
@@ -393,12 +407,14 @@ public class MktCheck {
 		  			
 		  		} catch (ClassNotFoundException e) {
 		  			// TODO Auto-generated catch block
-		  			e.printStackTrace();
+		  			//e.printStackTrace();
+		  			LOGGER.error(e);
 		  			throw new FetchException("마케팅동의 체크 오류 DB접속정보를 확인하세요 (ClassNotFoundException)",
 		                      ErrorCode.MTK_CK_ERROR);
 		  		} catch (SQLException e) {
 		  			// TODO Auto-generated catch block
-		  			e.printStackTrace();
+		  			//e.printStackTrace();
+		  			LOGGER.error(e);
 		  			throw new FetchException("마케팅동의 체크 오류 DB접속정보를 확인하세요 (SQLException)",
 		                      ErrorCode.MTK_CK_ERROR);
 		  		}finally {
@@ -412,7 +428,8 @@ public class MktCheck {
 		  				}
 		  			} catch (SQLException e) {
 		  				// TODO Auto-generated catch block
-		  				e.printStackTrace();
+		  				//e.printStackTrace();
+		  				LOGGER.error(e);
 		  			}
 		  		}
 	    
@@ -441,12 +458,14 @@ public class MktCheck {
 		  			
 		  		} catch (ClassNotFoundException e) {
 		  			// TODO Auto-generated catch block
-		  			e.printStackTrace();
+		  			//e.printStackTrace();
+		  			LOGGER.error(e);
 		  			throw new FetchException("마케팅동의 체크 오류 DB접속정보를 확인하세요 (ClassNotFoundException)",
 		                      ErrorCode.MTK_CK_ERROR);
 		  		} catch (SQLException e) {
 		  			// TODO Auto-generated catch block
-		  			e.printStackTrace();
+		  			//e.printStackTrace();
+		  			LOGGER.error(e);
 		  			throw new FetchException("마케팅동의 체크 오류 DB접속정보를 확인하세요 (SQLException)",
 		                      ErrorCode.MTK_CK_ERROR);
 		  		}finally {
@@ -460,7 +479,8 @@ public class MktCheck {
 		  				}
 		  			} catch (SQLException e) {
 		  				// TODO Auto-generated catch block
-		  				e.printStackTrace();
+		  				//e.printStackTrace();
+		  				LOGGER.error(e);
 		  			}
 		  		}
 	    }
@@ -517,12 +537,14 @@ public class MktCheck {
 	  			
 	  		} catch (ClassNotFoundException e) {
 	  			// TODO Auto-generated catch block
-	  			e.printStackTrace();
+	  			//e.printStackTrace();
+	  			LOGGER.error(e);
 	  			throw new FetchException("마케팅동의 체크 오류 DB접속정보를 확인하세요 (ClassNotFoundException)",
 	                      ErrorCode.MTK_CK_ERROR);
 	  		} catch (SQLException e) {
 	  			// TODO Auto-generated catch block
-	  			e.printStackTrace();
+	  			//e.printStackTrace();
+	  			LOGGER.error(e);
 	  			throw new FetchException("마케팅동의 체크 오류 DB접속정보를 확인하세요 (SQLException)",
 	                      ErrorCode.MTK_CK_ERROR);
 	  		}finally {
@@ -536,7 +558,8 @@ public class MktCheck {
 	  				}
 	  			} catch (SQLException e) {
 	  				// TODO Auto-generated catch block
-	  				e.printStackTrace();
+	  				//e.printStackTrace();
+	  				LOGGER.error(e);
 	  			}
 	  		}
 	    
@@ -560,12 +583,14 @@ public class MktCheck {
 		  			
 		  		} catch (ClassNotFoundException e) {
 		  			// TODO Auto-generated catch block
-		  			e.printStackTrace();
+		  			//e.printStackTrace();
+		  			LOGGER.error(e);
 		  			throw new FetchException("마케팅동의 체크 오류 DB접속정보를 확인하세요 (ClassNotFoundException)",
 		                      ErrorCode.MTK_CK_ERROR);
 		  		} catch (SQLException e) {
 		  			// TODO Auto-generated catch block
-		  			e.printStackTrace();
+		  			//e.printStackTrace();
+		  			LOGGER.error(e);
 		  			throw new FetchException("마케팅동의 체크 오류 DB접속정보를 확인하세요 (SQLException)",
 		                      ErrorCode.MTK_CK_ERROR);
 		  		}finally {
@@ -579,7 +604,8 @@ public class MktCheck {
 		  				}
 		  			} catch (SQLException e) {
 		  				// TODO Auto-generated catch block
-		  				e.printStackTrace();
+		  				//e.printStackTrace();
+		  				LOGGER.error(e);
 		  			}
 		  		}
 	    	
@@ -593,7 +619,8 @@ public class MktCheck {
 		
 		// card or bank
 		boolean testCK = MktCheck("001","test");
-		System.out.println("testCK : "  +testCK);
+		//System.out.println("testCK : "  +testCK);
+		LOGGER.info("testCK : "  +testCK);
 	}
 	
 }

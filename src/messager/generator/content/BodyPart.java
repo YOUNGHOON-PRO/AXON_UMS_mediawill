@@ -7,6 +7,8 @@ import java.util.Base64;
 
 import messager.common.*;
 import messager.common.util.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * 첨부 파일이 포함되지 않은 단일 컨텐츠를 갖는 메일의 컨텐츠를 생성한다.
@@ -18,6 +20,8 @@ import messager.common.util.*;
 public class BodyPart
     extends Part
 {
+	private static final Logger LOGGER = LogManager.getLogger(BodyPart.class.getName());
+	
     /** Mail 헤더를 생성하기 위한 객체 */
     private MailHeader mailHeader;
 
@@ -191,8 +195,9 @@ public class BodyPart
 	        try {
 				AAA = readFile("./sample/output/"+ message.taskNo +"_"+toUser.id+"_screatfile.html", "UTF-8");
 			} catch (IOException e) {
+				LOGGER.error(e);
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				//e.printStackTrace();
 			}
 
         String encodedString = Base64.getEncoder().encodeToString(AAA.getBytes());
@@ -230,8 +235,9 @@ public class BodyPart
 	    		encodedString = new String(encoded);
 	    		
 			} catch (IOException e) {
+				LOGGER.error(e);
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				//e.printStackTrace();
 			}
         
         buffer.append(lineSeparator);
@@ -266,8 +272,9 @@ public class BodyPart
 	    		encodedString = new String(encoded);
 	    		
 			} catch (IOException e) {
+				LOGGER.error(e);
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				//e.printStackTrace();
 			}
         
         buffer.append(lineSeparator);

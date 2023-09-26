@@ -10,6 +10,10 @@ import messager.center.creator.FetchException;
 import messager.common.util.EncryptUtil;
 import messager.mailsender.util.*;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+
 /**
  * 환경 설정 변수 클래스
  * @value BLOCK_SESSION					: 도메인별 연결 세션수를 보관하는 해쉬 테이블
@@ -38,6 +42,9 @@ import messager.mailsender.util.*;
 public class ConfigLoader
     extends Thread
 {
+	
+	private static final Logger LOGGER = LogManager.getLogger(ConfigLoader.class.getName());
+	
     /**************** Inner Function Values **************/
     //< BLOCK_SESSION>
     public static Hashtable BLOCK_SESSION = new Hashtable();
@@ -112,26 +119,30 @@ public class ConfigLoader
                 Thread.sleep(600000); // 10분마다 체크
             }
             catch (InterruptedException e) {
+            	LOGGER.error(e);
                 e.printStackTrace();
             }
 
             initTime = configFile.lastModified(); // sender.properties 최근 수정 시간
             if (senderInitTime < initTime) {
-                System.out.println("sender.properties 파일을 다시 읽어 들입니다.");
+                //System.out.println("sender.properties 파일을 다시 읽어 들입니다.");
+            	LOGGER.info("sender.properties 파일을 다시 읽어 들입니다.");
                 load();
                 senderInitTime = initTime;
             }
 
             initTime = sessionFile.lastModified(); // session.properties 최근 수정 시간
             if (sessionInitTime < initTime) {
-                System.out.println("session.properties 파일을 다시 읽어 들입니다.");
+                //System.out.println("session.properties 파일을 다시 읽어 들입니다.");
+            	LOGGER.info("session.properties 파일을 다시 읽어 들입니다.");
                 loadSession();
                 sessionInitTime = initTime;
             }
 
             initTime = filterFile.lastModified(); // filter.properties 최근 수정 시간
             if (filterInitTime < initTime) {
-                System.out.println("filter.properties 파일을 다시 읽어 들입니다.");
+                //System.out.println("filter.properties 파일을 다시 읽어 들입니다.");
+            	LOGGER.info("filter.properties 파일을 다시 읽어 들입니다.");
                 loadMessageFilter();
                 filterInitTime = initTime;
             }
@@ -150,9 +161,11 @@ public class ConfigLoader
             pro.load(is);
         }
         catch (FileNotFoundException e) {
+        	LOGGER.error("sender.properties 를 찾을수 없습니다. : " + e);
             LogWriter.writeException("ConfigLoader", "load()", "sender.properties 를 찾을수 없습니다.", e);
         }
         catch (IOException e) {
+        	LOGGER.error("sender.properties 를 읽는데 문제가 발생하였습니다. : " + e);
             LogWriter.writeException("ConfigLoader", "load()", "sender.properties 를 읽는데 문제가 발생하였습니다.", e);
         }
         finally {
@@ -160,7 +173,7 @@ public class ConfigLoader
                 try {
                     is.close();
                 }
-                catch (Exception e) {}
+                catch (Exception e) {LOGGER.error(e);}
             }
         }
 
@@ -170,16 +183,18 @@ public class ConfigLoader
             pro_1.load(is);
         }
         catch (FileNotFoundException e) {
+        	LOGGER.error("database.properties를 찾을수 없습니다. : " + e);
             LogWriter.writeException("ConfigLoader", "load()", "database.properties를 찾을수 없습니다.", e);
         }
         catch (IOException e) {
+        	LOGGER.error("database.properties를 읽는데 문제가 발생하였습니다. : " + e);
             LogWriter.writeException("ConfigLoader", "load()", "database.properties를 읽는데 문제가 발생하였습니다.", e);
         }
         finally {
             try {
                 is.close();
             }
-            catch (Exception e) {}
+            catch (Exception e) {LOGGER.error(e);}
         }
 
         
@@ -225,8 +240,10 @@ public class ConfigLoader
 				db_password = CustInfo.getDecrypt((String) pro_1.get("db.password"), KEYSTRING);
 				INSERT_PASSWD = db_password;
 			} catch (Exception e) {
+				LOGGER.error(e);
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				//e.printStackTrace();
+				
 			}
         }else {
         	INSERT_PASSWD = (String) pro_1.get("db.password");	
@@ -249,9 +266,11 @@ public class ConfigLoader
 
         try {
             sendIP = InetAddress.getByAddress(ConfigLoader.SEND_IP);
-            System.out.println("MailSender'IP is binded with " + sendIP.getHostAddress());
+            //System.out.println("MailSender'IP is binded with " + sendIP.getHostAddress());
+            LOGGER.info("MailSender'IP is binded with \" + sendIP.getHostAddress()");
         }
         catch (UnknownHostException e1) {
+        	LOGGER.error("sender.properties 의 SEND.IP를 확인 하세요 : " + e1);
             LogWriter.writeException("ConfigLoader", "load()", "sender.properties 의 SEND.IP를 확인 하세요", e1);
         }
     }
@@ -278,9 +297,11 @@ public class ConfigLoader
                 BLOCK_SESSION.put(spamDomain, session);
             }
             br.close();
-            System.out.println("Successfully loading Session.properties(" + BLOCK_SESSION.size() + " elements)");
+            //System.out.println("Successfully loading Session.properties(" + BLOCK_SESSION.size() + " elements)");
+            LOGGER.info("Successfully loading Session.properties(" + BLOCK_SESSION.size() + " elements)");
         }
         catch (Exception e) {
+        	LOGGER.error("sessuib,properties파일 로딩시 에러 : " + e);
             LogWriter.writeException("ConfigLoader", "loadSpam()", "sessuib,properties파일 로딩시 에러 ", e);
         }
     }
@@ -308,9 +329,11 @@ public class ConfigLoader
                 }
             }
             br.close();
-            System.out.println("Successfully loading filter.properties(" + FILTER_KEY.size() + " elements)");
+            //System.out.println("Successfully loading filter.properties(" + FILTER_KEY.size() + " elements)");
+            LOGGER.info("Successfully loading filter.properties(" + FILTER_KEY.size() + " elements)");
         }
         catch (Exception e) {
+        	LOGGER.error("filter.properties 파일 로딩시 에러 : ", e);
             LogWriter.writeException("ConfigLoader", "loadMessageFilter()", "filter.properties 파일 로딩시 에러", e);
         }
     }
@@ -333,14 +356,17 @@ public class ConfigLoader
                     }
                     br.close();
                     mxRecordTable.put(cachingList[k], MXRcord);
-                    System.out.println(cachingList[k] + " is cached -> " + MXRcord.firstElement());
+                    //System.out.println(cachingList[k] + " is cached -> " + MXRcord.firstElement());
+                    LOGGER.info(cachingList[k] + " is cached -> " + MXRcord.firstElement());
                 }
             }
             else {
+            	LOGGER.info("캐쉬할 도메인이 없습니다.");
                 LogWriter.writeError("ConfigLoader", "cachiingDomain()", "캐쉬할 도메인이 없습니다.", "");
             }
         }
         catch (Exception e) {
+        	LOGGER.error("도메인을 캐쉬하는데 실패 : " + e);
             LogWriter.writeException("ConfigLoader", "chchingDomain()", "도메인을 캐쉬하는데 실패 ", e);
         }
         return mxRecordTable;

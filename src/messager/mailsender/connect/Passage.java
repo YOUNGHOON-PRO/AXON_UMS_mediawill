@@ -14,6 +14,9 @@ import messager.mailsender.send.dns.*;
 import messager.mailsender.sendlog.*;
 import messager.mailsender.util.*;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 /**
  * Message Generator에서 메일발송 아이템을 얻어오는 클래스임
  * +------------+              +-----------+
@@ -35,6 +38,10 @@ import messager.mailsender.util.*;
 public class Passage
     extends Thread
 {
+	
+	private static final Logger LOGGER = LogManager.getLogger(Passage.class.getName());
+
+	
     /******* ConfigLoader Values ***********/
     private static int AGENT_LIMIT; // Thread 생성 제한값
     private static int GEN_PORT; // Generator과의 통신 포트
@@ -79,7 +86,9 @@ public class Passage
             .append("send/").append(MAILSENDER_ID)
             .append(File.separator).toString();
 
-        System.out.println("CURRENT MAILDSENDER_ID : " + MAILSENDER_ID);
+        //System.out.println("CURRENT MAILDSENDER_ID : " + MAILSENDER_ID);
+        LOGGER.info("CURRENT MAILDSENDER_ID : " + MAILSENDER_ID);
+        
         mxRecordTable = ConfigLoader.cachingDomain();
     }
 
@@ -92,9 +101,13 @@ public class Passage
         while (true) {
             try {
                 if (revokeSocket) {
-                    System.out.println("Trying to reconnect.....");
-                    System.out.println("IP : " + IP);
-                    System.out.println("GEN_PORT : " + GEN_PORT);
+                    //System.out.println("Trying to reconnect.....");
+                    //System.out.println("IP : " + IP);
+                    //System.out.println("GEN_PORT : " + GEN_PORT);
+                	
+                	LOGGER.info("Trying to reconnect.....");
+                	LOGGER.info("IP : " + IP);
+                	LOGGER.info("GEN_PORT : " + GEN_PORT);
                 }
 
                 //sock = new Socket("localhost", GEN_PORT);
@@ -106,10 +119,12 @@ public class Passage
                 in = new BufferedReader(new InputStreamReader(iStream));
 
                 if (out != null) {
-                    System.out.println("Successfully connect to Generator");
+                    //System.out.println("Successfully connect to Generator");
+                	LOGGER.info("Successfully connect to Generator");
                 }
                 else {
-                    System.out.println("Fail connect to Generator");
+                    //System.out.println("Fail connect to Generator");
+                	LOGGER.info("Fail connect to Generator");
                 }
                 out.println(MAILSENDER_ID); // Mail Transfer ID를 Generator에게 보낸다.
                 out.flush();
@@ -122,21 +137,26 @@ public class Passage
                     }
                     else {
                         isRecovery = false;
-                        System.out.println("We cann't find any recovery stuffs. So, now!!! let's start normal processes");
+                        //System.out.println("We cann't find any recovery stuffs. So, now!!! let's start normal processes");
+                        LOGGER.info("We cann't find any recovery stuffs. So, now!!! let's start normal processes");
                     }
                 }
                 catch (Exception e) {
+                	LOGGER.error(e);
                     LogWriter.writeException("Passage", "run()", "There is something wrong, as we are searching recovery list", e);
                 }
 
                 boolean aLoop = true;
                 while (aLoop) {
                     if (isRecovery) {
-                        System.out.println("Beginnig to the units of recovery that were failed");
+                        //System.out.println("Beginnig to the units of recovery that were failed");
+                    	LOGGER.info("Beginnig to the units of recovery that were failed");
                         for (int k = 0; k < recoveryList.length; k++) {
                             Secretary(recoveryList[k], isRecovery);
                         }
-                        System.out.println("Finished a job of recovery");
+                        //System.out.println("Finished a job of recovery");
+                        LOGGER.info("Finished a job of recovery");
+                        
                         isRecovery = false;
                     }
                     else {
@@ -162,7 +182,7 @@ public class Passage
                                 sleep(1000);
                             }
                         }
-                        catch (InterruptedException e) {}
+                        catch (InterruptedException e) {LOGGER.error(e);}
                         // Generator과 통신이 끊어 졌을경우
                         if (in == null || out == null) {
                             aLoop = false;
@@ -173,9 +193,10 @@ public class Passage
                 }
             }
             catch (Exception e) {
-            	e.printStackTrace();
-                System.out.println("Cannot access Message Generator..retry!");
-                System.out.flush();
+            	//e.printStackTrace();
+                //System.out.println("Cannot access Message Generator..retry!");
+                //System.out.flush();
+            	LOGGER.error("Cannot access Message Generator..retry! : " + e );
                 revokeSocket = true;
             }
             finally {
@@ -183,7 +204,7 @@ public class Passage
                     try {
                         in.close();
                     }
-                    catch (Exception e) {}
+                    catch (Exception e) {LOGGER.error(e);}
                     finally {
                         in = null;
                     }
@@ -193,7 +214,7 @@ public class Passage
                     try {
                         out.close();
                     }
-                    catch (Exception e) {}
+                    catch (Exception e) {LOGGER.error(e);}
                     finally {
                         out = null;
                     }
@@ -203,7 +224,7 @@ public class Passage
                     try {
                         sock.close();
                     }
-                    catch (Exception e) {}
+                    catch (Exception e) {LOGGER.error(e);}
                     finally {
                         sock = null;
                     }
@@ -212,7 +233,7 @@ public class Passage
             try {
                 sleep(1000);
             }
-            catch (InterruptedException e) {}
+            catch (InterruptedException e) {LOGGER.error(e);}
         }
     }
 
@@ -228,6 +249,7 @@ public class Passage
             return recoveryList;
         }
         catch (Exception e) {
+        	LOGGER.error(e);
             return recoveryList;
         }
     }
@@ -244,7 +266,9 @@ public class Passage
             recoveryAccount = new Vector();
             recoveryAccount = recoveryMembers(unitName);
             if (recoveryAccount.size() < 1) {
-                System.out.println("There are nothing, already these unit were done");
+                //System.out.println("There are nothing, already these unit were done");
+            	LOGGER.info("There are nothing, already these unit were done");
+            	
                 FileManager.deleteUnitFiles(unitName, false);
                 return false;
             }
@@ -313,7 +337,8 @@ public class Passage
         int blockSession;
         int defaultSession;
         boolean emailError = true; // 이메일 에러가 존재하는지 검사 한다.
-        System.out.println("------<" + unitName + " Making DMBundle  >------");
+        //System.out.println("------<" + unitName + " Making DMBundle  >------");
+        LOGGER.info("------<" + unitName + " Making DMBundle  >------");
 
         // DomainElement 갯수만큼 반복
         while (deGroup.hasNext()) {
@@ -497,7 +522,8 @@ public class Passage
             }
 
         }
-        System.out.println("\n------<" + unitName + " Finish Making  DMBundle  >------ ");
+        //System.out.println("\n------<" + unitName + " Finish Making  DMBundle  >------ ");
+        LOGGER.info("\n------<" + unitName + " Finish Making  DMBundle  >------ ");
         return tempbundle;
     }
 
@@ -597,6 +623,7 @@ public class Passage
                 }
             }
             catch (Exception e) {
+            	LOGGER.error(e);
                 LogWriter.writeException("ControlTower", "ConfigLoader()", " 로그 파일 검색 루틴", e);
             }
 
@@ -693,10 +720,11 @@ public class Passage
                     try {
                         Thread.sleep(500);
                     }
-                    catch (Exception e) {}
+                    catch (Exception e) {LOGGER.error(e);}
                 }
             } // End while loop
-            System.out.println("An unit is done ");
+            //System.out.println("An unit is done ");
+            LOGGER.info("An unit is done ");
         }
     } // End - ControlTower Class
 
@@ -726,6 +754,7 @@ public class Passage
                         rList.addElement(String.valueOf(nIndex));
                     }
                     catch (Exception e) {
+                    	LOGGER.error(e);
                         LogWriter.writeException("Passage", "recoveryMembers()", "복구 대상을 리스트에 담는데 실패했습니다.", e);
                     }
                 }
@@ -734,9 +763,12 @@ public class Passage
             unitFile.close();
         }
         catch (Exception e) {
+        	LOGGER.error(e);
             LogWriter.writeException("Passage", "recoveryMembers", "복구 상자를 만드는데 실패 했습니다.", e);
         }
-        System.out.println("Completed a recovery list. Entire unit accounts : " + unitEntireCount + " , restored accounts : " + rList.size());
+        //System.out.println("Completed a recovery list. Entire unit accounts : " + unitEntireCount + " , restored accounts : " + rList.size());
+        LOGGER.info("Completed a recovery list. Entire unit accounts : " + unitEntireCount + " , restored accounts : " + rList.size());
+        
         return rList;
     }
 

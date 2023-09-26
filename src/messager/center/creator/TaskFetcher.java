@@ -8,6 +8,9 @@ import messager.common.*;
 import messager.common.util.*;
 import com.custinfo.safedata.*;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 /**
  * Neo_Task테이블과 Neo_SubTask 테이블을 검색하여 발송 정보를 저장하는
  * Message 객체의 항목을 채우고 정기메일일 경우 새로운 업무를 Neo_SubTask에 인서트를
@@ -19,6 +22,9 @@ import com.custinfo.safedata.*;
  */
 class TaskFetcher
 {
+	
+	private static final Logger LOGGER = LogManager.getLogger(TaskFetcher.class.getName());
+	
     private final static int charsetColumn = 1;
 
     /**
@@ -108,7 +114,11 @@ class TaskFetcher
                 "NEO_TASK.SEG_NO = NEO_SEGMENT.SEG_NO ");  //chk cskim 07.09.05
         
         taskFetchSQL = buffer.toString();
-        System.out.println(taskFetchSQL);
+        //System.out.println(taskFetchSQL);
+        LOGGER.info(taskFetchSQL);
+        
+        
+        
     }
 
     /**
@@ -219,6 +229,7 @@ class TaskFetcher
                                     value = connection.fromDB(str.trim());
                                 }
                                 catch (java.io.UnsupportedEncodingException ex) {
+                                	LOGGER.error(ex);
                                     String detail = "[" + message.messageID +
                                         "] UnsupportedEncodingExcepiton: " + column.name;
                                     throw new FetchException(detail,
@@ -242,6 +253,7 @@ class TaskFetcher
                                     value = new Integer(Integer.parseInt(str.trim()));
                                 }
                                 catch (NumberFormatException ex) {
+                                	LOGGER.error(ex);
                                 }
                             }
                             break;
@@ -284,7 +296,8 @@ class TaskFetcher
             }
         }
         catch (Exception ex) {
-            ex.printStackTrace();
+        	LOGGER.error(ex);
+            //ex.printStackTrace();
             exception = ex;
         }
         finally {
@@ -293,6 +306,7 @@ class TaskFetcher
                     rset.close();
                 }
                 catch (SQLException ex) {
+                	LOGGER.error(ex);
                 }
                 rset = null;
             }
@@ -302,6 +316,7 @@ class TaskFetcher
                     pstmt.close();
                 }
                 catch (SQLException ex) {
+                	LOGGER.error(ex);
                 }
                 pstmt = null;
             }
@@ -516,6 +531,7 @@ class TaskFetcher
                     value = Integer.parseInt( (String) obj);
                 }
                 catch (NumberFormatException ex) {
+                	LOGGER.error(ex);
                 }
             }
         }
@@ -541,6 +557,7 @@ class TaskFetcher
             }
         }
         catch (Exception ex) {
+        	LOGGER.error(ex);
             exists = false;
         }
         return exists;
@@ -554,8 +571,9 @@ class TaskFetcher
     private void taskInsert(JdbcConnection connection) {
         HashMap taskMap = message.taskMap;
         int repeatType = intValue(taskMap.remove("NEO_TASK.SEND_REPEAT"));
-        System.out.println("taskNo: " + message.taskNo + "=> repeatType: " +
-                           repeatType);
+        //System.out.println("taskNo: " + message.taskNo + "=> repeatType: " + repeatType);
+        LOGGER.info("taskNo: " + message.taskNo + "=> repeatType: " + repeatType);
+        
         if (repeatType > 0) {
             TaskInserter inserter = new TaskInserter(message);
             inserter.insert(connection);

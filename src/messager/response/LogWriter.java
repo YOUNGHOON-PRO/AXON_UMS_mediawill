@@ -10,9 +10,13 @@ package messager.response;
 import java.io.*;
 import java.util.*;
 import java.text.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class LogWriter
 {
+	private static final Logger LOGGER = LogManager.getLogger(LogWriter.class.getName());
+	
 	//File logHistoryFile;
 	private FileWriter fw = null;
 	private StringBuffer sb = null;
@@ -55,9 +59,12 @@ public class LogWriter
 		try
 		{
 			sb = new StringBuffer();
-			System.out.println(sb.append(classFile).append(" - ").append(classMethod)
-							   .append(" : ").append(errorStr).toString());
+//			System.out.println(sb.append(classFile).append(" - ").append(classMethod)
+//							   .append(" : ").append(errorStr).toString());
 
+			LOGGER.info(sb.append(classFile).append(" - ").append(classMethod)
+					   .append(" : ").append(errorStr).toString());
+			
 			sb = new StringBuffer();
 			//logHistoryFile=new File("NeoQueueInfo"+File.separator+"error"+File.separator+getLogDate()+".err");
 			fw = new FileWriter(sb.append("NeoQueueInfo").append(File.separator)
@@ -73,7 +80,9 @@ public class LogWriter
 								.append(System.getProperty("line.separator")).toString());
 		}
 		catch(Exception e) {
-			System.out.println("LogWriter logWrite() : "+e);
+			//System.out.println("LogWriter logWrite() : "+e);
+			LOGGER.error(e);
+			
 		}
 		finally {
 			sb = null;
@@ -83,7 +92,7 @@ public class LogWriter
 					fw = null;
 				}
 			}
-			catch(Exception e) {}
+			catch(Exception e) {LOGGER.error(e);}
 
 			try {
 				if( historyWriter != null ) {
@@ -91,7 +100,7 @@ public class LogWriter
 					historyWriter = null;
 				}
 			}
-			catch(Exception e) {}
+			catch(Exception e) {LOGGER.error(e);}
 		}
 	}
 }

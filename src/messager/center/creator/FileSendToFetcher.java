@@ -13,6 +13,9 @@ import messager.center.db.JdbcConnection;
 import messager.center.db.JdbcConnection_bank;
 import messager.common.*;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 /**
  * 대상자가 Address 파일일 경우 Address파일을 FileTransfer에 요청해서 필드를 구분하고 UnitInfo 객체를 생성해서
  * MsgUnitManager 객체를 이용해서 저장소에 저장한다
@@ -20,6 +23,9 @@ import messager.common.*;
 public class FileSendToFetcher
     extends SendToFetcher
 {
+	
+	private static final Logger LOGGER = LogManager.getLogger(FileSendToFetcher.class.getName());
+	
     //Address 파일을 line단위로 읽기 위해
     private BufferedReader in;
     
@@ -75,6 +81,7 @@ public class FileSendToFetcher
             in = new BufferedReader(new InputStreamReader(stream, "UTF-8"));
         }
         catch (Exception ex) {
+        	LOGGER.error(ex);
             throw new FetchException(ex.getMessage(),
                                      ErrorCode.ADDRESS_FILE_FETCH_FAIL);
         }
@@ -412,6 +419,7 @@ public class FileSendToFetcher
             }
         }
         catch (Exception ex) {
+        	LOGGER.error(ex);
             exception = ex;
         }
 
@@ -435,6 +443,7 @@ public class FileSendToFetcher
                 in.close();
             }
             catch (IOException ex) {
+            	LOGGER.error(ex);
             }
             in = null;
         }

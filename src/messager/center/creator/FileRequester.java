@@ -5,6 +5,8 @@ import java.net.*;
 
 import messager.center.config.*;
 import messager.common.util.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Promotion 에 포함된 템플릿, 첨부파일 리스트, Address 파일등을 FileTransfer에 접속하여 전송 받는다.
@@ -14,6 +16,9 @@ import messager.common.util.*;
  */
 public class FileRequester
 {
+	
+	private static final Logger LOGGER = LogManager.getLogger(FileRequester.class.getName());
+	
     private static String host; //Promotion이 위치한 Host
     private static int port; //File Transfer의 서비스 포트번호
 
@@ -25,6 +30,7 @@ public class FileRequester
                 port = Integer.parseInt(str);
             }
             catch (NumberFormatException ex) {
+            	LOGGER.error(ex);
             }
         }
     }
@@ -82,7 +88,8 @@ public class FileRequester
             return responseStream();
         }
         catch (Exception ex) {
-            ex.printStackTrace();
+        	LOGGER.error(ex);
+            //ex.printStackTrace();
             throw (IOException) ex;
         }
     }
@@ -163,6 +170,7 @@ public class FileRequester
                 out.close();
             }
             catch (IOException ex) {
+            	LOGGER.error(ex);
             }
             out = null;
         }
@@ -172,6 +180,7 @@ public class FileRequester
                 in.close();
             }
             catch (IOException ex) {
+            	LOGGER.error(ex);
             }
             in = null;
         }
@@ -181,6 +190,7 @@ public class FileRequester
                 socket.close();
             }
             catch (IOException ex) {
+            	LOGGER.error(ex);
             }
             socket = null;
         }
