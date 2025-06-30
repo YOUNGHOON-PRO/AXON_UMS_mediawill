@@ -232,7 +232,9 @@ public class MultiPart extends Part {
 			targetDomains = targetDomains.trim().toLowerCase();
 			// 메일 수신자의 도메인 추출
 			String toDomain = toUser.email.split("@")[1].trim().toLowerCase();
-
+			// 메일 발신자의 도메인 추출
+			String fromDomain = message.fromEmail.split("@")[1].trim().toLowerCase();
+			
 			if (targetDomains.indexOf(toDomain) > -1) {
 				LOGGER.info("DKIM 적용 대상 도메인 목록 {}, 수신자 도메인: {}", targetDomains, toDomain);
 				/**
@@ -258,7 +260,8 @@ public class MultiPart extends Part {
 //				LOGGER.debug("첨부 파일 추가한 일반 MIME<<<\r\n{}>>>", completeMime.toString());
 				String dkimMime = SimpleJavaDKIMSign.addDKIMSignature(
 						completeMime.toString(), 
-						ConfigLoader.getProperty("DKIM.domain"),
+//						ConfigLoader.getProperty("DKIM.domain"),
+						fromDomain,
 						ConfigLoader.getProperty("DKIM.selector"),
 						ConfigLoader.getProperty("DKIM.private.key")
 					);

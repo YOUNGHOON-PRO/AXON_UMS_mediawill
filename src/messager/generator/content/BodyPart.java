@@ -314,13 +314,15 @@ public class BodyPart extends Part {
 		targetDomains = targetDomains.trim().toLowerCase();		
 		// 메일 수신자의 도메인 추출
 		String toDomain = toUser.email.split("@")[1].trim().toLowerCase();
+		String fromDomain = message.fromEmail.split("@")[1].trim().toLowerCase();
 		
 		if(targetDomains.indexOf(toDomain) > -1) {
 			LOGGER.info("DKIM 적용 대상 도메인 목록 {}, 수신자 도메인: {}", targetDomains, toDomain);
 //			LOGGER.debug("Normal MIME<<<\r\n{}>>>", buffer.toString());
 			String dkimMime = SimpleJavaDKIMSign.addDKIMSignature(
 					buffer.toString(), 
-					ConfigLoader.getProperty("DKIM.domain"),
+//					ConfigLoader.getProperty("DKIM.domain"),
+					fromDomain,
 					ConfigLoader.getProperty("DKIM.selector"),
 					ConfigLoader.getProperty("DKIM.private.key")
 				);
