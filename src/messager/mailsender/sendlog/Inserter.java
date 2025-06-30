@@ -37,7 +37,7 @@ public class Inserter
 
     
     public Inserter(){
-    	 new DemonCheck_Sendlog("Sendlog").start();
+    	 
     	 }
     /**
      * DB와 연결시도
@@ -1639,6 +1639,9 @@ public class Inserter
     }
 
     public static void main(String[] args) {
+    	
+    	new DemonCheck_Sendlog("Sendlog").start();
+    	
         Inserter ln = new Inserter();
         ConfigLoader.load();
         String[] FileList;

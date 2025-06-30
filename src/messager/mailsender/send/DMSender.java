@@ -18,7 +18,6 @@ import org.apache.logging.log4j.Logger;
 public class DMSender
     extends Thread
 {
-
 	private static final Logger LOGGER = LogManager.getLogger(DMSender.class.getName());
 	 	 
     /*************** ConfigLoader Values ****************/
@@ -171,9 +170,19 @@ public class DMSender
         Vector receivers = new Vector();
 
         receivers = dm.recvList; // UserMessage 들의 Vector
+        // keultae 내용 출력하도록 수정
+        // TODO: receivers.size()가 0인데, 호출되는 경우가 있음
+        // LOGGER.info("receivers: {}", receivers);
+        UserMessage um = null;
+        for(int i= 0; i < receivers.size(); i++) {
+        	um = (UserMessage) receivers.get(i);
+        	LOGGER.info("[{}] rowID:{}, accountName:{}, emailAddr:{}, bizkey:{}, enckey:{}", 
+        			i, um.getRowID(), um.getAccountName(), um.getEmailAddr(), um.getBizkey(), um.getEnckey());
+        }
+        
         socket = makeConnection();
         if (socket.isConnected()) {
-            if (socket.cmdHelo(SEND_DOMAIN)) {
+            if (socket.cmdHelo(SEND_DOMAIN, receivers)) {
                 sendSMTP(receivers);
             }
             else {
@@ -200,52 +209,52 @@ public class DMSender
 
         synchronized (cManager) {
         	
-        	//System.out.println("");
-        	//System.out.println("");
-        	//System.out.println("### KYH 111###  DMSender.java ####");
-        	//System.out.println("unitGuard.getSize() : "+unitGuard.getSize());
-        	//System.out.println("");
+        	//LOGGER.info("");
+        	//LOGGER.info("");
+        	//LOGGER.info("DMSender.java");
+        	//LOGGER.info("unitGuard.getSize() : "+unitGuard.getSize());
+        	//LOGGER.info("");
         	
             cManager.increaseSCount(sCount);
             cManager.increaseEndCount(fCount + sCount); // 실패된 대상자를 현재 발송된 수에 더함.
             agentWatcher.removeAgentGroup(AgentNM);
             unitGuard.delUnitFactor(AgentNM);
             
-        	//System.out.println("### KYH 222###  DMSender.java ####");
-        	//System.out.println("성공수1 : "+sCount);
-        	//System.out.println(new StringBuffer().append("성공수2 : ").append(cManager.getSCount()));
-        	//System.out.println("실패수1 : "+fCount);
-        	//System.out.println(new StringBuffer().append("실패수2 : ").append(cManager.getEndCount() - cManager.getSCount()));
-        	//int q =fCount + sCount;
-        	//System.out.println("AgentNM(도메인) : "+AgentNM);
-        	//System.out.println("unitGuard.getSize() : "+unitGuard.getSize());
-        	//System.out.println("");
-            
-            //System.out.println("###333###  DMSender.java ####");
-            //System.out.println("cManager.getEndCount() : " +cManager.getEndCount());
-            //System.out.println("cManager.getTotalCount() : " +cManager.getTotalCount());
-            //System.out.println("unitGuard.getSize() : "+unitGuard.getSize());
-            //System.out.println("");
+          //LOGGER.info("### KYH 222###  DMSender.java ####");
+          //LOGGER.info("성공수1 : "+sCount);
+          //LOGGER.info(new StringBuffer().append("성공수2 : ").append(cManager.getSCount()));
+          //LOGGER.info("실패수1 : "+fCount);
+          //LOGGER.info(new StringBuffer().append("실패수2 : ").append(cManager.getEndCount() - cManager.getSCount()));
+          //int q =fCount + sCount;
+          //LOGGER.info("AgentNM(도메인) : "+AgentNM);
+          //LOGGER.info("unitGuard.getSize() : "+unitGuard.getSize());
+          //LOGGER.info("");
+
+          //LOGGER.info("###333###  DMSender.java ####");
+          //LOGGER.info("cManager.getEndCount() : " +cManager.getEndCount());
+          //LOGGER.info("cManager.getTotalCount() : " +cManager.getTotalCount());
+          //LOGGER.info("unitGuard.getSize() : "+unitGuard.getSize());
+          //LOGGER.info("");
             
             //if ( (unitGuard.getSize() < 1) || (cManager.getEndCount() == cManager.getTotalCount())) {
             if ((cManager.getEndCount() == cManager.getTotalCount())) {
             
-//            System.out.println("###444-true###  DMSender.java ####");
-//            System.out.println("cManager.getEndCount() : " +cManager.getEndCount());
-//            System.out.println("cManager.getTotalCount() : " +cManager.getTotalCount());
-//            System.out.println("성공수 : " +cManager.getSCount());
-//            System.out.println(new StringBuffer().append("실패수 : ").append(cManager.getEndCount() - cManager.getSCount()));
-//            System.out.println("unitGuard.getSize() : "+unitGuard.getSize());
-//            System.out.println("");
+//              LOGGER.info("###444-true###  DMSender.java ####");
+//              LOGGER.info("cManager.getEndCount() : " +cManager.getEndCount());
+//              LOGGER.info("cManager.getTotalCount() : " +cManager.getTotalCount());
+//              LOGGER.info("성공수 : " +cManager.getSCount());
+//              LOGGER.info(new StringBuffer().append("실패수 : ").append(cManager.getEndCount() - cManager.getSCount()));
+//              LOGGER.info("unitGuard.getSize() : "+unitGuard.getSize());
+//              LOGGER.info("");
         	
             	endFlag = true;
             }
             else {
-//            System.out.println("###444-false###  DMSender.java ####");
-//            System.out.println("cManager.getEndCount() : " +cManager.getEndCount());
-//            System.out.println("cManager.getTotalCount() : " +cManager.getTotalCount());
-//            System.out.println("unitGuard.getSize() : "+unitGuard.getSize());
-//            System.out.println("");
+//              LOGGER.info("###444-false###  DMSender.java ####");
+//              LOGGER.info("cManager.getEndCount() : " +cManager.getEndCount());
+//              LOGGER.info("cManager.getTotalCount() : " +cManager.getTotalCount());
+//              LOGGER.info("unitGuard.getSize() : "+unitGuard.getSize());
+//              LOGGER.info("");
         	
                 endFlag = false;
             }
@@ -273,12 +282,8 @@ public class DMSender
                     if (!accessor.writeUnitLogEndTime(System.currentTimeMillis())) {
                         LogWriter.writeError("DMSender", "sendMail()", "유닛 로그 파일을 작성하는데 문제가 있습니다.", "최종시간 기록");
                     }
-                    //System.out.println(taskNo + "_" + subTaskNo + " Non Exsist Retry list");
                     LOGGER.info(taskNo + "_" + subTaskNo + " Non Exsist Retry list");
-                    
                     accessor.close();
-//                    System.out.println("###3### unitName :" +unitName);
-//                    System.out.println("###4### isAppended :" +isAppended);
                     FileManager.deleteUnitFiles(unitName, isAppended);
 
                 }
@@ -288,14 +293,12 @@ public class DMSender
                     LogWriter.writeError("DMSender", "sendMail()", "유닛 로그 파일을 작성하는데 문제가 있습니다.", "최종시간 기록");
                 }
                 accessor.close();
-//                System.out.println("###5### unitName :" +unitName);
-//                System.out.println("###6### isAppended :" +isAppended);
                 FileManager.deleteUnitFiles(unitName, isAppended);
             }
         }
         else {
             /***************************************
-                  System.out.println(new StringBuffer()
+              LOGGER.info(new StringBuffer()
                       .append("---------------------------------------------").append("\r\n")
                       .append("\tAmount of current Active Threads " + agentWatcher.getSize()).append("\r\n")
                       .append("\tNEO_TASK : ").append(unitName).append("\r\n")
@@ -340,7 +343,8 @@ public class DMSender
                 element = (UserMessage) receivers.remove(0);
                 rowID = element.getRowID();
                 receiver = element.getEmailAddr();
-                //System.out.println("###111### KYH 수신자이메일주소  : "+receiver + ",  recvCount : " +recvCount + ", for문 : " +i);
+                //LOGGER.info("###111### KYH 수신자이메일주소  : "+receiver + ",  recvCount : " +recvCount + ", for문 : " +i);
+                LOGGER.info("{}/{} {}", i+1 , recvCount, receiver);
                 if (socket.cmdRset()) {
                     if (socket.cmdMailFrom(senderEmail)) {
                         if (socket.cmdRcptTo(receiver)) {
@@ -354,13 +358,13 @@ public class DMSender
                                             .append(unitName).append(File.separator)
                                             .append(rowID).append(".mcf").toString();
 
-                                        //System.out.println("###222### KYH 발송 가능한 MCF만 조회 ###  :"+srcFile);
+                                        //LOGGER.info("###222### KYH 발송 가능한 MCF만 조회 ###  :"+srcFile);
                                         emlData = FileManager.loadEml(srcFile);
                                         /**
                                          * 송진우 - 발송할 데이터가 없을 때는 에러로 처리
                                          */
                                         if (emlData.length == 0) {
-                                            //System.out.println("data:" + emlData.length);
+                                        	//LOGGER.info("data:" + emlData.length);
                                             throw new FileNotFoundException("발송데이터 로드시 에러");
                                         }
 
@@ -381,7 +385,7 @@ public class DMSender
                                              * 테스트발송의 경우 발송데이터를 공유하므로 바로 지우면 않됨.
                                              */
                                             if (!sendTest) {
-                                            	//System.out.println("###333### KYH 실제 발송 (.)### srcFile :" +srcFile + ",  rowID(csv행번호) : "+ rowID);
+                                            	//LOGGER.info("###333### KYH 실제 발송 (.)### srcFile :" +srcFile + ",  rowID(csv행번호) : "+ rowID);
                                                 FileManager.deleteEmlFiles(srcFile, rowID);
                                             }
                                         }
@@ -670,22 +674,14 @@ public class DMSender
 //                           .toString()
 //                           );
         
-        LOGGER.info(new StringBuffer()
-                .append("#############################################################").append("\r\n")
-                .append("\t현재 쓰레드 그룹의 활성화된 쓰레드 수 : ").append(agentWatcher.getSize()).append("\r\n")
-                .append("\tFinished Time : ").append(getTime()).append("\r\n")
-                .append("\tNEO_TASK : ").append(unitName).append("\r\n")
-                .append("\tTotal Count : ").append(cManager.getTotalCount()).append("\r\n")
-                .append("\tSuccess Count : ").append(cManager.getSCount()).append("\r\n")
-                .append("\tFail Count : ").append(cManager.getEndCount() -
-           cManager.getSCount()).append("\r\n")
-                .append("#############################################################")
-                .toString()
-                );
+        LOGGER.info("#############################################################");
+        LOGGER.info("현재 쓰레드 그룹의 활성화된 쓰레드 수 : {}", agentWatcher.getSize());
+        LOGGER.info("Finished Time : {}", getTime());
+        LOGGER.info("NEO_TASK : {}", unitName);
+        LOGGER.info("Total Count : {}", cManager.getTotalCount());
+        LOGGER.info("Success Count : {}", cManager.getSCount());
+        LOGGER.info("Fail Count : {}", cManager.getEndCount() - cManager.getSCount());
     }
-    
-
-    
 
     /**
      *  발송 완료된 domainMessage에 대해 Thread를 종료한다.

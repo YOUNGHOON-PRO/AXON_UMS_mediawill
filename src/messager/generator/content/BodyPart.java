@@ -3,12 +3,17 @@ package messager.generator.content;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Base64;
 
 import messager.common.*;
 import messager.common.util.*;
+import messager.generator.config.ConfigLoader;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import messager.dkim.SimpleJavaDKIMSign;
 
 /**
  * 첨부 파일이 포함되지 않은 단일 컨텐츠를 갖는 메일의 컨텐츠를 생성한다.
@@ -17,13 +22,11 @@ import org.apache.logging.log4j.Logger;
  *         comment go to Window - Preferences - Java - Code Style - Code
  *         Templates
  */
-public class BodyPart
-    extends Part
-{
+public class BodyPart extends Part {
 	private static final Logger LOGGER = LogManager.getLogger(BodyPart.class.getName());
-	
-    /** Mail 헤더를 생성하기 위한 객체 */
-    private MailHeader mailHeader;
+
+	/** Mail 헤더를 생성하기 위한 객체 */
+	private MailHeader mailHeader;
 
     /** 컨텐츠 부분을 표현하는 객체 */
     private ContentPart contentPart;
@@ -176,7 +179,8 @@ public class BodyPart
             buffer.append("Content-Type: text/html; charset=\"euc-kr\"");
             buffer.append(lineSeparator);
             //buffer.append("Content-Transfer-Encoding: 8bit");
-            buffer.append("Content-Transfer-Encoding: ");buffer.append(message.bodyEncodingCode);
+			buffer.append("Content-Transfer-Encoding: ");
+			buffer.append(message.bodyEncodingCode);
             buffer.append(lineSeparator);
         }
 
@@ -189,7 +193,7 @@ public class BodyPart
 
 			contentPart2.create(receiver, buffer2, message , toUser.id, toUser); //보안메일 체크 때문에 message 전달
 			msg = buffer2.toString();
-			//System.out.println("msg : "+ msg);
+			//LOGGER.info("msg : "+ msg);
 			
 	        String AAA= "";
 	        try {
@@ -197,11 +201,11 @@ public class BodyPart
 			} catch (IOException e) {
 				LOGGER.error(e);
 				// TODO Auto-generated catch block
-				//e.printStackTrace();
+				e.printStackTrace();
 			}
 
         String encodedString = Base64.getEncoder().encodeToString(AAA.getBytes());
-        //System.out.println("encodedString : "+ encodedString);
+        //LOGGER.info("encodedString : "+ encodedString);
         
         buffer.append(lineSeparator);
         
@@ -216,7 +220,9 @@ public class BodyPart
 				.append("secretfile.html").append('\"').append(lineSeparator);
         
 		buffer.append(lineSeparator);
-        buffer.append(encodedString);
+		// buffer.append(encodedString);
+		// Base64를 76글자씩 폴딩처리
+		Base64Util.foldingBase64(encodedString, buffer);
         
         // 웹에이전트 보안 PDF
         }else if("Y".equals(message.webagent_secuYn) && message.webagent_sourceUrl != null && "PDF".equals(message.webagent_secuAttTyp)) {
@@ -224,7 +230,7 @@ public class BodyPart
 
 			contentPart2.create(receiver, buffer2, message , toUser.id, toUser); //보안메일 체크 때문에 message 전달
 			msg = buffer2.toString();
-			//System.out.println("msg : "+ msg);
+			//LOGGER.info("msg : "+ msg);
 			
 	        String pdfFILE= "./sample/output/"+ message.taskNo +"_"+toUser.id+"_screatfile.pdf";
 	        String encodedString ="";
@@ -237,7 +243,7 @@ public class BodyPart
 			} catch (IOException e) {
 				LOGGER.error(e);
 				// TODO Auto-generated catch block
-				//e.printStackTrace();
+				// e.printStackTrace();
 			}
         
         buffer.append(lineSeparator);
@@ -253,7 +259,9 @@ public class BodyPart
 				.append("secretfile.pdf").append('\"').append(lineSeparator);
         
 		buffer.append(lineSeparator);
-        buffer.append(encodedString);
+		// buffer.append(encodedString);
+		// Base64를 76글자씩 폴딩처리
+		Base64Util.foldingBase64(encodedString, buffer);
         
         // 웹에이전트 보안 EXCEL
         }else if("Y".equals(message.webagent_secuYn) && message.webagent_sourceUrl != null && "EXCEL".equals(message.webagent_secuAttTyp)) {
@@ -261,7 +269,7 @@ public class BodyPart
 
 			contentPart2.create(receiver, buffer2, message , toUser.id, toUser); //보안메일 체크 때문에 message 전달
 			msg = buffer2.toString();
-			//System.out.println("msg : "+ msg);
+			//LOGGER.info("msg : "+ msg);
 			
 			String excelFILE= "./sample/output/"+ message.taskNo +"_"+toUser.id+"_screatfile.xlsx";
 	        String encodedString ="";
@@ -274,50 +282,57 @@ public class BodyPart
 			} catch (IOException e) {
 				LOGGER.error(e);
 				// TODO Auto-generated catch block
-				//e.printStackTrace();
+				// e.printStackTrace();
 			}
         
         buffer.append(lineSeparator);
         
         buffer.append("------=_NextPart_000_"+message.taskNo+"-"+message.subTaskNo);
         buffer.append(lineSeparator);
-		buffer.append("Content-Type: ").append("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet").append(';').append(
-				lineSeparator).append('\t').append("name=\"").append(
-				"secretfile.xlsx").append('\"').append(lineSeparator).append(
-				"Content-Transfer-Encoding: base64").append(lineSeparator)
-				.append("Content-Disposition: attachment;").append(
-						lineSeparator).append('\t').append("filename=\"")
-				.append("secretfile.xlsx").append('\"').append(lineSeparator);
+			buffer.append("Content-Type: ").append("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+					.append(';').append(lineSeparator).append('\t').append("name=\"").append("secretfile.xlsx")
+					.append('\"').append(lineSeparator).append("Content-Transfer-Encoding: base64")
+					.append(lineSeparator).append("Content-Disposition: attachment;").append(lineSeparator).append('\t')
+					.append("filename=\"").append("secretfile.xlsx").append('\"').append(lineSeparator);
         
 		buffer.append(lineSeparator);
         buffer.append(encodedString);
         
         }
+
+		// 보안 메일일 경우 boundary 끝을 추가
+		if ("Y".equals(message.webagent_secuYn) && message.webagent_sourceUrl != null) {
+			buffer.append(lineSeparator);
+			buffer.append("------=_NextPart_000_" + message.taskNo + "-" + message.subTaskNo)
+			.append("--").append(lineSeparator);
+		}
 		
-        //파일에 write
-        /*
-         * contentFile 			: .\repository\transfer\content\313-1^1\0.mcf
-         * buffer.toString() 	:  Reply-To: AXon@enders.co.kr
-									From: =?euc-kr?B?QURNSU4=?= <AXon@enders.co.kr>
-									To: =?euc-kr?B?sei8+LTr?= <hun1110@enders.co.kr>
-									Subject: =?euc-kr?B?dGVzdA==?=
-									Date: Fri, 20 Aug 2021 14:14:43 +0900
-									MIME-Version: 1.0
-									Content-Type: text/html; charset="euc-kr"
-									Content-Transfer-Encoding: 8bit
-									X-MESSAGE-ID: L0D0Q0CYLS6GWDyOUi72Q0H3L36161
-									X-USER-ID: aBS0aED61
-									X-USER-NM: 9shH8Plb9/1H
-									X-Mailer: Postware@MasterPromotion_v3.0
-									
-									test<p>&nbsp;</p><!--NEO__RESPONSE__START--><img src='http://127.0.0.1:8080/resp/response.jsp?202109011354&&000&&test1&&313&&1&&1&&ADMIN&&003&&1&&$:TARGET_GRP_TY:$' width=0 height=0 border=0><!--NEO__RESPONSE__END-->
-          javaCharsetName 		: euc-kr	 						
-         */
-        
-        writeContent(contentFile, buffer.toString(), javaCharsetName);
+		String targetDomains = ConfigLoader.getProperty("DKIM.target.domain");
+		if (targetDomains == null) {
+			targetDomains = "";
+		}
+		targetDomains = targetDomains.trim().toLowerCase();		
+		// 메일 수신자의 도메인 추출
+		String toDomain = toUser.email.split("@")[1].trim().toLowerCase();
+		
+		if(targetDomains.indexOf(toDomain) > -1) {
+			LOGGER.info("DKIM 적용 대상 도메인 목록 {}, 수신자 도메인: {}", targetDomains, toDomain);
+//			LOGGER.debug("Normal MIME<<<\r\n{}>>>", buffer.toString());
+			String dkimMime = SimpleJavaDKIMSign.addDKIMSignature(
+					buffer.toString(), 
+					ConfigLoader.getProperty("DKIM.domain"),
+					ConfigLoader.getProperty("DKIM.selector"),
+					ConfigLoader.getProperty("DKIM.private.key")
+				);
+//			LOGGER.debug("DKIM MIME<<<\r\n{}>>>", dkimMime);
+			writeContent(contentFile, dkimMime, javaCharsetName);
+		} else {
+			writeContent(contentFile, buffer.toString(), javaCharsetName);
+		}
         
         // 웹에이전트 보안 HTML 파일 삭제
-        if("Y".equals(message.webagent_secuYn) && message.webagent_sourceUrl != null && "HTML".equals(message.webagent_secuAttTyp)) {
+		if ("Y".equals(message.webagent_secuYn) && message.webagent_sourceUrl != null
+				&& "HTML".equals(message.webagent_secuAttTyp)) {
     	   //-- 보안메일 파일 삭제 -------------------------------------------------
             String taskNo = (String) message.keyMap.get("TASK_NO");
         	String secuFile="./sample/output/"+ taskNo +"_"+toUser.id+"_screatfile.html";
@@ -325,18 +340,19 @@ public class BodyPart
         	File secuFilePath = new File(secuFile);
     			if(secuFilePath.exists()) {
     				if(secuFilePath.delete()) {
-    					//System.out.println("파일삭제 완료");
+    					//LOGGER.info("파일삭제 완료");
     				}else {
-    					//System.out.println("파일삭제 실패");
+    					//LOGGER.info("파일삭제 실패");
     				}
     			}else {
-    				//System.out.println("파일이 존재하지 않습니다.");
+    				//LOGGER.info("파일이 존재하지 않습니다.");
     			}
     	     //----------------------------------------------------------------
         }
         
      // 웹에이전트 보안 PDF 파일 삭제
-        if("Y".equals(message.webagent_secuYn) && message.webagent_sourceUrl != null && "PDF".equals(message.webagent_secuAttTyp)) {
+		if ("Y".equals(message.webagent_secuYn) && message.webagent_sourceUrl != null
+				&& "PDF".equals(message.webagent_secuAttTyp)) {
     	   //-- 보안메일 파일 삭제 -------------------------------------------------
             String taskNo = (String) message.keyMap.get("TASK_NO");
         	String secuFile="./sample/output/"+ taskNo +"_"+toUser.id+"_screatfile.pdf";
@@ -344,18 +360,20 @@ public class BodyPart
         	File secuFilePath = new File(secuFile);
     			if(secuFilePath.exists()) {
     				if(secuFilePath.delete()) {
-    					//System.out.println("파일삭제 완료");
+    					//LOGGER.info("파일삭제 완료");
     				}else {
-    					//System.out.println("파일삭제 실패");
+    					//LOGGER.info("파일삭제 실패");
     				}
     			}else {
-    				//System.out.println("파일이 존재하지 않습니다.");
+    				//LOGGER.info("파일이 존재하지 않습니다.");
+    				
     			}
     	     //----------------------------------------------------------------
         }
      
      // 웹에이전트 보안 EXCEL 파일 삭제
-        if("Y".equals(message.webagent_secuYn) && message.webagent_sourceUrl != null && "EXCEL".equals(message.webagent_secuAttTyp)) {
+		if ("Y".equals(message.webagent_secuYn) && message.webagent_sourceUrl != null
+				&& "EXCEL".equals(message.webagent_secuAttTyp)) {
     	   //-- 보안메일 파일 삭제 -------------------------------------------------
             String taskNo = (String) message.keyMap.get("TASK_NO");
         	String secuFile="./sample/output/"+ taskNo +"_"+toUser.id+"_screatfile.xlsx";
@@ -363,19 +381,18 @@ public class BodyPart
         	File secuFilePath = new File(secuFile);
     			if(secuFilePath.exists()) {
     				if(secuFilePath.delete()) {
-    					//System.out.println("파일삭제 완료");
+    					//LOGGER.info("파일삭제 완료");
     				}else {
-    					//System.out.println("파일삭제 실패");
+    					//LOGGER.info("파일삭제 실패");
     				}
     			}else {
-    				//System.out.println("파일이 존재하지 않습니다.");
+    				//LOGGER.info("파일이 존재하지 않습니다.");
     			}
     	     //----------------------------------------------------------------
         }
         
         return address;
     }
-    
     
     private String createBoundary(String string) {
         StringBuffer buffer = new StringBuffer("----=_NextPart_000_");
@@ -385,6 +402,7 @@ public class BodyPart
     
   	/**
   	 * vest 보안메일 readFile
+	 * 
   	 * @param fname
   	 * @param charset
   	 * @return

@@ -61,9 +61,6 @@ public class Response extends Thread
 
 	public Response()
 	{
-		
-		LOGGER.info("response 정상");
-		LOGGER.error("response error");
 		Config_File_Receiver CFR = new Config_File_Receiver();
 		config_File_Receiver = CFR.getInstance();
 		logWriter = new LogWriter();

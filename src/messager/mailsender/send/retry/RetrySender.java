@@ -168,7 +168,7 @@ public class RetrySender
         for (int k = (sendNo + 1); k <= retryTimes; k++) {
             socket = makeConnection();
             if (socket.isConnected()) {
-                if (socket.cmdHelo(SEND_DOMAIN)) {
+                if (socket.cmdHelo(SEND_DOMAIN, receivers)) {
                     sendSMTP(receivers, k);
                     k = retryTimes + 1;
                 }

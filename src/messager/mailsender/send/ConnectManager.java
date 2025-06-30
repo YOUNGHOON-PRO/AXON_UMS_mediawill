@@ -4,8 +4,12 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+
 import messager.mailsender.code.*;
 import messager.mailsender.config.*;
+import messager.mailsender.message.UserMessage;
 import messager.mailsender.util.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -19,6 +23,10 @@ public class ConnectManager
     private String className = "ConnectManager";
     private InputStream iStream;
     private OutputStream oStream;
+    private InputStream sslInputStream;
+    private OutputStream sslOutputStream;
+    private boolean isTls = false;	// TLS 적용 유무
+    private BufferedReader br;
     private PrintWriter pw;
     private String mxHost = "";
     private int smtpPort = 25;
@@ -53,6 +61,7 @@ public class ConnectManager
             connect(new InetSocketAddress(mxHost, smtpPort), timeout);
 
             this.iStream = getInputStream();
+            this.br = new BufferedReader(new InputStreamReader(this.iStream));
             this.oStream = getOutputStream();
             pw = new PrintWriter(oStream);
             response = getResponseEx();
@@ -64,58 +73,58 @@ public class ConnectManager
             }
         }
         catch (BindException be) {
-        	LOGGER.error(be);
+        	LOGGER.error("ERR", be);
             Connect_ErrorCode = ErrorCode.STS_BindException; // Network_BindException
             initConnect_errorMsg = be.getMessage();
             LogWriter.writeException("ConnectManager", "initConnect()", "sender.properties 의 SEND.IP를 확인해 보세요", be);
         }
         catch (UnknownHostException uhe) {
-        	LOGGER.error(uhe);
+        	LOGGER.error("ERR", uhe);
             Connect_ErrorCode = "unhost"; // Network_UnknownHostException
             initConnect_errorMsg = uhe.getMessage();
         }
         catch (NoRouteToHostException nrthe) {
-        	LOGGER.error(nrthe);
+        	LOGGER.error("ERR", nrthe);
             Connect_ErrorCode = ErrorCode.STS_NoRouteToHostException; // Network_NoRouteToHostException
             initConnect_errorMsg = nrthe.getMessage();
         }
         catch (ConnectException ce) {
-        	LOGGER.error(ce);
+        	LOGGER.error("ERR", ce);
             Connect_ErrorCode = ErrorCode.STS_ConnectException; // NetWork_ConnectException
             initConnect_errorMsg = ce.getMessage();
         }
         catch (ProtocolException pe) {
-        	LOGGER.error(pe);
+        	LOGGER.error("ERR", pe);
             Connect_ErrorCode = ErrorCode.STS_ConnectException; // Network_ProtocolException
             initConnect_errorMsg = pe.getMessage();
         }
         catch (MalformedURLException mue) {
-        	LOGGER.error(mue);
+        	LOGGER.error("ERR", mue);
             Connect_ErrorCode = ErrorCode.STS_MalformedURLException; // Network_MailformedURLException
             initConnect_errorMsg = mue.getMessage();
         }
         catch (UnknownServiceException use) {
-        	LOGGER.error(use);
+        	LOGGER.error("ERR", use);
             Connect_ErrorCode = ErrorCode.STS_UnknownServiceException; // Network_UnknownServiceException
             initConnect_errorMsg = use.getMessage();
         }
         catch (SocketTimeoutException ste) {
-        	LOGGER.error(ste);
+        	LOGGER.error("ERR", ste);
             Connect_ErrorCode = ErrorCode.STS_SockTimeoutException; // Network_SockTimeoutException
             initConnect_errorMsg = ste.getMessage();
         }
         catch (SocketException se) {
-        	LOGGER.error(se);
+        	LOGGER.error("ERR", se);
             Connect_ErrorCode = ErrorCode.STS_SocketException; // Network_SocketException
             initConnect_errorMsg = se.getMessage();
         }
         catch (IOException ioe) {
-        	LOGGER.error(ioe);
+        	LOGGER.error("ERR", ioe);
             Connect_ErrorCode = ErrorCode.STS_MalformedURLException; // Network_IOException
             initConnect_errorMsg = ioe.getMessage();
         }
         catch (Exception e) {
-        	LOGGER.error(e);
+        	LOGGER.error("ERR", e);
             Connect_ErrorCode = ErrorCode.STS_NetworkETC; // Network_ETC
             if (e == null) {
                 initConnect_errorMsg = "Network Error";
@@ -135,7 +144,7 @@ public class ConnectManager
             return true;
         }
         catch (Exception e) {
-        	LOGGER.error(e);
+        	LOGGER.error("ERR", e);
             if (e instanceof IOException) {
                 this.errorMessage = e.getMessage();
             }
@@ -155,7 +164,7 @@ public class ConnectManager
                 return true;
             }
             catch (Exception e) {
-            	LOGGER.error(e);
+            	LOGGER.error("ERR", e);
                 closeConnect();
                 LogWriter.writeException("ConnectManager", "cmdQuit()", "로그를 확인해 보세요", e);
                 return false;
@@ -166,7 +175,7 @@ public class ConnectManager
         }
     }
 
-    public boolean cmdHelo(String sendHost) {
+    public boolean cmdHelo(String sendHost, Vector receivers) {
         StringBuffer sb = new StringBuffer();
         boolean retVal = false;
 
@@ -182,6 +191,72 @@ public class ConnectManager
                 retVal = true;
             }
         }
+        
+        // keultae TLS 적용
+        this.isTls = false;
+        if(receivers.size() > 0 && ConfigLoader.tlsTargetDomainList.size() > 0) {
+	        int recvCount = receivers.size();
+	        String receiver = "";
+	        String domain = null;
+		
+	    	UserMessage element = (UserMessage) receivers.get(0);
+	    	receiver = element.getEmailAddr();
+	    	
+	    	String[] splits = receiver.trim().toLowerCase().split("@");
+	    	// receiver에 @가 없으면 split("@")은 첫번쨰 배열에 receiver를 저장 한다.
+	    	if(splits.length == 2) {
+	    		domain = splits[1].trim();
+	    	}
+	    	
+	    	if(domain != null) {
+	    		for(int i = 0; i < ConfigLoader.tlsTargetDomainList.size(); i++) {
+	    			if(ConfigLoader.tlsTargetDomainList.get(i).equals(domain)) {
+	    				LOGGER.debug("TLS 적용: {}, {}", receiver, domain);
+	    				this.isTls = true;
+	    				break;
+	    			}
+	    		}
+	    	}
+	    	
+	    	if(this.isTls) {
+	            if (sendLine("STARTTLS")) {
+	            	// gmail.com 정상 응답값 : 220 2.0.0 Ready to start TLS
+	                response = getResponseEx();
+	                LOGGER.debug("STARTTLS 응답: {}, this.errorMessage: {}", response, this.errorMessage);
+	                if (response.equals("220")) {
+	                	try {
+		                    SSLSocketFactory sslFactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+		                    SSLSocket sslSocket = (SSLSocket) sslFactory.createSocket(
+							        this, this.getInetAddress().getHostAddress(), this.getPort(), true);
+//							LOGGER.info("tlsVersion|{}|", ConfigLoader.tlsVersion);
+							if( ConfigLoader.tlsVersion.length() > 0) {
+			                    // TLS 버전 1.2(TLSv1.2)로 설정. 이 설정 없을 시 자동으로 1.3(TLSv1.3)으로 진행됨
+			                    sslSocket.setEnabledProtocols(new String[]{ConfigLoader.tlsVersion});
+							}
+							
+							// DATA 전송시 OutputStream을 사용해서 저장
+							this.sslOutputStream = sslSocket.getOutputStream();
+							this.sslInputStream = sslSocket.getInputStream();
+					        this.pw = new PrintWriter(new OutputStreamWriter(this.sslOutputStream), true);
+					        this.br = new BufferedReader(new InputStreamReader(this.sslInputStream));
+
+//					        this.pw.println("HELO enders.co.kr");
+//					        this.pw.flush();
+//					        String line = this.br.readLine();
+//					        LOGGER.info("line: {}", line);
+					        
+					        retVal = true;
+						} catch (IOException e) {
+							LOGGER.error("ERR", e);
+							retVal = false;
+						}
+	                } else {
+	                	retVal = false;
+	                }
+	            }
+	    	}
+        }
+        
         return retVal;
     }
 
@@ -199,7 +274,7 @@ public class ConnectManager
             }
         }
         catch (Exception e) {
-        	LOGGER.error(e);
+        	LOGGER.error("ERR", e);
             LogWriter.writeException("ConnectManger", "cmdMailFrom()", " ", e);
         }
         return retVal;
@@ -219,7 +294,7 @@ public class ConnectManager
             }
         }
         catch (Exception e) {
-        	LOGGER.error(e);
+        	LOGGER.error("ERR", e);
             LogWriter.writeException("ConnectManger", "cmdRcptTo()", " ", e);
         }
         return retVal;
@@ -237,7 +312,7 @@ public class ConnectManager
             }
         }
         catch (Exception e) {
-        	LOGGER.error(e);
+        	LOGGER.error("ERR", e);
             LogWriter.writeException("ConnectManger", "cmdRset()", " ", e);
         }
         return retVal;
@@ -255,7 +330,7 @@ public class ConnectManager
             }
         }
         catch (Exception e) {
-        	LOGGER.error(e);
+        	LOGGER.error("ERR", e);
             LogWriter.writeException("ConnectManger", "cmdData()", " ", e);
         }
         return retVal;
@@ -275,7 +350,7 @@ public class ConnectManager
             }
         }
         catch (Exception e) {
-        	LOGGER.error(e);
+        	LOGGER.error("ERR", e);
             LogWriter.writeException("ConnectManger", "cmdDataTransferComplete()", " ", e);
         }
         return retVal;
@@ -301,30 +376,49 @@ public class ConnectManager
         int buffsize = 2048;
 
         bis = new ByteArrayInputStream(data);
-        dos = new DataOutputStream(oStream);
         byte[] sendbuff = new byte[buffsize];
-        int readcnt = 0;
-        while ( (readcnt = bis.read(sendbuff, 0, buffsize)) != -1) {
-            if (readcnt < buffsize) {
-                byte[] sTemp = new byte[readcnt];
-                System.arraycopy(sendbuff, 0, sTemp, 0, readcnt);
-                dos.write(sTemp);
-                dos.flush();
-                sTemp = null;
-                break;
-            }
-            dos.write(sendbuff);
-            dos.flush();
-        }
+	    int readcnt = 0;
+        // keultae TLS 적용
+	    if(this.isTls) {
+	      while ( (readcnt = bis.read(sendbuff, 0, buffsize)) != -1) {
+	          if (readcnt < buffsize) {
+	              byte[] sTemp = new byte[readcnt];
+	              System.arraycopy(sendbuff, 0, sTemp, 0, readcnt);
+	              this.sslOutputStream.write(sTemp);
+	              this.sslOutputStream.flush();
+	              sTemp = null;
+	              break;
+	          }
+	          this.sslOutputStream.write(sendbuff);
+	          this.sslOutputStream.flush();
+	      }
+	    	
+	    } else {
+        	dos = new DataOutputStream(oStream);
+	        while ( (readcnt = bis.read(sendbuff, 0, buffsize)) != -1) {
+	            if (readcnt < buffsize) {
+	                byte[] sTemp = new byte[readcnt];
+	                System.arraycopy(sendbuff, 0, sTemp, 0, readcnt);
+	                dos.write(sTemp);
+	                dos.flush();
+	                sTemp = null;
+	                break;
+	            }
+	            dos.write(sendbuff);
+	            dos.flush();
+	        }
+    	}
         sendbuff = null;
+        
         try {
             if (bis != null) {
                 bis.close();
                 bis = null;
             }
         }
-        catch (Exception e) {LOGGER.error(e);}
-
+        catch (Exception e) {
+        	LOGGER.error("ERR", e);
+        }
     }
 
     public boolean readFully(StringBuffer sb)
@@ -333,11 +427,22 @@ public class ConnectManager
             sb = new StringBuffer();
         }
         boolean bResult = false;
-        DataInputStream dis = null;
+//        DataInputStream dis = null;
 
-        dis = new DataInputStream(this.iStream);
         String tempLine;
-        while ( (tempLine = dis.readLine()) != null) {
+        // keultae TLS 작업하면서 소켓 생성시 BufferedReader를 생성해서 사용하도록 수정
+//        dis = new DataInputStream(this.iStream);
+//        while ( (tempLine = dis.readLine()) != null) {
+//            this.errorMessage = sb.append(tempLine).toString();
+//            if (tempLine.length() > 3) {
+//                if (tempLine.charAt(3) != '-') {
+//                    bResult = true;
+//                    break;
+//                }
+//            }
+//        }
+        
+        while ( (tempLine = this.br.readLine()) != null) {
             this.errorMessage = sb.append(tempLine).toString();
             if (tempLine.length() > 3) {
                 if (tempLine.charAt(3) != '-') {
@@ -401,7 +506,7 @@ public class ConnectManager
             bResult = readFully(sb);
         }
         catch (Exception e) {
-        	LOGGER.error(e);
+        	LOGGER.error("ERR", e);
             returnVal = "999";
             bResult = true;
             if (e instanceof SocketTimeoutException) {
@@ -443,21 +548,27 @@ public class ConnectManager
                 pw.close();
             }
         }
-        catch (Exception e) {LOGGER.error(e);}
+        catch (Exception e) {LOGGER.error("ERR1", e);}
 
         try {
-            this.shutdownInput();
+    		this.shutdownInput();
         }
-        catch (Exception e) {LOGGER.error(e);}
+        // keultae 로그 남기지 않음
+        catch (Exception e) {
+        	//LOGGER.error("ERR2", e);
+        }
 
         try {
-            this.shutdownOutput();
+    		this.shutdownOutput();
         }
-        catch (Exception e) {LOGGER.error(e);}
+        // keultae 로그 남기지 않음
+        catch (Exception e) {
+        	//LOGGER.error("ERR3", e);
+    	}
 
         try {
-            close();
+    		close();
         }
-        catch (Exception e) {LOGGER.error(e);}
+        catch (Exception e) {LOGGER.error("ERR4", e);}
     }
 }
