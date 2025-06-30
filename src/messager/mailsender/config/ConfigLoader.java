@@ -2,17 +2,20 @@ package messager.mailsender.config;
 
 import java.io.*;
 import java.net.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 
 import com.custinfo.safedata.CustInfoSafeData;
 
+import messager.center.config.PropertiesPlugin;
 import messager.center.creator.FetchException;
 import messager.common.util.EncryptUtil;
 import messager.mailsender.util.*;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
 
 /**
  * 환경 설정 변수 클래스
@@ -42,7 +45,6 @@ import org.apache.logging.log4j.Logger;
 public class ConfigLoader
     extends Thread
 {
-	
 	private static final Logger LOGGER = LogManager.getLogger(ConfigLoader.class.getName());
 	
     /**************** Inner Function Values **************/
@@ -92,6 +94,9 @@ public class ConfigLoader
     private static long sessionInitTime;
     private static long filterInitTime;
 
+    // TLS 설정
+    public static List<String> tlsTargetDomainList = new ArrayList<String>();
+    public static String tlsVersion = null;
     /*
      * 환경 설정 파일이 변경이 있을경우 이를 실시간으로 새로 로딩한다.
      * configFile : 기본 환경 설정 파일
@@ -125,24 +130,21 @@ public class ConfigLoader
 
             initTime = configFile.lastModified(); // sender.properties 최근 수정 시간
             if (senderInitTime < initTime) {
-                //System.out.println("sender.properties 파일을 다시 읽어 들입니다.");
-            	LOGGER.info("sender.properties 파일을 다시 읽어 들입니다.");
+                LOGGER.info("sender.properties 파일을 다시 읽어 들입니다.");
                 load();
                 senderInitTime = initTime;
             }
 
             initTime = sessionFile.lastModified(); // session.properties 최근 수정 시간
             if (sessionInitTime < initTime) {
-                //System.out.println("session.properties 파일을 다시 읽어 들입니다.");
-            	LOGGER.info("session.properties 파일을 다시 읽어 들입니다.");
+                LOGGER.info("session.properties 파일을 다시 읽어 들입니다.");
                 loadSession();
                 sessionInitTime = initTime;
             }
 
             initTime = filterFile.lastModified(); // filter.properties 최근 수정 시간
             if (filterInitTime < initTime) {
-                //System.out.println("filter.properties 파일을 다시 읽어 들입니다.");
-            	LOGGER.info("filter.properties 파일을 다시 읽어 들입니다.");
+                LOGGER.info("filter.properties 파일을 다시 읽어 들입니다.");
                 loadMessageFilter();
                 filterInitTime = initTime;
             }
@@ -157,15 +159,26 @@ public class ConfigLoader
         Properties pro = new Properties();
         InputStream is = null;
         try {
-            is = new FileInputStream("conf" + File.separator + "sender.properties");
+        	// keultae VM arguments에서 root.dir를 가져오도록 수정
+        	String filename = System.getProperty("root.dir");
+        	filename = filename.trim();
+        	char lastChar = filename.charAt(filename.length() - 1);
+        	if(lastChar != '/' && lastChar != '\\') {
+        		filename = filename + '/';
+        	}
+        	filename = filename + "conf/" + "sender.properties";
+        	LOGGER.info("load() {}", filename);
+            is = new FileInputStream(filename);
             pro.load(is);
+            // keultae replace System Property 
+            PropertiesPlugin.repalceSystemProperty(pro);
         }
         catch (FileNotFoundException e) {
-        	LOGGER.error("sender.properties 를 찾을수 없습니다. : " + e);
+        	LOGGER.error("sender.properties 를 찾을수 없습니다. : ", e);
             LogWriter.writeException("ConfigLoader", "load()", "sender.properties 를 찾을수 없습니다.", e);
         }
         catch (IOException e) {
-        	LOGGER.error("sender.properties 를 읽는데 문제가 발생하였습니다. : " + e);
+        	LOGGER.error("sender.properties 를 읽는데 문제가 발생하였습니다. : ", e);
             LogWriter.writeException("ConfigLoader", "load()", "sender.properties 를 읽는데 문제가 발생하였습니다.", e);
         }
         finally {
@@ -179,7 +192,16 @@ public class ConfigLoader
 
         Properties pro_1 = new Properties();
         try {
-            is = new FileInputStream("conf" + File.separator + "database.properties");
+        	// keultae VM arguments에서 root.dir를 가져오도록 수정
+        	String filename = System.getProperty("root.dir");
+        	filename = filename.trim();
+        	char lastChar = filename.charAt(filename.length() - 1);
+        	if(lastChar != '/' && lastChar != '\\') {
+        		filename = filename + '/';
+        	}
+        	filename = filename + "conf/" + "database.properties";
+        	LOGGER.info("load() {}", filename);
+            is = new FileInputStream(filename);
             pro_1.load(is);
         }
         catch (FileNotFoundException e) {
@@ -225,7 +247,17 @@ public class ConfigLoader
         RETRY_WAIT_TIME = Integer.parseInt( (String) pro.get("RETRY.WAIT.TIME"));
 
         DELETE_PERIOD = (String) pro.get("DELETE.PERIOD");
-
+        
+        // TLS 설정을 읽음
+        String tlsTargetDomain = pro.getProperty("TLS.target.domain", "").trim();
+        if(tlsTargetDomain.length() > 0) {
+        	String[] tlsTargetDomainArray = tlsTargetDomain.split(",");
+        	for(int i = 0; i < tlsTargetDomainArray.length; i++) {
+        		tlsTargetDomainList.add(tlsTargetDomainArray[i].trim().toLowerCase());
+        	}
+        }
+        tlsVersion = pro.getProperty("TLS.version", "").trim();
+        
         INSERT_DBURL = (String) pro_1.get("jdbc.url");
         INSERT_DBDRIVER = (String) pro_1.get("jdbc.driver.name");
         INSERT_USER = (String) pro_1.get("db.user");
@@ -266,8 +298,7 @@ public class ConfigLoader
 
         try {
             sendIP = InetAddress.getByAddress(ConfigLoader.SEND_IP);
-            //System.out.println("MailSender'IP is binded with " + sendIP.getHostAddress());
-            LOGGER.info("MailSender'IP is binded with \" + sendIP.getHostAddress()");
+            LOGGER.info("MailSender'IP is binded with " + sendIP.getHostAddress());
         }
         catch (UnknownHostException e1) {
         	LOGGER.error("sender.properties 의 SEND.IP를 확인 하세요 : " + e1);
@@ -297,7 +328,6 @@ public class ConfigLoader
                 BLOCK_SESSION.put(spamDomain, session);
             }
             br.close();
-            //System.out.println("Successfully loading Session.properties(" + BLOCK_SESSION.size() + " elements)");
             LOGGER.info("Successfully loading Session.properties(" + BLOCK_SESSION.size() + " elements)");
         }
         catch (Exception e) {
@@ -329,7 +359,6 @@ public class ConfigLoader
                 }
             }
             br.close();
-            //System.out.println("Successfully loading filter.properties(" + FILTER_KEY.size() + " elements)");
             LOGGER.info("Successfully loading filter.properties(" + FILTER_KEY.size() + " elements)");
         }
         catch (Exception e) {
@@ -356,18 +385,17 @@ public class ConfigLoader
                     }
                     br.close();
                     mxRecordTable.put(cachingList[k], MXRcord);
-                    //System.out.println(cachingList[k] + " is cached -> " + MXRcord.firstElement());
                     LOGGER.info(cachingList[k] + " is cached -> " + MXRcord.firstElement());
                 }
             }
             else {
             	LOGGER.info("캐쉬할 도메인이 없습니다.");
-                LogWriter.writeError("ConfigLoader", "cachiingDomain()", "캐쉬할 도메인이 없습니다.", "");
+//                LogWriter.writeError("ConfigLoader", "cachiingDomain()", "캐쉬할 도메인이 없습니다.", "");
             }
         }
         catch (Exception e) {
-        	LOGGER.error("도메인을 캐쉬하는데 실패 : " + e);
-            LogWriter.writeException("ConfigLoader", "chchingDomain()", "도메인을 캐쉬하는데 실패 ", e);
+        	LOGGER.error("도메인을 캐쉬하는데 실패 : ", e);
+//            LogWriter.writeException("ConfigLoader", "chchingDomain()", "도메인을 캐쉬하는데 실패 ", e);
         }
         return mxRecordTable;
     }

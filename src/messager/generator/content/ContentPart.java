@@ -96,6 +96,7 @@ public class ContentPart
      * @param emlBuffer 대상자의 컨텐츠를 저장할 버퍼
      * @throws GeneratorException 컨텐츠 생성시 오류가 발생할 경우
      */
+    // keultae void create(), String create()로 수정해서 본문 리턴
     public void create(ReceiverInfo receiver, StringBuffer emlBuffer, messager.common.Message message)
         throws GeneratorException {
         if (header != null) {
@@ -135,7 +136,7 @@ public class ContentPart
                  List<String> passedList = new ArrayList<>();
                  for (int z = 0; z < passedNumbers.length; z++) {
                  	passedList.add(passedNumbers[z]);
-                 	//System.out.println("phons : "+passedNumbers[i]);
+                 	//LOGGER.info("phons : "+passedNumbers[i]);
                  }
          		
                  //휴대폰번호 체크
@@ -143,47 +144,45 @@ public class ContentPart
          		boolean CellCK_body = false;
                  //JFilterUtil jFilterUtil = new JFilterUtil(srcFile);
          		CellCK_subject = ParttenCheckUtil.hasCellPhoneNumber(passedList, subject);
-         		//System.out.println("제목 CellCK : " + CellCK_subject);
+         		//LOGGER.info("제목 CellCK : " + CellCK_subject);
          		
          		CellCK_body = ParttenCheckUtil.hasCellPhoneNumber(passedList, data);
-         		//System.out.println("본문 CellCK : " + CellCK_body);
+         		//LOGGER.info("본문 CellCK : " + CellCK_body);
          		
          		//전화번호 체크		
          		boolean TellCK_subject = false;
          		boolean TellCK_body = false;
          		
          		//TellCK_subject = ParttenCheckUtil.hasTelePhoneNumber(passedList, subject);
-         		//System.out.println("제목 TellCK : " + TellCK_subject);
+         		//LOGGER.info("제목 TellCK : " + TellCK_subject);
          		
          		//TellCK_body = ParttenCheckUtil.hasTelePhoneNumber(passedList, data);
-         		//System.out.println("본문 TellCK : " + TellCK_body);
+         		//LOGGER.info("본문 TellCK : " + TellCK_body);
          		
                  //주민번호 체크
          		boolean PersonalCK_subject = false;
          		boolean PersonalCK_body = false;
          		PersonalCK_subject = ParttenCheckUtil.hasPersonalId(subject);
-         		//System.out.println("제목 PersonalCK : " + PersonalCK_subject);
+         		//LOGGER.info("제목 PersonalCK : " + PersonalCK_subject);
          		
          		PersonalCK_body = ParttenCheckUtil.hasPersonalId(data);
-         		//System.out.println("본문 PersonalCK : " + PersonalCK_body);
+         		//LOGGER.info("본문 PersonalCK : " + PersonalCK_body);
          		
          		//이메일 체크
          		boolean EmailCK_subject = false;
          		boolean EmailCK_body = false;
          		EmailCK_subject = ParttenCheckUtil.hasEmail(passedList, subject);
-         		//System.out.println("제목 EmailCK : " + EmailCK_subject);
+         		//LOGGER.info("제목 EmailCK : " + EmailCK_subject);
          		
          		EmailCK_body = ParttenCheckUtil.hasEmail(passedList, data);
-         		//System.out.println("본문 EmailCK : " + EmailCK_body);
+         		//LOGGER.info("본문 EmailCK : " + EmailCK_body);
          		
     			if((CellCK_subject) || (TellCK_subject) || (PersonalCK_body) || (EmailCK_subject)) {// 제목에 개인정보가 있으면 null 처리
     				data = "personal_subject_error";
-    				//System.out.println(message.taskNo + " 제목에 개인정보가 포함되었습니다.");
     				LOGGER.info(message.taskNo + " 제목에 개인정보가 포함되었습니다.");
-
     			}else if((CellCK_body) || (TellCK_body) || (PersonalCK_body) || (EmailCK_body)) {
     				data = "personal_body_error";
-    				LOGGER.info(message.taskNo + " 제목에 개인정보가 포함되었습니다.");
+    				LOGGER.info(message.taskNo + " 본문에 개인정보가 포함되었습니다.");
     			}
              }            
             //--------------------------------------------------------------------------- 
@@ -292,6 +291,153 @@ public class ContentPart
             }
         }
     }
+    
+    // keultae DKIM 적용하기 위해 StringBuffer에 append하지 않고 본문을 리턴하는 형태로 수정
+    public String createBody(ReceiverInfo receiver, messager.common.Message message)
+            throws GeneratorException {
+//            if (header != null) {
+//                emlBuffer.append(header).append(lineSeparator)
+//                    .append(lineSeparator).append(lineSeparator);
+//            }
+            String data = null;
+            String data2 = null;
+
+            String subject ="";
+            
+            try {
+                data = template.create(receiver); //머지 실행
+                subject = ((MergeElement)message.subject.get(0)).text;
+                
+                //마케팅미동의자
+                String mktId = receiver.getColumn(message.mktIdIdx);
+                if(message.mkttList.contains(mktId)) {
+                	 throw new GeneratorException(ErrorCode.MERGE_ERROR,
+                             "마케팅수신 미 동의자");
+                }
+                
+            	//---------------------------------------------------------------------------
+           		//본문 개인정보 체크 start
+           		//---------------------------------------------------------------------------
+                persoanl_yn = ConfigLoader.getString("PERSONAL_YN", "N");
+                persoanl_pass = ConfigLoader.getString("PERSONAL_PASS", "");
+
+                //config체크 방식
+                //if("Y".equals(persoanl_yn)) {
+      
+                //DB체크 방식
+                if("Y".equals(message.title_chk_yn)) {
+
+             		String[] passedNumbers = persoanl_pass.split(",");  // generator.properties에 PERSONAL_PASS 값을 가져옴
+                      
+                     List<String> passedList = new ArrayList<>();
+                     for (int z = 0; z < passedNumbers.length; z++) {
+                     	passedList.add(passedNumbers[z]);
+                     	//System.out.println("phons : "+passedNumbers[i]);
+                     }
+             		
+                     //휴대폰번호 체크
+             		boolean CellCK_subject = false;
+             		boolean CellCK_body = false;
+                     //JFilterUtil jFilterUtil = new JFilterUtil(srcFile);
+             		CellCK_subject = ParttenCheckUtil.hasCellPhoneNumber(passedList, subject);
+             		//System.out.println("제목 CellCK : " + CellCK_subject);
+             		
+             		CellCK_body = ParttenCheckUtil.hasCellPhoneNumber(passedList, data);
+             		//System.out.println("본문 CellCK : " + CellCK_body);
+             		
+             		//전화번호 체크		
+             		boolean TellCK_subject = false;
+             		boolean TellCK_body = false;
+             		
+             		//TellCK_subject = ParttenCheckUtil.hasTelePhoneNumber(passedList, subject);
+             		//System.out.println("제목 TellCK : " + TellCK_subject);
+             		
+             		//TellCK_body = ParttenCheckUtil.hasTelePhoneNumber(passedList, data);
+             		//System.out.println("본문 TellCK : " + TellCK_body);
+             		
+                     //주민번호 체크
+             		boolean PersonalCK_subject = false;
+             		boolean PersonalCK_body = false;
+             		PersonalCK_subject = ParttenCheckUtil.hasPersonalId(subject);
+             		//System.out.println("제목 PersonalCK : " + PersonalCK_subject);
+             		
+             		PersonalCK_body = ParttenCheckUtil.hasPersonalId(data);
+             		//System.out.println("본문 PersonalCK : " + PersonalCK_body);
+             		
+             		//이메일 체크
+             		boolean EmailCK_subject = false;
+             		boolean EmailCK_body = false;
+             		EmailCK_subject = ParttenCheckUtil.hasEmail(passedList, subject);
+             		//System.out.println("제목 EmailCK : " + EmailCK_subject);
+             		
+             		EmailCK_body = ParttenCheckUtil.hasEmail(passedList, data);
+             		//System.out.println("본문 EmailCK : " + EmailCK_body);
+             		
+        			if((CellCK_subject) || (TellCK_subject) || (PersonalCK_body) || (EmailCK_subject)) {// 제목에 개인정보가 있으면 null 처리
+        				data = "personal_subject_error";
+        				//System.out.println(message.taskNo + " 제목에 개인정보가 포함되었습니다.");
+        				LOGGER.info(message.taskNo + " 제목에 개인정보가 포함되었습니다.");
+
+        			}else if((CellCK_body) || (TellCK_body) || (PersonalCK_body) || (EmailCK_body)) {
+        				data = "personal_body_error";
+        				LOGGER.info(message.taskNo + " 제목에 개인정보가 포함되었습니다.");
+        			}
+                 }            
+                //--------------------------------------------------------------------------- 
+            }
+            catch (MergeException ex) {
+            	LOGGER.error(ex);
+                throw new GeneratorException(ErrorCode.MERGE_ERROR, ex.getMessage());
+            }
+
+            if (data == null) {
+                throw new GeneratorException(ErrorCode.MERGE_ERROR,
+                                             "Content is null");
+            }
+            
+            if (data == "personal_subject_error") {
+                throw new GeneratorException(ErrorCode.PERSONAL_SUBJECT_ERROR,
+                                             "고객정보포함 (제목)");
+            }
+            else if (data == "personal_body_error") {
+                throw new GeneratorException(ErrorCode.PERSONAL_BODY_ERROR,
+                                             "고객정보포함 (본문)");
+            }
+            
+            //========= vest 보안 메일 적용 =====================================
+            String transferStr_vest="html";
+            String rENCKEY ="1234";
+            String secu_att_yn ="N";
+            String ctnsPos ="2";
+            
+            String webagent_attNo= "";
+            if(message.webagent_attNo != null) {
+            	webagent_attNo = (String) message.webagent_attNo;	
+            }
+            
+            String taskNo = (String) message.keyMap.get("TASK_NO");
+            String url = null;
+
+            String encData = null;
+            try {
+//            	emlBuffer.append(lineSeparator);
+                encData = encoder.encodeText(data);
+//              emlBuffer.append(encData).append(lineSeparator);
+            }
+            catch (Exception ex) {
+            	LOGGER.error(ex);
+                if (ex instanceof java.io.UnsupportedEncodingException) {
+                    throw new GeneratorException(ErrorCode.ENCODING_ERROR, ex
+                                                 .getMessage());
+                }
+                else {
+                    throw new GeneratorException(ErrorCode.CONTENT_INVALID, ex
+                                                 .getMessage());
+                }
+            }
+            
+            return encData;
+        }    
         
         /**
          * vest 보안메일 저장
